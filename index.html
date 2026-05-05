@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brinks Pickup Log</title>
+<style>
+  :root {
+    --bg: #000000;
+    --surface: #0e0e0e;
+    --surface-2: #1a1a1a;
+    --surface-3: #242424;
+    --border: #2a2a2a;
+    --border-strong: #3a3a3a;
+    --text: #ffffff;
+    --text-dim: #8a8a8a;
+    --text-faint: #555555;
+    --positive: #4ade80;
+    --warning: #fbbf24;
+    --error: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  header.site {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+  }
+  .head-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+  .brand-logo {
+    width: 42px; height: 42px; border-radius: 8px;
+    background: linear-gradient(135deg, #14532d, #166534);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .head-title { flex: 1; min-width: 0; }
+  h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.25; margin: 0; }
+  .subtitle { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); margin-right: 6px; vertical-align: middle; }
+  .status-dot.ok { background: var(--positive); }
+  .status-dot.err { background: var(--error); }
+  .head-status { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+
+  @media (min-width: 640px) {
+    .brand-logo { width: 48px; height: 48px; font-size: 26px; }
+    h1 { font-size: 19px; }
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  /* KPI cards */
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+  @media (min-width: 640px) { .stats { grid-template-columns: repeat(4, 1fr); gap: 12px; } }
+  .stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px;
+  }
+  .stat-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); }
+  .stat-value { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; margin-top: 4px; }
+  .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .stat.warn .stat-value { color: var(--warning); }
+  .stat.err .stat-value { color: var(--error); }
+  .stat.ok .stat-value { color: var(--positive); }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 16px; align-items: center;
+  }
+  .search {
+    flex: 1; min-width: 200px;
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit;
+  }
+  .search:focus { outline: none; border-color: var(--text); }
+  .tabs { display: flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
+  .tab {
+    background: transparent; border: none; color: var(--text-dim);
+    padding: 8px 14px; font-size: 13px; font-weight: 500;
+    border-radius: 6px; cursor: pointer; font-family: inherit;
+  }
+  .tab.active { background: var(--surface-3); color: var(--text); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* Month navigator */
+  .month-nav {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px;
+  }
+  .month-nav button {
+    background: transparent; border: none; color: var(--text-dim);
+    width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
+    font-size: 16px; font-family: inherit; display: flex; align-items: center; justify-content: center;
+  }
+  .month-nav button:hover:not(:disabled) { background: var(--surface-3); color: var(--text); }
+  .month-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .month-nav .month-label {
+    font-size: 13px; font-weight: 600; padding: 0 8px;
+    min-width: 130px; text-align: center; cursor: pointer;
+    color: var(--text);
+  }
+  .month-nav .month-label:hover { color: var(--positive); }
+  .month-nav select {
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: 6px;
+    padding: 6px 8px; font-size: 13px; font-family: inherit;
+    cursor: pointer;
+  }
+
+  .section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); margin: 24px 0 10px; display: flex; align-items: center; gap: 10px; }
+  .section-title .badge { font-size: 11px; font-weight: 500; color: var(--text-dim); background: var(--surface-2); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); }
+
+  /* Daily grid table */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: auto;
+    max-height: 70vh;
+  }
+  table.daily-table {
+    border-collapse: separate; border-spacing: 0;
+    font-size: 13px; width: max-content; min-width: 100%;
+  }
+  .daily-table th, .daily-table td {
+    padding: 8px 10px; text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .daily-table thead th {
+    color: var(--text-dim); font-weight: 500; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    position: sticky; top: 0; z-index: 2;
+    background: var(--surface-2); border-bottom: 1px solid var(--border-strong);
+  }
+  .daily-table th.col-store, .daily-table td.col-store {
+    text-align: left; position: sticky; left: 0; z-index: 1;
+    background: var(--surface); font-weight: 500;
+    min-width: 180px; max-width: 220px;
+    border-right: 1px solid var(--border-strong);
+  }
+  .daily-table thead th.col-store { z-index: 3; background: var(--surface-2); }
+  .daily-table th.col-total, .daily-table td.col-total {
+    position: sticky; right: 0; background: var(--surface-2);
+    color: var(--text); font-weight: 600;
+    border-left: 1px solid var(--border-strong);
+    min-width: 100px;
+  }
+  .daily-table thead th.col-total { z-index: 3; }
+  .daily-table td.col-streak {
+    font-size: 11px; color: var(--text-dim); min-width: 90px;
+  }
+  .daily-table td.cell-today { background: #14231a; color: var(--positive); font-weight: 600; }
+  .daily-table td.cell-has { color: var(--positive); cursor: pointer; }
+  .daily-table td.cell-has:hover { background: #1a2820; }
+  .daily-table td.cell-empty { color: var(--text-faint); }
+  .daily-table tr.store-row:hover td:not(.col-total) { background: #141414; }
+  .daily-table tr.store-row:hover td.col-store { background: #141414; }
+  .daily-table tr.store-row:hover td.col-total { background: #1f1f1f; }
+  .daily-table tr.no-recent td.col-store { color: var(--warning); }
+  .daily-table tr.never-logged td.col-store { color: var(--error); }
+
+  /* Monthly heatmap (12-month overview) */
+  .month-table th.col-month { min-width: 90px; }
+  .month-table td.cell-money { font-weight: 500; cursor: pointer; }
+  .month-table td.cell-money:hover { background: #141414; }
+  .heat-0 { color: var(--text-faint); }
+  .heat-1 { color: #4ade80; background: rgba(74,222,128,0.05); }
+  .heat-2 { color: #4ade80; background: rgba(74,222,128,0.10); }
+  .heat-3 { color: #4ade80; background: rgba(74,222,128,0.18); }
+  .heat-4 { color: #ffffff; background: rgba(74,222,128,0.28); font-weight: 600; }
+
+  /* Recent feed view */
+  .feed { display: grid; gap: 8px; }
+  .feed-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    display: grid; grid-template-columns: 1fr auto; gap: 10px;
+    cursor: pointer;
+  }
+  .feed-item:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .feed-store { font-weight: 600; font-size: 14px; }
+  .feed-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .feed-amount { font-weight: 600; color: var(--positive); font-size: 15px; text-align: right; white-space: nowrap; }
+  .feed-date { font-size: 12px; color: var(--text-dim); text-align: right; margin-top: 2px; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none; align-items: flex-end; justify-content: center;
+    z-index: 100; padding: 0;
+  }
+  .modal-backdrop.show { display: flex; }
+  @media (min-width: 640px) { .modal-backdrop { align-items: center; padding: 20px; } }
+  .modal {
+    background: var(--surface); width: 100%; max-width: 600px;
+    border-radius: 16px 16px 0 0; padding: 0;
+    max-height: 90vh; overflow-y: auto;
+    border: 1px solid var(--border);
+  }
+  @media (min-width: 640px) { .modal { border-radius: 12px; max-height: 80vh; } }
+  .modal-head {
+    padding: 18px 20px 12px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--surface); z-index: 1;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-head h3 { margin: 0; font-size: 17px; font-weight: 600; }
+  .modal-close {
+    background: var(--surface-3); border: none; color: var(--text-dim);
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px;
+  }
+  .modal-body { padding: 16px 20px 24px; }
+  .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+  .modal-stat { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .modal-stat .lbl { font-size: 10px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px; }
+  .modal-stat .val { font-size: 18px; font-weight: 600; margin-top: 2px; }
+  .submission-row {
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr auto; gap: 8px;
+  }
+  .submission-row:last-child { border-bottom: none; }
+  .submission-row .who { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+  .submission-row .amt { font-weight: 600; color: var(--positive); }
+  .submission-row .deposits { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .submission-row .photo-link {
+    display: inline-block; margin-top: 6px; font-size: 12px;
+    color: var(--positive); text-decoration: none;
+    background: #14231a; padding: 4px 8px; border-radius: 4px;
+    border: 1px solid #166534;
+  }
+  .submission-row .photo-link:hover { background: #1a2820; }
+
+  footer.site {
+    text-align: center; color: var(--text-faint);
+    font-size: 12px; padding: 24px 16px; border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  footer.site a { color: var(--text-dim); }
+
+  .empty-msg { text-align: center; color: var(--text-dim); padding: 40px 20px; font-size: 14px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--text-dim); margin-top: 10px; padding-left: 4px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .legend-dot.ok { background: var(--positive); }
+  .legend-dot.warn { background: var(--warning); }
+  .legend-dot.err { background: var(--error); }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="head-inner">
+    <div class="brand-logo" aria-hidden="true">🚚</div>
+    <div class="head-title">
+      <h1>Brinks Pickup Log</h1>
+      <div class="subtitle">Cook County Cooks · cash pickup activity</div>
+    </div>
+    <div class="head-status"><span id="statusDot" class="status-dot"></span><span id="statusText">Loading…</span></div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Today</div>
+      <div class="stat-value" id="stat-today">0</div>
+      <div class="stat-sub">pickups logged</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Month to date</div>
+      <div class="stat-value" id="stat-mtd">0</div>
+      <div class="stat-sub">pickups logged</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">MTD total $</div>
+      <div class="stat-value" id="stat-amount">$0</div>
+      <div class="stat-sub">picked up this month</div>
+    </div>
+    <div class="stat warn">
+      <div class="stat-label">Inactive stores</div>
+      <div class="stat-value" id="stat-inactive">0</div>
+      <div class="stat-sub">no pickup in 7+ days</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" class="search" placeholder="Search store name…" autocomplete="off" />
+    <div class="tabs">
+      <button class="tab active" data-view="grid">Daily</button>
+      <button class="tab" data-view="monthly">Monthly</button>
+      <button class="tab" data-view="feed">Recent</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot ok"></span>Active (logged in last 7 days)</div>
+    <div class="legend-item"><span class="legend-dot warn"></span>Stale (7+ days since last)</div>
+    <div class="legend-item"><span class="legend-dot err"></span>Never logged</div>
+  </div>
+
+  <!-- DAILY VIEW -->
+  <div id="view-grid">
+    <div class="section-title">
+      <span>Per-store daily grid</span>
+      <span class="badge" id="grid-month-badge">—</span>
+      <div style="margin-left:auto;" class="month-nav" id="monthNav">
+        <button id="prevMonth" title="Previous month">‹</button>
+        <span class="month-label" id="monthLabel" title="Click to jump to this month">—</span>
+        <button id="nextMonth" title="Next month">›</button>
+        <select id="monthJump" title="Jump to month"></select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="daily-table" id="dailyTable">
+        <thead><tr id="dailyHeadRow"></tr></thead>
+        <tbody id="dailyBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MONTHLY VIEW -->
+  <div id="view-monthly" style="display:none;">
+    <div class="section-title">
+      <span>12-month overview</span>
+      <span class="badge">Total $ per store, per month</span>
+    </div>
+    <div class="table-wrap">
+      <table class="daily-table month-table" id="monthlyTable">
+        <thead><tr id="monthlyHeadRow"></tr></thead>
+        <tbody id="monthlyBody"></tbody>
+      </table>
+    </div>
+    <div class="legend" style="margin-top:14px;">
+      <div class="legend-item"><span class="legend-dot" style="background:rgba(74,222,128,0.10)"></span>Lower activity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:rgba(74,222,128,0.28)"></span>Higher activity</div>
+      <div class="legend-item">· Click any cell for that store's full month detail</div>
+    </div>
+  </div>
+
+  <!-- RECENT VIEW -->
+  <div id="view-feed" style="display:none;">
+    <div class="section-title">Recent submissions</div>
+    <div class="feed" id="feedList"></div>
+  </div>
+
+</div>
+
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Store</h3>
+      <button class="modal-close" id="modalClose">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<footer class="site">
+  Last updated <span id="lastUpdated">—</span> · <a href="#" id="refreshLink">Refresh</a> · Showing rolling 12-month window
+</footer>
+
+<script>
+  // ============================================================
+  // CONFIGURATION
+  // Paste the URL of your "data feed" Power Automate flow below.
+  // (Flow #2 in the setup guide — the one that returns JSON.)
+  // ============================================================
+  const DATA_FEED_URL = "PASTE_YOUR_DATA_FEED_FLOW_URL_HERE";
+  const REFRESH_INTERVAL_MS = 60000; // 60s
+  const HISTORY_MONTHS = 12;         // rolling window
+
+  const STORES = [
+    "Anderson","Avon","Battle Creek","Bourbonnais","Burbank",
+    "Canton (Belleville)","Cicero","Columbus","Dekalb","Elkhart",
+    "Evanston","Evergreen Park","Fort Gratiot","Frankfort","Glenview",
+    "Grand Blanc","Greeneville","Hammond","Inkster","Johnson City",
+    "Kildeer","Lansing","Michigan City","Muncie","Noblesville",
+    "Oak Ridge","Richmond","Roseville","Round Lake Beach","Schererville",
+    "South Bend","South Knoxville","South Skokie","Southfield","Tinley Park",
+    "Uptown","Valparaiso","Westland","White Lake","Ypsilanti"
+  ];
+
+  // State
+  let submissions = [];
+  let currentView = "grid";
+  let searchTerm = "";
+  let selectedYearMonth = ymString(new Date()); // e.g. "2026-05"
+
+  // ---------- Helpers ----------
+  function fmtMoney(n) {
+    if (n == null || isNaN(n)) return "$0";
+    return "$" + Math.round(Number(n)).toLocaleString();
+  }
+  function fmtMoneyFull(n) {
+    if (n == null || isNaN(n)) return "$0.00";
+    return Number(n).toLocaleString("en-US", { style: "currency", currency: "USD" });
+  }
+  function ymd(d) {
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function ymString(d) {
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+  }
+  function parseYM(s) {
+    const [y,m] = s.split("-").map(Number);
+    return { year: y, month: m - 1 }; // month is 0-indexed
+  }
+  function monthLabel(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    const d = new Date(year, month, 1);
+    return d.toLocaleString("en-US", { month: "long", year: "numeric" });
+  }
+  function monthLabelShort(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    const d = new Date(year, month, 1);
+    return d.toLocaleString("en-US", { month: "short", year: "2-digit" });
+  }
+  function daysInMonth(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    return new Date(year, month + 1, 0).getDate();
+  }
+  function startOfMonth(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    return new Date(year, month, 1, 0, 0, 0, 0);
+  }
+  function endOfMonth(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    return new Date(year, month + 1, 0, 23, 59, 59, 999);
+  }
+  function shiftMonth(ymStr, delta) {
+    const { year, month } = parseYM(ymStr);
+    const d = new Date(year, month + delta, 1);
+    return ymString(d);
+  }
+  function getMonthList() {
+    // Last HISTORY_MONTHS months ending with current month, oldest first
+    const out = [];
+    let cur = ymString(new Date());
+    for (let i = HISTORY_MONTHS - 1; i >= 0; i--) {
+      out.push(shiftMonth(cur, -i));
+    }
+    return out; // chronological
+  }
+  function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+  function daysAgo(n) { const x = startOfDay(new Date()); x.setDate(x.getDate() - n); return x; }
+  function daysBetween(a, b) {
+    return Math.round((startOfDay(a) - startOfDay(b)) / 86400000);
+  }
+  function depositsTotal(s) {
+    const ds = s.deposits || {};
+    return [ds.d1, ds.d2, ds.d3, ds.d4, ds.d5, ds.d6, ds.d7]
+      .map(v => Number(v) || 0)
+      .reduce((a,b) => a + b, 0);
+  }
+
+  // ---------- Data fetch ----------
+  async function fetchData(showSpinner = true) {
+    if (showSpinner) setStatus("loading");
+    try {
+      if (DATA_FEED_URL.startsWith("PASTE_")) {
+        submissions = generateDemoData();
+        setStatus("demo");
+      } else {
+        const resp = await fetch(DATA_FEED_URL + (DATA_FEED_URL.includes("?") ? "&" : "?") + "t=" + Date.now());
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        const data = await resp.json();
+        submissions = Array.isArray(data) ? data : (data.submissions || []);
+        setStatus("ok");
+      }
+      submissions.forEach(s => {
+        if (s.submittedAt) s.submittedAtDate = new Date(s.submittedAt);
+        s.totalAmount = depositsTotal(s);
+      });
+      submissions.sort((a,b) => (b.submittedAtDate||0) - (a.submittedAtDate||0));
+      render();
+      document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
+    } catch (e) {
+      console.error(e);
+      setStatus("err", e.message);
+    }
+  }
+  function setStatus(state, msg) {
+    const dot = document.getElementById("statusDot");
+    const txt = document.getElementById("statusText");
+    dot.className = "status-dot";
+    if (state === "ok") { dot.classList.add("ok"); txt.textContent = "Live"; }
+    else if (state === "demo") { dot.classList.add("ok"); txt.textContent = "Demo data"; }
+    else if (state === "err") { dot.classList.add("err"); txt.textContent = "Error: " + (msg||"failed"); }
+    else { txt.textContent = "Loading…"; }
+  }
+
+  // ---------- Render ----------
+  function render() {
+    renderKpis();
+    renderMonthNav();
+    if (currentView === "grid") renderGrid();
+    else if (currentView === "monthly") renderMonthly();
+    else renderFeed();
+  }
+
+  function renderKpis() {
+    const today = ymd(new Date());
+    const monthStart = startOfMonth(ymString(new Date()));
+    let todayCount = 0, mtdCount = 0, mtdAmt = 0;
+    submissions.forEach(s => {
+      if (!s.submittedAtDate) return;
+      if (ymd(s.submittedAtDate) === today) todayCount++;
+      if (s.submittedAtDate >= monthStart) { mtdCount++; mtdAmt += s.totalAmount || 0; }
+    });
+    const sevenAgo = daysAgo(7);
+    const recentStores = new Set();
+    submissions.forEach(s => {
+      if (s.submittedAtDate && s.submittedAtDate >= sevenAgo) recentStores.add(s.store);
+    });
+    const inactive = STORES.filter(s => !recentStores.has(s)).length;
+
+    document.getElementById("stat-today").textContent = todayCount;
+    document.getElementById("stat-mtd").textContent = mtdCount;
+    document.getElementById("stat-amount").textContent = fmtMoney(mtdAmt);
+    document.getElementById("stat-inactive").textContent = inactive;
+  }
+
+  function renderMonthNav() {
+    const months = getMonthList(); // oldest -> newest
+    const oldest = months[0];
+    const newest = months[months.length - 1];
+
+    document.getElementById("monthLabel").textContent = monthLabel(selectedYearMonth);
+    document.getElementById("grid-month-badge").textContent = monthLabel(selectedYearMonth);
+    document.getElementById("prevMonth").disabled = (selectedYearMonth <= oldest);
+    document.getElementById("nextMonth").disabled = (selectedYearMonth >= newest);
+
+    // Build the dropdown
+    const sel = document.getElementById("monthJump");
+    sel.innerHTML = "";
+    months.slice().reverse().forEach(m => {  // newest first in dropdown
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = monthLabel(m);
+      if (m === selectedYearMonth) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderGrid() {
+    document.getElementById("view-grid").style.display = "";
+    document.getElementById("view-monthly").style.display = "none";
+    document.getElementById("view-feed").style.display = "none";
+
+    // Build days for the SELECTED month
+    const { year, month } = parseYM(selectedYearMonth);
+    const numDays = daysInMonth(selectedYearMonth);
+    const days = [];
+    for (let d = 1; d <= numDays; d++) days.push(new Date(year, month, d));
+
+    // Header
+    const headRow = document.getElementById("dailyHeadRow");
+    const todayYmd = ymd(new Date());
+    headRow.innerHTML = "";
+    headRow.innerHTML += '<th class="col-store">Store</th>';
+    days.forEach(d => {
+      const isToday = ymd(d) === todayYmd;
+      const lbl = (d.getMonth()+1) + "/" + d.getDate();
+      headRow.innerHTML += '<th'+(isToday?' class="cell-today"':'')+'>'+lbl+'</th>';
+    });
+    headRow.innerHTML += '<th class="col-streak">Last pickup</th>';
+    headRow.innerHTML += '<th class="col-total">Month $</th>';
+
+    // Group submissions
+    const monthStart = startOfMonth(selectedYearMonth);
+    const monthEnd = endOfMonth(selectedYearMonth);
+    const byStoreDay = {};
+    const lastByStore = {};
+    const totalByStore = {};
+    submissions.forEach(s => {
+      if (!s.submittedAtDate) return;
+      if (!lastByStore[s.store] || s.submittedAtDate > lastByStore[s.store]) lastByStore[s.store] = s.submittedAtDate;
+      if (s.submittedAtDate >= monthStart && s.submittedAtDate <= monthEnd) {
+        const k = ymd(s.submittedAtDate);
+        if (!byStoreDay[s.store]) byStoreDay[s.store] = {};
+        if (!byStoreDay[s.store][k]) byStoreDay[s.store][k] = [];
+        byStoreDay[s.store][k].push(s);
+        totalByStore[s.store] = (totalByStore[s.store]||0) + (s.totalAmount||0);
+      }
+    });
+
+    const tbody = document.getElementById("dailyBody");
+    tbody.innerHTML = "";
+    const filterTerm = searchTerm.toLowerCase();
+
+    STORES.filter(st => !filterTerm || st.toLowerCase().includes(filterTerm)).forEach(store => {
+      const tr = document.createElement("tr");
+      tr.className = "store-row";
+      const last = lastByStore[store];
+      let streakLabel = "Never";
+      if (last) {
+        const dd = daysBetween(new Date(), last);
+        if (dd === 0) streakLabel = "Today";
+        else if (dd === 1) streakLabel = "Yesterday";
+        else streakLabel = dd + " days ago";
+        if (dd > 7) tr.classList.add("no-recent");
+      } else {
+        tr.classList.add("never-logged");
+      }
+
+      let html = '<td class="col-store">'+escapeHtml(store)+'</td>';
+      days.forEach(d => {
+        const k = ymd(d);
+        const subs = (byStoreDay[store] && byStoreDay[store][k]) || [];
+        const isToday = ymd(d) === todayYmd;
+        if (subs.length > 0) {
+          const total = subs.reduce((a,b) => a + (b.totalAmount||0), 0);
+          html += '<td class="cell-has'+(isToday?' cell-today':'')+'" data-store="'+escapeAttr(store)+'" data-date="'+k+'" title="'+fmtMoneyFull(total)+'">'+(subs.length>1?subs.length+'×':'✓')+'</td>';
+        } else {
+          html += '<td class="cell-empty'+(isToday?' cell-today':'')+'">·</td>';
+        }
+      });
+      html += '<td class="col-streak">'+streakLabel+'</td>';
+      html += '<td class="col-total">'+fmtMoney(totalByStore[store]||0)+'</td>';
+      tr.innerHTML = html;
+      tr.addEventListener("click", () => openStoreModal(store, selectedYearMonth));
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderMonthly() {
+    document.getElementById("view-grid").style.display = "none";
+    document.getElementById("view-monthly").style.display = "";
+    document.getElementById("view-feed").style.display = "none";
+
+    const months = getMonthList(); // oldest -> newest
+    const currentYM = ymString(new Date());
+
+    // Header
+    const headRow = document.getElementById("monthlyHeadRow");
+    headRow.innerHTML = "";
+    headRow.innerHTML += '<th class="col-store">Store</th>';
+    months.forEach(m => {
+      const isCurrent = m === currentYM;
+      headRow.innerHTML += '<th class="col-month'+(isCurrent?' cell-today':'')+'">'+monthLabelShort(m)+'</th>';
+    });
+    headRow.innerHTML += '<th class="col-total">12-mo total</th>';
+
+    // Aggregate: store -> ym -> { count, total }
+    const agg = {};
+    submissions.forEach(s => {
+      if (!s.submittedAtDate) return;
+      const ym = ymString(s.submittedAtDate);
+      if (!months.includes(ym)) return;
+      if (!agg[s.store]) agg[s.store] = {};
+      if (!agg[s.store][ym]) agg[s.store][ym] = { count: 0, total: 0 };
+      agg[s.store][ym].count++;
+      agg[s.store][ym].total += s.totalAmount || 0;
+    });
+
+    // Find max monthly total to scale the heatmap
+    let maxTotal = 0;
+    Object.values(agg).forEach(byMonth => {
+      Object.values(byMonth).forEach(v => { if (v.total > maxTotal) maxTotal = v.total; });
+    });
+
+    function heatClass(total) {
+      if (!total) return "heat-0";
+      const ratio = total / (maxTotal || 1);
+      if (ratio < 0.10) return "heat-1";
+      if (ratio < 0.30) return "heat-2";
+      if (ratio < 0.60) return "heat-3";
+      return "heat-4";
+    }
+
+    const tbody = document.getElementById("monthlyBody");
+    tbody.innerHTML = "";
+    const filterTerm = searchTerm.toLowerCase();
+
+    STORES.filter(st => !filterTerm || st.toLowerCase().includes(filterTerm)).forEach(store => {
+      const tr = document.createElement("tr");
+      tr.className = "store-row";
+      let twelveTotal = 0;
+      let html = '<td class="col-store">'+escapeHtml(store)+'</td>';
+      months.forEach(m => {
+        const cell = (agg[store] && agg[store][m]) || { count: 0, total: 0 };
+        twelveTotal += cell.total;
+        const cls = heatClass(cell.total);
+        const isCurrent = m === currentYM;
+        const display = cell.count === 0 ? "·" : fmtMoney(cell.total);
+        const title = cell.count === 0 ? "No pickups" : (cell.count + " pickup" + (cell.count===1?"":"s") + " · " + fmtMoneyFull(cell.total));
+        html += '<td class="cell-money '+cls+(isCurrent?' cell-today':'')+'" data-store="'+escapeAttr(store)+'" data-month="'+m+'" title="'+title+'">'+display+'</td>';
+      });
+      html += '<td class="col-total">'+fmtMoney(twelveTotal)+'</td>';
+      tr.innerHTML = html;
+      // Click any cell -> open that store's detail for that month; click row -> default to current month
+      tr.addEventListener("click", (e) => {
+        const cell = e.target.closest("td.cell-money");
+        const month = cell ? cell.dataset.month : currentYM;
+        openStoreModal(store, month);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderFeed() {
+    document.getElementById("view-grid").style.display = "none";
+    document.getElementById("view-monthly").style.display = "none";
+    document.getElementById("view-feed").style.display = "";
+    const list = document.getElementById("feedList");
+    list.innerHTML = "";
+    const filterTerm = searchTerm.toLowerCase();
+    const filtered = submissions.filter(s => !filterTerm || (s.store||"").toLowerCase().includes(filterTerm));
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="empty-msg">No submissions yet.</div>';
+      return;
+    }
+    filtered.slice(0, 200).forEach(s => {
+      const div = document.createElement("div");
+      div.className = "feed-item";
+      const dateStr = s.submittedAtDate ? s.submittedAtDate.toLocaleString() : "—";
+      div.innerHTML =
+        '<div>'+
+          '<div class="feed-store">'+escapeHtml(s.store||"—")+'</div>'+
+          '<div class="feed-meta">'+escapeHtml(s.managerName||"—")+'</div>'+
+        '</div>'+
+        '<div>'+
+          '<div class="feed-amount">'+fmtMoney(s.totalAmount)+'</div>'+
+          '<div class="feed-date">'+dateStr+'</div>'+
+        '</div>';
+      div.addEventListener("click", () => openSubmissionModal(s));
+      list.appendChild(div);
+    });
+  }
+
+  function openStoreModal(store, ym) {
+    ym = ym || ymString(new Date());
+    document.getElementById("modalTitle").textContent = store + " — " + monthLabel(ym);
+    const monthStart = startOfMonth(ym);
+    const monthEnd = endOfMonth(ym);
+    const subs = submissions.filter(s => s.store === store);
+    const monthSubs = subs.filter(s => s.submittedAtDate && s.submittedAtDate >= monthStart && s.submittedAtDate <= monthEnd);
+    const monthAmt = monthSubs.reduce((a,b) => a + (b.totalAmount||0), 0);
+    const last = subs[0];
+    let lastLabel = "Never";
+    if (last && last.submittedAtDate) {
+      const dd = daysBetween(new Date(), last.submittedAtDate);
+      lastLabel = dd === 0 ? "Today" : (dd === 1 ? "1 day ago" : dd + " days ago");
+    }
+
+    let html = '';
+    html += '<div class="modal-stats">';
+    html += '<div class="modal-stat"><div class="lbl">Pickups</div><div class="val">'+monthSubs.length+'</div></div>';
+    html += '<div class="modal-stat"><div class="lbl">Total $</div><div class="val">'+fmtMoney(monthAmt)+'</div></div>';
+    html += '<div class="modal-stat"><div class="lbl">Last pickup</div><div class="val">'+lastLabel+'</div></div>';
+    html += '</div>';
+
+    if (monthSubs.length === 0) {
+      html += '<div class="empty-msg">No pickups recorded for '+monthLabel(ym)+'.</div>';
+    } else {
+      html += '<div style="font-size:11px;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin-bottom:8px;">Submissions in '+monthLabel(ym)+'</div>';
+      monthSubs.forEach(s => { html += renderSubmissionRow(s); });
+    }
+    document.getElementById("modalBody").innerHTML = html;
+    document.getElementById("modalBackdrop").classList.add("show");
+  }
+
+  function openSubmissionModal(s) {
+    document.getElementById("modalTitle").textContent = s.store || "Submission";
+    document.getElementById("modalBody").innerHTML = renderSubmissionRow(s, true);
+    document.getElementById("modalBackdrop").classList.add("show");
+  }
+
+  function renderSubmissionRow(s, expanded) {
+    const ds = s.deposits || {};
+    const list = ["d1","d2","d3","d4","d5","d6","d7"]
+      .map((k,i) => {
+        const v = Number(ds[k]);
+        if (!v || isNaN(v)) return null;
+        return "#"+(i+1)+": "+fmtMoneyFull(v);
+      })
+      .filter(Boolean)
+      .join(" · ");
+    const dateStr = s.submittedAtDate ? s.submittedAtDate.toLocaleString() : "—";
+    let html = '<div class="submission-row">';
+    html +=   '<div>';
+    html +=     '<div style="font-weight:600;">'+escapeHtml(s.managerName||"—")+'</div>';
+    html +=     '<div class="who">'+dateStr+'</div>';
+    if (list) html += '<div class="deposits">'+list+'</div>';
+    if (s.photoUrl) html += '<a class="photo-link" href="'+escapeAttr(s.photoUrl)+'" target="_blank" rel="noopener">📷 View logbook photo</a>';
+    html +=   '</div>';
+    html +=   '<div><div class="amt">'+fmtMoney(s.totalAmount)+'</div></div>';
+    html += '</div>';
+    return html;
+  }
+
+  function escapeHtml(s) { return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  // ---------- Demo data ----------
+  function generateDemoData() {
+    const out = [];
+    const names = ["Sam Patel","Maria Lopez","Chris Johnson","Ashley Kim","Jordan Reyes","Taylor Smith"];
+    const today = new Date();
+    // For 12 months of data, generate random pickups across the rolling window.
+    const windowStart = new Date(today); windowStart.setMonth(windowStart.getMonth() - HISTORY_MONTHS + 1); windowStart.setDate(1);
+    const totalDays = Math.max(1, Math.round((today - windowStart) / 86400000));
+    STORES.forEach((store, idx) => {
+      if (idx % 8 === 0) return; // some stores never log
+      // ~6-12 pickups per month on average
+      const numPickups = Math.floor(totalDays * (0.20 + Math.random() * 0.20));
+      for (let i = 0; i < numPickups; i++) {
+        const ago = Math.floor(Math.random() * totalDays);
+        const when = new Date(today); when.setDate(when.getDate() - ago);
+        when.setHours(9 + Math.floor(Math.random()*8), Math.floor(Math.random()*60), 0, 0);
+        const numD = 1 + Math.floor(Math.random() * 3);
+        const deposits = {};
+        for (let j = 1; j <= numD; j++) deposits["d"+j] = (500 + Math.random() * 4000).toFixed(2);
+        out.push({
+          submittedAt: when.toISOString(),
+          store,
+          managerName: names[Math.floor(Math.random() * names.length)],
+          deposits,
+          photoUrl: "#"
+        });
+      }
+    });
+    return out;
+  }
+
+  // ---------- Wire up controls ----------
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim();
+    if (currentView === "grid") renderGrid();
+    else if (currentView === "monthly") renderMonthly();
+    else renderFeed();
+  });
+  document.querySelectorAll(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentView = btn.dataset.view;
+      render();
+    });
+  });
+  document.getElementById("prevMonth").addEventListener("click", () => {
+    const months = getMonthList();
+    const idx = months.indexOf(selectedYearMonth);
+    if (idx > 0) { selectedYearMonth = months[idx - 1]; render(); }
+  });
+  document.getElementById("nextMonth").addEventListener("click", () => {
+    const months = getMonthList();
+    const idx = months.indexOf(selectedYearMonth);
+    if (idx >= 0 && idx < months.length - 1) { selectedYearMonth = months[idx + 1]; render(); }
+  });
+  document.getElementById("monthLabel").addEventListener("click", () => {
+    selectedYearMonth = ymString(new Date());
+    render();
+  });
+  document.getElementById("monthJump").addEventListener("change", (e) => {
+    selectedYearMonth = e.target.value;
+    render();
+  });
+  document.getElementById("modalClose").addEventListener("click", () => {
+    document.getElementById("modalBackdrop").classList.remove("show");
+  });
+  document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+    if (e.target.id === "modalBackdrop") document.getElementById("modalBackdrop").classList.remove("show");
+  });
+  document.getElementById("refreshLink").addEventListener("click", (e) => { e.preventDefault(); fetchData(true); });
+
+  fetchData(true);
+  setInterval(() => fetchData(false), REFRESH_INTERVAL_MS);
+</script>
+</body>
+</html>
