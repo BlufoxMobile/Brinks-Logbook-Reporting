@@ -465,23 +465,65 @@
   }
 
   // ---------- Data fetch ----------
+  // Data source priority:
+  //   1. Live Power Automate feed (DATA_FEED_URL) — when the flow is configured
+  //   2. Static historical-data.json sitting next to this HTML file — for the imported
+  //      Excel history; survives forever, no auth required
+  //   3. Demo data — only if neither of the above resolves
   async function fetchData(showSpinner = true) {
     if (showSpinner) setStatus("loading");
+    let liveData = [];
+    let staticData = [];
+    // Try live feed
+    if (!DATA_FEED_URL.startsWith("PASTE_")) {
+      try {
+        const resp = await fetch(DATA_FEED_URL + (DATA_FEED_URL.includes("?") ? "&" : "?") + "t=" + Date.now());
+        if (resp.ok) {
+          const data = await resp.json();
+          liveData = Array.isArray(data) ? data : (data.submissions || []);
+        }
+      } catch (e) { console.warn("Live feed failed:", e.message); }
+    }
+    // Try static historical JSON co-located with this HTML
     try {
-      if (DATA_FEED_URL.startsWith("PASTE_")) {
+      const resp = await fetch("historical-data.json?t=" + Date.now());
+      if (resp.ok) {
+        const data = await resp.json();
+        staticData = Array.isArray(data) ? data : (data.submissions || []);
+      }
+    } catch (e) { /* static file may not exist; that's fine */ }
+
+    try {
+      if (liveData.length === 0 && staticData.length === 0) {
         submissions = generateDemoData();
         setStatus("demo");
       } else {
-        const resp = await fetch(DATA_FEED_URL + (DATA_FEED_URL.includes("?") ? "&" : "?") + "t=" + Date.now());
-        if (!resp.ok) throw new Error("HTTP " + resp.status);
-        const data = await resp.json();
-        submissions = Array.isArray(data) ? data : (data.submissions || []);
-        setStatus("ok");
+        // Merge: live data takes precedence over static for the same (store, submittedAt, manager) tuple
+        const seen = new Set();
+        submissions = [];
+        const keyOf = s => (s.store||"") + "|" + (s.submittedAt||"") + "|" + (s.managerName||"");
+        for (const s of liveData) { submissions.push(s); seen.add(keyOf(s)); }
+        for (const s of staticData) { if (!seen.has(keyOf(s))) submissions.push(s); }
+        if (liveData.length > 0 && staticData.length > 0) setStatus("ok", "Live + history");
+        else if (liveData.length > 0) setStatus("ok");
+        else setStatus("ok", "History only");
       }
       submissions.forEach(s => {
         if (s.submittedAt) s.submittedAtDate = new Date(s.submittedAt);
         s.totalAmount = depositsTotal(s);
       });
+      // Same-day dedup: when a store has 2+ submissions on the same calendar date,
+      // keep only the one with the highest TotalAmount. (Humans are messy.)
+      const dedupMap = new Map();
+      for (const s of submissions) {
+        if (!s.submittedAtDate || !s.store) continue;
+        const key = s.store + "|" + ymd(s.submittedAtDate);
+        const existing = dedupMap.get(key);
+        if (!existing || (s.totalAmount || 0) > (existing.totalAmount || 0)) {
+          dedupMap.set(key, s);
+        }
+      }
+      submissions = Array.from(dedupMap.values());
       submissions.sort((a,b) => (b.submittedAtDate||0) - (a.submittedAtDate||0));
       render();
       document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
@@ -494,7 +536,7 @@
     const dot = document.getElementById("statusDot");
     const txt = document.getElementById("statusText");
     dot.className = "status-dot";
-    if (state === "ok") { dot.classList.add("ok"); txt.textContent = "Live"; }
+    if (state === "ok") { dot.classList.add("ok"); txt.textContent = msg || "Live"; }
     else if (state === "demo") { dot.classList.add("ok"); txt.textContent = "Demo data"; }
     else if (state === "err") { dot.classList.add("err"); txt.textContent = "Error: " + (msg||"failed"); }
     else { txt.textContent = "Loading…"; }
