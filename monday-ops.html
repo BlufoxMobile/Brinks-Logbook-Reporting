@@ -419,12 +419,25 @@
       const res = await fetch(CONFIG.DIRECTORY_URL, { cache: "no-store" });
       if (!res.ok) throw new Error(res.status);
       const json = await res.json();
+      // Blufox schema: { stores: [string], storeManagerNames: {store:name}, storeManagers: {store:email}, storeDMs: {store:email} }
+      if (json && Array.isArray(json.stores) && json.stores.length && typeof json.stores[0] === "string") {
+        const sM  = json.storeManagers     || {};
+        const sMN = json.storeManagerNames || {};
+        const sDM = json.storeDMs          || {};
+        DIRECTORY = json.stores.map(store => {
+          const dmEmail = sDM[store] || "";
+          const dmName  = dmEmail ? dmEmail.replace(/@.*$/, "") : "";
+          return { store, manager: sMN[store] || "", managerEmail: sM[store] || "", dm: dmName, dmEmail };
+        });
+        return;
+      }
+      // Generic fallback for other JSON shapes
       let arr = [];
       if (Array.isArray(json)) arr = json;
-      else if (Array.isArray(json?.stores)) arr = json.stores;
       else if (Array.isArray(json?.data)) arr = json.data;
-      else if (json && typeof json === "object") arr = Object.entries(json).map(([k, v]) => ({ store: k, ...v }));
+      else if (json && typeof json === "object") arr = Object.entries(json).map(([k, v]) => (v && typeof v === "object") ? { store: k, ...v } : { store: k });
       DIRECTORY = arr.map(e => {
+        if (typeof e === "string") return { store: e, manager: "", managerEmail: "", dm: "", dmEmail: "" };
         const find = (...names) => {
           for (const n of names) {
             for (const k of Object.keys(e)) {
@@ -433,11 +446,11 @@
           }
           return "";
         };
-        return { store: find("store","storeName","name","location"), dm: find("dm","districtManager","dmName") };
+        return { store: find("store","storeName","name","location"), manager: find("manager","managerName","storeManager","sm"), managerEmail: find("managerEmail","email","smEmail"), dm: find("dm","districtManager","dmName"), dmEmail: find("dmEmail","districtManagerEmail") };
       }).filter(e => e.store);
     } catch (err) {
       console.warn("Directory fetch failed, using fallback:", err);
-      DIRECTORY = CONFIG.FALLBACK_STORES.map(s => ({ store: s, dm: "" }));
+      DIRECTORY = CONFIG.FALLBACK_STORES.map(s => ({ store: s, manager: "", managerEmail: "", dm: "", dmEmail: "" }));
     }
   }
 
