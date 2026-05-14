@@ -247,7 +247,7 @@
     <div class="grid-header">
       <span class="gh-title">Per-store weekly grid</span>
       <span class="badge" id="weeklyMonthLabel">—</span>
-      <span class="sub">Click any complete/partial cell for that submission</span>
+      <span class="sub">Mondays only · click any complete/partial cell to open that submission</span>
       <div class="month-nav">
         <button id="weeklyPrev" aria-label="Previous month">‹</button>
         <span class="label" id="weeklyMonthDisplay">—</span>
@@ -601,7 +601,7 @@
     }
 
     let html = "<thead><tr><th class='store-name' style='text-align:left'>Store</th>";
-    for (const m of mondays) html += `<th>${dayMonth(m)}</th>`;
+    for (const m of mondays) html += `<th>Mon ${dayMonth(m)}</th>`;
     html += "<th class='status-cell'>Month</th></tr></thead><tbody>";
 
     for (const store of stores) {
