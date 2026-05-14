@@ -257,6 +257,20 @@
 </style>
 </head>
 <body>
+<style>
+  .bx-tabs { position: sticky; top: 0; z-index: 200; background: #000; border-bottom: 1px solid #2a2a2a; width: 100%; margin: 0; }
+  .bx-tabs-inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bx-tab { padding: 14px 18px; color: #b8b8b8; text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .bx-tab:hover { color: #ffffff; }
+  .bx-tab.active { color: #ff5a1f; border-bottom-color: #ff5a1f; }
+</style>
+<nav class="bx-tabs" aria-label="Reports">
+  <div class="bx-tabs-inner">
+    <a class="bx-tab active" href="index.html" aria-current="page">🚚 Brinks Pickup Log</a>
+    <a class="bx-tab" href="monday-ops.html">📋 Monday Ops Tracker</a>
+  </div>
+</nav>
+
 
 <header class="site">
   <div class="head-inner">
