@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tuesday Phone Count Tracker</title>
+<style>
+  :root {
+    --bg: #000; --surface: #0e0e0e; --surface-2: #1a1a1a; --surface-3: #242424;
+    --border: #2a2a2a; --border-strong: #3a3a3a;
+    --text: #ffffff; --text-dim: #8a8a8a; --text-faint: #555555;
+    --positive: #4ade80; --warning: #fbbf24; --error: #ef4444; --accent: #ff5a1f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+  .bx-tabs { position: sticky; top: 0; z-index: 200; background: #000; border-bottom: 1px solid #2a2a2a; }
+  .bx-tabs-inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; }
+  .bx-tab { padding: 14px 18px; color: #b8b8b8; text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
+  .bx-tab:hover { color: #fff; }
+  .bx-tab.active { color: #ff5a1f; border-bottom-color: #ff5a1f; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px 20px 80px; }
+
+  .page-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .brand-logo { width: 42px; height: 42px; border-radius: 8px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid var(--border); }
+  .page-header h1 { margin: 0; font-size: 22px; font-weight: 700; }
+  .page-header h1 small { display: block; color: var(--text-dim); font-size: 13px; font-weight: 400; margin-top: 2px; }
+  .status-pill { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--text-dim); }
+  .status-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--positive); }
+  .status-pill.error .dot { background: var(--error); }
+  .status-pill.warn .dot { background: var(--warning); }
+
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+  @media (min-width: 640px) { .stats { grid-template-columns: repeat(4, 1fr); gap: 12px; } }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .stat-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); margin-bottom: 6px; }
+  .stat-value { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .stat.positive .stat-value { color: var(--positive); }
+  .stat.warning .stat-value { color: var(--warning); }
+  .stat.error .stat-value { color: var(--error); }
+
+  .toolbar { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  .search { flex: 1; min-width: 200px; }
+  .search input { width: 100%; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; font-family: inherit; }
+  .search input:focus { outline: none; border-color: var(--border-strong); }
+  .tabs { display: flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
+  .tab { background: transparent; border: none; color: var(--text-dim); padding: 8px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; font-family: inherit; }
+  .tab.active { background: var(--surface-3); color: var(--text); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--text-dim); margin-bottom: 16px; }
+  .legend .lg { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .lg .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .sw.accurate { background: var(--positive); }
+  .sw.inconsistencies { background: var(--warning); }
+  .sw.missed { background: var(--error); }
+  .sw.future { background: var(--text-faint); }
+
+  .grid-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .grid-header .gh-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); }
+  .grid-header .badge { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--text); }
+  .grid-header .sub { color: var(--text-dim); font-size: 12px; }
+  .month-nav { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 2px; }
+  .month-nav button { background: transparent; border: none; color: var(--text-dim); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 14px; }
+  .month-nav button:hover { background: var(--surface-3); color: var(--text); }
+  .month-nav .label { padding: 0 10px; font-size: 12px; font-weight: 600; color: var(--text); min-width: 88px; text-align: center; }
+
+  .grid-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  table.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.grid th, table.grid td { padding: 9px 10px; text-align: center; border-bottom: 1px solid var(--surface-2); white-space: nowrap; }
+  table.grid thead th { background: #060606; font-weight: 600; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; position: sticky; top: 0; z-index: 1; }
+  table.grid tbody tr:last-child td { border-bottom: none; }
+  table.grid td.store-name { text-align: left; font-weight: 600; padding-left: 16px; position: sticky; left: 0; background: var(--surface); z-index: 1; }
+  table.grid thead th.store-name { left: 0; background: #060606; z-index: 2; }
+  table.grid tbody tr:hover td.store-name { background: var(--surface-2); }
+  table.grid tbody tr:hover td { background: rgba(255,255,255,0.02); }
+  .store-name.active { color: var(--positive); }
+  .store-name.stale  { color: var(--warning); }
+  .store-name.missed { color: var(--error); }
+  td.status-cell { font-weight: 600; padding-right: 16px; text-align: right; }
+
+  td.cell { cursor: default; font-size: 14px; line-height: 1; }
+  td.cell.accurate { color: var(--positive); cursor: pointer; }
+  td.cell.inconsistencies { color: var(--warning); cursor: pointer; }
+  td.cell.missed { color: var(--error); }
+  td.cell.future { color: var(--text-faint); }
+  td.cell.accurate:hover, td.cell.inconsistencies:hover { background: rgba(255,255,255,0.04); }
+
+  table.heat th, table.heat td { padding: 7px 8px; text-align: center; border: 1px solid #060606; font-size: 12px; }
+  table.heat td.heat-cell { font-weight: 600; }
+  .heat-0   { background: var(--surface); color: var(--text-faint); }
+  .heat-25  { background: rgba(74, 222, 128, 0.10); color: var(--text-dim); }
+  .heat-50  { background: rgba(74, 222, 128, 0.25); color: var(--text); }
+  .heat-75  { background: rgba(74, 222, 128, 0.45); color: var(--text); }
+  .heat-100 { background: rgba(74, 222, 128, 0.75); color: #000; }
+  .heat-future { background: var(--surface-2); color: var(--text-faint); }
+
+  table.recent { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 14px; }
+  table.recent th, table.recent td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--surface-2); }
+  table.recent th { background: #060606; font-weight: 700; color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  table.recent tr.row { cursor: pointer; }
+  table.recent tr.row:hover td { background: var(--surface-2); }
+  table.recent tr:last-child td { border-bottom: none; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+  .pill.accurate { background: rgba(74, 222, 128, 0.15); color: var(--positive); }
+  .pill.inconsistencies { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
+  .pill.missed { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+
+  .empty { background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; padding: 60px 20px; text-align: center; color: var(--text-dim); }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .btn { padding: 8px 12px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+  .btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn.primary:hover { opacity: 0.92; }
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 300; display: none; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 16px; }
+  .modal-backdrop.show { display: flex; }
+  .modal { background: #0a0a0a; border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 760px; padding: 24px; }
+  .modal header { display: flex; justify-content: space-between; align-items: start; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .modal h2 { margin: 0; font-size: 20px; }
+  .modal h2 small { display: block; color: var(--text-dim); font-weight: 400; font-size: 13px; margin-top: 2px; }
+  .modal .close { background: transparent; border: none; color: var(--text-dim); font-size: 24px; line-height: 1; cursor: pointer; padding: 4px 10px; }
+  .modal .close:hover { color: var(--text); }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 16px; }
+  .detail-grid .item .lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 2px; }
+  .detail-grid .item .val { font-size: 14px; }
+  .stores-table { width: 100%; border-collapse: collapse; background: #050505; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; font-size: 13px; }
+  .stores-table th, .stores-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #161616; }
+  .stores-table th { background: #080808; font-weight: 700; color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stores-table tr:last-child td { border-bottom: none; }
+  .stores-table td.status-col { text-align: right; }
+  .notes-block { background: #050505; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; white-space: pre-wrap; color: var(--text); }
+  .notes-block.empty-state { color: var(--text-dim); font-style: italic; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+  @media (max-width: 640px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    table.recent th.hide-sm, table.recent td.hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="bx-tabs" aria-label="Reports">
+  <div class="bx-tabs-inner">
+    <a class="bx-tab" href="index.html">🚚 Brinks Pickup Log</a>
+    <a class="bx-tab" href="monday-ops.html">📋 Monday Ops Tracker</a>
+    <a class="bx-tab active" href="tuesday-phone-tracker.html" aria-current="page">📞 Tuesday Phone Counts</a>
+    <a class="bx-tab" href="wednesday-cpe-tracker.html">📱 Wednesday CPE Counts</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <div class="brand-logo">📞</div>
+    <h1>Tuesday Phone Count Tracker<small>Cook County Cooks · weekly phone count audit</small></h1>
+    <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">Loading…</span></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat" id="statThisWeek">
+      <div class="stat-label">This Tuesday</div>
+      <div class="stat-value">—</div>
+      <div class="stat-sub">stores accurate</div>
+    </div>
+    <div class="stat" id="statMTD">
+      <div class="stat-label">Month to date</div>
+      <div class="stat-value">—</div>
+      <div class="stat-sub">submissions</div>
+    </div>
+    <div class="stat" id="statRate">
+      <div class="stat-label">12-month accuracy</div>
+      <div class="stat-value">—</div>
+      <div class="stat-sub">accurate / counted</div>
+    </div>
+    <div class="stat error" id="statMissing">
+      <div class="stat-label">Missed this week</div>
+      <div class="stat-value">—</div>
+      <div class="stat-sub">stores</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search"><input type="text" id="search" placeholder="Search store name…" autocomplete="off"></div>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-view="weekly">Weekly</button>
+      <button class="tab" data-view="monthly">Monthly</button>
+      <button class="tab" data-view="recent">Recent</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="lg"><span class="sw accurate"></span>Accurate</span>
+    <span class="lg"><span class="sw inconsistencies"></span>Inconsistencies</span>
+    <span class="lg"><span class="sw missed"></span>Missed / Not done</span>
+    <span class="lg"><span class="sw future"></span>Future Tuesday</span>
+    <span class="lg" style="margin-left:auto">Store name color: <span style="color:var(--positive);margin-left:6px">Active</span> · <span style="color:var(--warning)">Stale</span> · <span style="color:var(--error)">No counts in 4+ weeks</span></span>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="refreshBtn">↻ Refresh</button>
+    <button class="btn" id="cleanupBtn" style="display:none">🧹 Clean up older than 12 months</button>
+    <button class="btn" id="exportBtn">⬇ Export CSV</button>
+    <a class="btn primary" id="newSubmissionBtn" href="counts-checklist.html#tuesday" target="_blank" rel="noopener">+ New Tuesday Checklist</a>
+  </div>
+
+  <section class="view active" id="view-weekly">
+    <div class="grid-header">
+      <span class="gh-title">Per-store weekly grid</span>
+      <span class="badge" id="weeklyMonthLabel">—</span>
+      <span class="sub">Tuesdays only · click any cell with a status for that submission</span>
+      <div class="month-nav">
+        <button id="weeklyPrev" aria-label="Previous month">‹</button>
+        <span class="label" id="weeklyMonthDisplay">—</span>
+        <button id="weeklyNext" aria-label="Next month">›</button>
+      </div>
+    </div>
+    <div class="grid-scroll"><table class="grid" id="weeklyTable"></table></div>
+  </section>
+
+  <section class="view" id="view-monthly">
+    <div class="grid-header">
+      <span class="gh-title">12-month accuracy heatmap</span>
+      <span class="sub">% of Tuesdays each store was counted accurately</span>
+    </div>
+    <div class="grid-scroll"><table class="grid heat" id="monthlyTable"></table></div>
+  </section>
+
+  <section class="view" id="view-recent">
+    <div class="grid-header">
+      <span class="gh-title">Recent weekly submissions</span>
+      <span class="sub" id="recentCount">—</span>
+    </div>
+    <div id="recentWrap"></div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop"><div class="modal" id="modalContent"></div></div>
+
+<script>
+  /* ============================================================
+   * CONFIGURATION
+   * ============================================================ */
+  const CONFIG = {
+    GITHUB_OWNER: "BlufoxMobile",
+    GITHUB_REPO: "Brinks-Logbook-Reporting",
+    GITHUB_BRANCH: "main",
+    SUBMISSIONS_DIR: "data/tuesday-phone-counts",
+    DAY_OF_WEEK: 2,   // Tuesday
+    DAY_LABEL: "Tuesday",
+    NEW_LINK: "counts-checklist.html#tuesday",
+    PAGE_TITLE: "Tuesday Phone Count",
+
+    DIRECTORY_URL: "https://raw.githubusercontent.com/blufoxmobile/Daily-Sales-Report/main/data/store-directory.json",
+
+    // Optional. Required to AUTO-DELETE submissions older than 12 months.
+    GITHUB_TOKEN: "",
+
+    RETENTION_DAYS: 365,
+
+    FALLBACK_STORES: [
+      "Bourbonnais","Burbank","Calumet City","Cicero","Dekalb","Downer's Grove",
+      "Elkhart","Evanston","Evergreen Park","Frankfort","Glenview","Hammond",
+      "Kildeer","Machesney Park","Michigan City","Round Lake Beach","Schererville",
+      "South Bend","South Skokie","Tinley Park","Uptown","Valparaiso"
+    ]
+  };
+  /* ============================================================ */
+
+  const $ = id => document.getElementById(id);
+  const fmtDateISO = d => d.toISOString().slice(0, 10);
+  const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+
+  function thisOrLast(d, dayOfWeek) {
+    d = new Date(d); d.setHours(0, 0, 0, 0);
+    const diff = (d.getDay() - dayOfWeek + 7) % 7;
+    d.setDate(d.getDate() - diff);
+    return d;
+  }
+  function daysOfWeekInMonth(year, monthIdx, dayOfWeek) {
+    const out = [];
+    const d = new Date(year, monthIdx, 1);
+    while (d.getDay() !== dayOfWeek) d.setDate(d.getDate() + 1);
+    while (d.getMonth() === monthIdx) {
+      out.push(new Date(d));
+      d.setDate(d.getDate() + 7);
+    }
+    return out;
+  }
+  function shiftMonth(d, delta) {
+    const x = new Date(d); x.setMonth(x.getMonth() + delta); return x;
+  }
+  function monthLabel(d) { return d.toLocaleString(undefined, { month: "long", year: "numeric" }); }
+  function monthShort(d) { return d.toLocaleString(undefined, { month: "short" }) + " " + String(d.getFullYear()).slice(2); }
+  function dayMonth(d) { return (d.getMonth() + 1) + "/" + d.getDate(); }
+  function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
+
+  // ----- State -----
+  let SUBMISSIONS = [];   // each: { date, submittedBy, notes, stores: {store: status}, _filename, _path, _sha }
+  let STORES = [];
+  let weeklyCursor = startOfMonth(new Date());
+  const TODAY = new Date();
+  const TARGET_DAY = thisOrLast(TODAY, CONFIG.DAY_OF_WEEK);
+  const RETENTION_CUTOFF = (() => { const d = new Date(); d.setDate(d.getDate() - CONFIG.RETENTION_DAYS); return d; })();
+
+  // ----- GitHub -----
+  function ghHeaders() {
+    const h = { Accept: "application/vnd.github+json" };
+    if (CONFIG.GITHUB_TOKEN) h.Authorization = "token " + CONFIG.GITHUB_TOKEN;
+    return h;
+  }
+  async function fetchListing() {
+    const url = `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${CONFIG.SUBMISSIONS_DIR}?ref=${encodeURIComponent(CONFIG.GITHUB_BRANCH)}`;
+    const res = await fetch(url, { headers: ghHeaders(), cache: "no-store" });
+    if (res.status === 404) return [];
+    if (!res.ok) throw new Error(`GitHub list ${res.status}`);
+    const items = await res.json();
+    return items.filter(it => it.type === "file" && it.name.endsWith(".json"));
+  }
+  async function fetchSubmission(file) {
+    const res = await fetch(file.download_url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Fetch ${file.name} → ${res.status}`);
+    return res.json();
+  }
+  async function deleteFile(file) {
+    if (!CONFIG.GITHUB_TOKEN) throw new Error("No token");
+    const url = `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${file._path}`;
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: { ...ghHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ message: `Retention: remove ${file._filename}`, sha: file._sha, branch: CONFIG.GITHUB_BRANCH })
+    });
+    if (!res.ok) throw new Error(`Delete ${file._filename}: ${res.status}`);
+  }
+
+  async function loadDirectory() {
+    try {
+      const res = await fetch(CONFIG.DIRECTORY_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error(res.status);
+      const json = await res.json();
+      if (json && Array.isArray(json.stores) && typeof json.stores[0] === "string") {
+        STORES = json.stores.slice();
+      } else if (Array.isArray(json)) {
+        STORES = json.map(s => typeof s === "string" ? s : (s.store || s.name || "")).filter(Boolean);
+      }
+    } catch (err) {
+      console.warn("Directory fetch failed, fallback:", err);
+    }
+    if (!STORES.length) STORES = CONFIG.FALLBACK_STORES.slice();
+    STORES.sort();
+  }
+
+  async function loadAll() {
+    setStatus("info", "Loading submissions…");
+    try {
+      await loadDirectory();
+      const files = await fetchListing();
+      const subs = await Promise.all(files.map(async f => {
+        try {
+          const data = await fetchSubmission(f);
+          data._filename = f.name;
+          data._path = f.path;
+          data._sha = f.sha;
+          return data;
+        } catch (e) { console.warn(f.name, e); return null; }
+      }));
+      SUBMISSIONS = subs.filter(Boolean).filter(s => {
+        const d = new Date(s.date || s.submittedAt || 0);
+        return !isNaN(d) && d >= RETENTION_CUTOFF;
+      });
+      // Pick up any extra store names that showed up in submissions
+      const extras = new Set();
+      for (const s of SUBMISSIONS) {
+        if (s.stores && typeof s.stores === "object") {
+          for (const k of Object.keys(s.stores)) extras.add(k);
+        }
+      }
+      STORES = [...new Set([...STORES, ...extras])].sort();
+
+      setStatus("ok", `Last refreshed ${new Date().toLocaleTimeString()} · ${SUBMISSIONS.length} submissions · ${STORES.length} stores`);
+      if (CONFIG.GITHUB_TOKEN) $("cleanupBtn").style.display = "";
+      weeklyCursor = startOfMonth(new Date());
+      renderAll();
+    } catch (err) {
+      console.error(err);
+      setStatus("error", `Couldn't load: ${err.message}`);
+      renderAll();
+    }
+  }
+
+  function setStatus(kind, msg) {
+    const pill = $("statusPill");
+    pill.className = "status-pill " + (kind === "error" ? "error" : kind === "warn" ? "warn" : "");
+    $("statusText").textContent = msg;
+  }
+
+  async function cleanupOldFiles() {
+    if (!CONFIG.GITHUB_TOKEN) {
+      alert("No GITHUB_TOKEN configured.");
+      return;
+    }
+    try {
+      setStatus("warn", "Cleaning up…");
+      const files = await fetchListing();
+      let deleted = 0;
+      for (const f of files) {
+        try {
+          const data = await fetchSubmission(f);
+          const d = new Date(data.date || data.submittedAt || 0);
+          if (isNaN(d) || d >= RETENTION_CUTOFF) continue;
+          await deleteFile({ _path: f.path, _filename: f.name, _sha: f.sha });
+          deleted++;
+        } catch (e) { console.warn(f.name, e); }
+      }
+      setStatus("ok", `Removed ${deleted} old file(s). Refreshing…`);
+      await loadAll();
+    } catch (err) {
+      setStatus("error", `Cleanup failed: ${err.message}`);
+    }
+  }
+
+  // ----- Helpers -----
+  function submissionFor(iso) { return SUBMISSIONS.find(s => s.date === iso); }
+  function storeStatus(store) {
+    // Find latest submission with this store
+    const subs = SUBMISSIONS.filter(s => s.stores && (store in s.stores)).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    if (!subs.length) return "missed";
+    const v = subs[0].stores[store];
+    const last = new Date(subs[0].date);
+    const days = Math.floor((TODAY - last) / 86400000);
+    if (v === "not_done") return "missed";
+    if (days <= 7) return "active";
+    if (days <= 21) return "stale";
+    return "missed";
+  }
+  function searchTerm() { return ($("search").value || "").trim().toLowerCase(); }
+  function visibleStores() {
+    const q = searchTerm();
+    return q ? STORES.filter(s => s.toLowerCase().includes(q)) : STORES;
+  }
+
+  // ----- Stats -----
+  function renderStats() {
+    const todayISO = fmtDateISO(TARGET_DAY);
+    const thisSub = submissionFor(todayISO);
+    const accurateThisWeek = thisSub ? Object.values(thisSub.stores || {}).filter(v => v === "accurate").length : 0;
+    const incThisWeek = thisSub ? Object.values(thisSub.stores || {}).filter(v => v === "inconsistencies").length : 0;
+    const countedThisWeek = accurateThisWeek + incThisWeek;
+    const missingThisWeek = thisSub ? (STORES.length - countedThisWeek) : STORES.length;
+
+    const mtd = SUBMISSIONS.filter(s => {
+      const d = new Date(s.date || 0);
+      return d.getFullYear() === TODAY.getFullYear() && d.getMonth() === TODAY.getMonth();
+    });
+
+    let totalCounted = 0, totalAccurate = 0;
+    for (const s of SUBMISSIONS) {
+      for (const v of Object.values(s.stores || {})) {
+        if (v === "accurate") { totalCounted++; totalAccurate++; }
+        else if (v === "inconsistencies") totalCounted++;
+      }
+    }
+    const ratePct = totalCounted ? Math.round((totalAccurate / totalCounted) * 100) : 0;
+
+    setStat("statThisWeek", `${accurateThisWeek} / ${STORES.length}`, `${incThisWeek} with inconsistencies · for ${dayMonth(TARGET_DAY)}`, accurateThisWeek === STORES.length && STORES.length > 0 ? "positive" : (countedThisWeek ? "warning" : ""));
+    setStat("statMTD", String(mtd.length), `${mtd.reduce((acc, s) => acc + Object.values(s.stores||{}).filter(v=>v==="accurate").length, 0)} accurate counts this month`);
+    setStat("statRate", ratePct + "%", `${totalAccurate} accurate of ${totalCounted} counted`, ratePct >= 80 ? "positive" : ratePct >= 50 ? "warning" : "error");
+    setStat("statMissing", String(Math.max(0, missingThisWeek)), `out of ${STORES.length} expected`, missingThisWeek === 0 ? "positive" : "error");
+  }
+  function setStat(id, value, sub, cls) {
+    const el = $(id);
+    el.querySelector(".stat-value").textContent = value;
+    el.querySelector(".stat-sub").textContent = sub || "";
+    el.className = "stat" + (cls ? " " + cls : "");
+  }
+
+  // ----- Weekly view -----
+  function renderWeekly() {
+    const cursor = weeklyCursor;
+    $("weeklyMonthLabel").textContent = monthLabel(cursor);
+    $("weeklyMonthDisplay").textContent = monthLabel(cursor);
+    const days = daysOfWeekInMonth(cursor.getFullYear(), cursor.getMonth(), CONFIG.DAY_OF_WEEK);
+    const today = thisOrLast(new Date(), CONFIG.DAY_OF_WEEK);
+    const stores = visibleStores();
+    const table = $("weeklyTable");
+    if (!stores.length) {
+      table.innerHTML = `<tbody><tr><td colspan="${days.length + 2}" style="padding:40px;color:var(--text-dim);text-align:center">No stores.</td></tr></tbody>`;
+      return;
+    }
+    let html = "<thead><tr><th class='store-name' style='text-align:left'>Store</th>";
+    for (const d of days) html += `<th>${CONFIG.DAY_LABEL.slice(0,3)} ${dayMonth(d)}</th>`;
+    html += "<th class='status-cell'>Month</th></tr></thead><tbody>";
+
+    for (const store of stores) {
+      const status = storeStatus(store);
+      html += `<tr><td class="store-name ${status}">${escapeHtml(store)}</td>`;
+      let accCount = 0, incCount = 0, possible = 0;
+      for (const d of days) {
+        const iso = fmtDateISO(d);
+        const isFuture = d > today;
+        if (!isFuture) possible++;
+        const sub = submissionFor(iso);
+        const storeStatusVal = sub ? (sub.stores || {})[store] : null;
+        if (isFuture) {
+          html += `<td class="cell future">·</td>`;
+        } else if (!sub || !storeStatusVal || storeStatusVal === "not_done") {
+          html += `<td class="cell missed" title="Missed ${iso}">✕</td>`;
+        } else if (storeStatusVal === "accurate") {
+          accCount++;
+          html += `<td class="cell accurate" title="Accurate · ${iso}" data-date="${iso}">✓</td>`;
+        } else if (storeStatusVal === "inconsistencies") {
+          incCount++;
+          html += `<td class="cell inconsistencies" title="Inconsistencies · ${iso}" data-date="${iso}">⚠</td>`;
+        } else {
+          html += `<td class="cell missed" title="${storeStatusVal}">?</td>`;
+        }
+      }
+      const score = possible ? `${accCount}/${possible}${incCount ? ` (+${incCount}⚠)` : ""}` : "—";
+      html += `<td class="status-cell">${escapeHtml(score)}</td></tr>`;
+    }
+    html += "</tbody>";
+    table.innerHTML = html;
+    table.querySelectorAll("td.cell.accurate, td.cell.inconsistencies").forEach(td => {
+      td.addEventListener("click", () => {
+        const sub = submissionFor(td.dataset.date);
+        if (sub) openDetail(sub);
+      });
+    });
+  }
+
+  // ----- Monthly view -----
+  function renderMonthly() {
+    const table = $("monthlyTable");
+    const months = [];
+    const start = new Date(TODAY.getFullYear(), TODAY.getMonth() - 11, 1);
+    for (let i = 0; i < 12; i++) months.push(new Date(start.getFullYear(), start.getMonth() + i, 1));
+    const stores = visibleStores();
+    const today = thisOrLast(new Date(), CONFIG.DAY_OF_WEEK);
+    if (!stores.length) {
+      table.innerHTML = `<tbody><tr><td style="padding:40px;color:var(--text-dim);text-align:center">No stores.</td></tr></tbody>`;
+      return;
+    }
+    let html = "<thead><tr><th class='store-name' style='text-align:left'>Store</th>";
+    for (const m of months) html += `<th>${monthShort(m)}</th>`;
+    html += "<th class='status-cell'>Avg</th></tr></thead><tbody>";
+
+    for (const store of stores) {
+      const status = storeStatus(store);
+      html += `<tr><td class="store-name ${status}">${escapeHtml(store)}</td>`;
+      let rateTotal = 0, rateCount = 0;
+      for (const m of months) {
+        const dates = daysOfWeekInMonth(m.getFullYear(), m.getMonth(), CONFIG.DAY_OF_WEEK);
+        const past = dates.filter(d => d <= today);
+        const accurate = past.filter(d => {
+          const sub = submissionFor(fmtDateISO(d));
+          return sub && (sub.stores || {})[store] === "accurate";
+        }).length;
+        if (!past.length) {
+          html += `<td class="heat-cell heat-future">—</td>`;
+        } else {
+          const pct = Math.round((accurate / past.length) * 100);
+          rateTotal += pct; rateCount++;
+          const bucket = pct === 0 ? 0 : pct < 26 ? 25 : pct < 51 ? 50 : pct < 76 ? 75 : 100;
+          html += `<td class="heat-cell heat-${bucket}" title="${store} · ${monthShort(m)} · ${accurate}/${past.length} accurate">${pct}%</td>`;
+        }
+      }
+      const avg = rateCount ? Math.round(rateTotal / rateCount) : 0;
+      html += `<td class="status-cell">${avg}%</td></tr>`;
+    }
+    html += "</tbody>";
+    table.innerHTML = html;
+  }
+
+  // ----- Recent view -----
+  function renderRecent() {
+    const wrap = $("recentWrap");
+    const q = searchTerm();
+    const list = [...SUBMISSIONS]
+      .filter(s => !q || (s.submittedBy || "").toLowerCase().includes(q) || Object.keys(s.stores || {}).some(k => k.toLowerCase().includes(q)))
+      .sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    $("recentCount").textContent = `${list.length} weekly submission${list.length === 1 ? "" : "s"} in the rolling 12-month window`;
+    if (!list.length) {
+      wrap.innerHTML = `<div class="empty">No submissions yet. Submit one via <a href="${CONFIG.NEW_LINK}" target="_blank">+ New ${CONFIG.DAY_LABEL} Checklist</a>.</div>`;
+      return;
+    }
+    let html = `<table class="recent"><thead><tr>
+      <th>Date</th><th>Submitter</th><th>Accurate</th><th>Inconsistencies</th><th>Not done</th><th class="hide-sm">Submitted</th>
+    </tr></thead><tbody>`;
+    for (const s of list) {
+      const vals = Object.values(s.stores || {});
+      const accurate = vals.filter(v => v === "accurate").length;
+      const inc = vals.filter(v => v === "inconsistencies").length;
+      const nd = vals.filter(v => v === "not_done").length;
+      const submitted = s.submittedAt ? new Date(s.submittedAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "";
+      const idx = SUBMISSIONS.indexOf(s);
+      html += `<tr class="row" data-idx="${idx}">
+        <td>${escapeHtml(s.date || "")}</td>
+        <td>${escapeHtml(s.submittedBy || "—")}</td>
+        <td><span class="pill accurate">${accurate}</span></td>
+        <td>${inc ? `<span class="pill inconsistencies">${inc}</span>` : '<span style="color:var(--text-faint)">0</span>'}</td>
+        <td>${nd ? `<span class="pill missed">${nd}</span>` : '<span style="color:var(--text-faint)">0</span>'}</td>
+        <td class="hide-sm">${escapeHtml(submitted)}</td>
+      </tr>`;
+    }
+    html += "</tbody></table>";
+    wrap.innerHTML = html;
+    wrap.querySelectorAll("tr.row").forEach(tr => {
+      tr.addEventListener("click", () => openDetail(SUBMISSIONS[parseInt(tr.dataset.idx)]));
+    });
+  }
+
+  function renderAll() { renderStats(); renderWeekly(); renderMonthly(); renderRecent(); }
+
+  // ----- Detail modal -----
+  function openDetail(s) {
+    if (!s) return;
+    const submitted = s.submittedAt ? new Date(s.submittedAt).toLocaleString() : "—";
+    const stores = s.stores || {};
+    const accurate = [];
+    const inc = [];
+    const nd = [];
+    for (const [name, val] of Object.entries(stores)) {
+      if (val === "accurate") accurate.push(name);
+      else if (val === "inconsistencies") inc.push(name);
+      else nd.push(name);
+    }
+    accurate.sort(); inc.sort(); nd.sort();
+    const renderStoreList = (arr, cls, label) => {
+      if (!arr.length) return "";
+      return `<table class="stores-table"><thead><tr><th>${label}</th><th class="status-col">${arr.length}</th></tr></thead><tbody>
+        ${arr.map(s => `<tr><td>${escapeHtml(s)}</td><td class="status-col"><span class="pill ${cls}">${label.toLowerCase()}</span></td></tr>`).join("")}
+      </tbody></table>`;
+    };
+
+    $("modalContent").innerHTML = `
+      <header>
+        <h2>${escapeHtml(CONFIG.PAGE_TITLE)} · ${escapeHtml(s.date || "")}<small>Submitted ${escapeHtml(submitted)}</small></h2>
+        <button class="close" id="closeModal" aria-label="Close">×</button>
+      </header>
+      <div class="detail-grid">
+        <div class="item"><div class="lbl">Submitted by</div><div class="val">${escapeHtml(s.submittedBy || "—")}</div></div>
+        <div class="item"><div class="lbl">${CONFIG.DAY_LABEL} of</div><div class="val">${escapeHtml(s.date || "—")}</div></div>
+        <div class="item"><div class="lbl">Accurate</div><div class="val"><span class="pill accurate">${accurate.length}</span></div></div>
+        <div class="item"><div class="lbl">Inconsistencies</div><div class="val">${inc.length ? `<span class="pill inconsistencies">${inc.length}</span>` : '<span style="color:var(--text-faint)">0</span>'}</div></div>
+      </div>
+      ${inc.length ? renderStoreList(inc, "inconsistencies", "Inconsistencies") : ""}
+      ${nd.length ? renderStoreList(nd, "missed", "Not done") : ""}
+      ${accurate.length ? renderStoreList(accurate, "accurate", "Accurate") : ""}
+      <div class="${s.notes ? "notes-block" : "notes-block empty-state"}">${escapeHtml(s.notes || "No notes left.")}</div>
+      <div class="modal-actions">
+        <button class="btn" id="downloadJson">⬇ Download JSON</button>
+        <button class="btn primary" id="closeModal2">Close</button>
+      </div>`;
+    $("modalBackdrop").classList.add("show");
+    const close = () => $("modalBackdrop").classList.remove("show");
+    $("closeModal").onclick = close;
+    $("closeModal2").onclick = close;
+    $("modalBackdrop").onclick = e => { if (e.target === $("modalBackdrop")) close(); };
+    $("downloadJson").onclick = () => {
+      const blob = new Blob([JSON.stringify(s, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = s._filename || `${s.date}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+  }
+
+  document.querySelectorAll(".tabs .tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tabs .tab").forEach(b => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + btn.dataset.view));
+    });
+  });
+
+  $("refreshBtn").onclick = loadAll;
+  $("cleanupBtn").onclick = () => { if (confirm(`Delete all submissions older than ${CONFIG.RETENTION_DAYS} days?`)) cleanupOldFiles(); };
+  $("weeklyPrev").onclick = () => { weeklyCursor = shiftMonth(weeklyCursor, -1); renderWeekly(); };
+  $("weeklyNext").onclick = () => { weeklyCursor = shiftMonth(weeklyCursor, +1); renderWeekly(); };
+  $("search").addEventListener("input", () => { renderWeekly(); renderMonthly(); renderRecent(); });
+
+  $("exportBtn").onclick = () => {
+    if (!SUBMISSIONS.length) return;
+    const rows = [["Date","Submitted By","Store","Status","Notes","Submitted At"]];
+    for (const s of SUBMISSIONS) {
+      for (const [store, status] of Object.entries(s.stores || {})) {
+        rows.push([s.date || "", s.submittedBy || "", store, status, (s.notes || "").replace(/\n/g, " "), s.submittedAt || ""]);
+      }
+    }
+    const csv = rows.map(r => r.map(c => { const t = String(c); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; }).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `tuesday-phone-counts-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(a.href);
+  };
+
+  loadAll();
+</script>
+</body>
+</html>

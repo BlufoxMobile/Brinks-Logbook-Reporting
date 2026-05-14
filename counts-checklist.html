@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Count Checklists</title>
+<style>
+  :root {
+    --bg: #000; --surface: #0e0e0e; --surface-2: #1a1a1a; --surface-3: #242424;
+    --border: #2a2a2a; --border-strong: #3a3a3a;
+    --text: #ffffff; --text-dim: #8a8a8a; --text-faint: #555555;
+    --positive: #4ade80; --warning: #fbbf24; --error: #ef4444; --accent: #ff5a1f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+  .bx-tabs { position: sticky; top: 0; z-index: 200; background: #000; border-bottom: 1px solid #2a2a2a; }
+  .bx-tabs-inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; }
+  .bx-tab { padding: 14px 18px; color: #b8b8b8; text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
+  .bx-tab:hover { color: #fff; }
+  .bx-tab.active { color: #ff5a1f; border-bottom-color: #ff5a1f; }
+
+  .container { max-width: 980px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  .page-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .brand-logo { width: 42px; height: 42px; border-radius: 8px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid var(--border); }
+  .page-header h1 { margin: 0; font-size: 22px; font-weight: 700; }
+  .page-header h1 small { display: block; color: var(--text-dim); font-size: 13px; font-weight: 400; margin-top: 2px; }
+  .status-pill { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--text-dim); }
+  .status-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--positive); }
+  .status-pill.error .dot { background: var(--error); }
+  .status-pill.warn .dot { background: var(--warning); }
+
+  /* Day sub-tabs */
+  .day-tabs { display: inline-flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 18px; }
+  .day-tab { background: transparent; border: none; color: var(--text-dim); padding: 9px 16px; font-size: 14px; font-weight: 600; border-radius: 7px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
+  .day-tab.active { background: var(--surface-3); color: var(--text); }
+  .day-tab:hover:not(.active) { color: var(--text); }
+
+  /* Meta row */
+  .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 640px) { .meta { grid-template-columns: 1fr; } }
+  .meta-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .meta-card .lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); margin-bottom: 4px; }
+  .meta-card .val { font-size: 15px; font-weight: 600; }
+  .meta-card input { width: 100%; background: transparent; border: none; color: var(--text); font-size: 15px; font-weight: 600; font-family: inherit; outline: none; padding: 0; }
+  .meta-card input::placeholder { color: var(--text-faint); }
+
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+  @media (min-width: 640px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); margin-bottom: 4px; }
+  .stat-value { font-size: 24px; font-weight: 700; line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .stat.positive .stat-value { color: var(--positive); }
+  .stat.warning .stat-value { color: var(--warning); }
+  .stat.error .stat-value { color: var(--error); }
+
+  .search { margin-bottom: 12px; }
+  .search input { width: 100%; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; font-family: inherit; }
+  .search input:focus { outline: none; border-color: var(--border-strong); }
+
+  .store-list { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .store-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--surface-2); transition: background 0.1s; }
+  .store-row:last-child { border-bottom: none; }
+  .store-row:hover { background: var(--surface-2); }
+  .store-row.done.accurate { background: rgba(74, 222, 128, 0.05); }
+  .store-row.done.inconsistencies { background: rgba(251, 191, 36, 0.05); }
+  .store-name { flex: 1; font-weight: 600; font-size: 15px; }
+
+  .status-options { display: flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+  .status-options label { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; color: var(--text-dim); transition: all 0.1s; white-space: nowrap; user-select: none; }
+  .status-options label:hover { color: var(--text); }
+  .status-options input { display: none; }
+  .status-options input:checked + label.lbl-not { background: var(--surface-3); color: var(--text); }
+  .status-options input:checked + label.lbl-acc { background: var(--positive); color: #000; }
+  .status-options input:checked + label.lbl-inc { background: var(--warning); color: #000; }
+
+  .notes-section { margin-top: 18px; }
+  .notes-section label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); margin-bottom: 6px; }
+  .notes-section textarea { width: 100%; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 80px; }
+  .notes-section textarea:focus { outline: none; border-color: var(--border-strong); }
+
+  .actions { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .btn { padding: 11px 18px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); margin-left: auto; padding: 11px 24px; }
+  .btn.primary:hover { opacity: 0.92; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status-banner { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .status-banner.show { display: block; }
+  .status-banner.success { background: rgba(74, 222, 128, 0.1); border: 1px solid var(--positive); color: var(--positive); }
+  .status-banner.error   { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); color: var(--error); }
+  .status-banner.info    { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-dim); }
+
+  .empty { background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; padding: 40px 20px; text-align: center; color: var(--text-dim); }
+
+  @media (max-width: 640px) {
+    .store-row { flex-direction: column; align-items: stretch; gap: 8px; }
+    .status-options { width: 100%; }
+    .status-options label { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<nav class="bx-tabs" aria-label="Reports">
+  <div class="bx-tabs-inner">
+    <a class="bx-tab" href="index.html">🚚 Brinks Pickup Log</a>
+    <a class="bx-tab" href="monday-ops.html">📋 Monday Ops Tracker</a>
+    <a class="bx-tab active" href="tuesday-phone-tracker.html" aria-current="page">📞 Tuesday Phone Counts</a>
+    <a class="bx-tab" href="wednesday-cpe-tracker.html">📱 Wednesday CPE Counts</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <div class="brand-logo" id="dayIcon">📞</div>
+    <h1 id="dayTitle">Tuesday Phone Count Checklist<small id="daySubtitle">Walk the store list, mark each store's status, then submit.</small></h1>
+    <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">Loading stores…</span></div>
+  </div>
+
+  <div class="day-tabs" role="tablist">
+    <button class="day-tab active" data-day="tuesday">📞 Tuesday Phone Counts</button>
+    <button class="day-tab" data-day="wednesday">📱 Wednesday CPE Counts</button>
+  </div>
+
+  <div class="meta">
+    <div class="meta-card">
+      <div class="lbl">Date</div>
+      <div class="val" id="dateDisplay">—</div>
+    </div>
+    <div class="meta-card">
+      <div class="lbl">Submitted by</div>
+      <input type="text" id="submitter" placeholder="Your name (e.g., Jeff Bilbrey)" autocomplete="name">
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Stores</div><div class="stat-value" id="statTotal">0</div><div class="stat-sub">total</div></div>
+    <div class="stat positive"><div class="stat-label">Accurate</div><div class="stat-value" id="statAccurate">0</div><div class="stat-sub">counts matched</div></div>
+    <div class="stat warning"><div class="stat-label">Inconsistencies</div><div class="stat-value" id="statInconsistent">0</div><div class="stat-sub">need review</div></div>
+    <div class="stat error"><div class="stat-label">Not done</div><div class="stat-value" id="statNotDone">0</div><div class="stat-sub">still pending</div></div>
+  </div>
+
+  <div class="search"><input type="text" id="search" placeholder="Search store name…" autocomplete="off"></div>
+
+  <div class="store-list" id="storeList"></div>
+
+  <div class="notes-section">
+    <label for="notes">General notes (optional)</label>
+    <textarea id="notes" placeholder="Anything to flag for the team this week?"></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="saveDraftBtn">💾 Save draft locally</button>
+    <button class="btn" id="clearDraftBtn">🗑️ Clear draft</button>
+    <button class="btn primary" id="submitBtn">Submit checklist</button>
+  </div>
+
+  <div class="status-banner" id="banner"></div>
+</div>
+
+<script>
+  /* ============================================================
+   * CONFIGURATION
+   * ============================================================ */
+  const CONFIG = {
+    GITHUB_OWNER: "BlufoxMobile",
+    GITHUB_REPO: "Brinks-Logbook-Reporting",
+    GITHUB_BRANCH: "main",
+
+    DIRECTORY_URL: "https://raw.githubusercontent.com/blufoxmobile/Daily-Sales-Report/main/data/store-directory.json",
+
+    // GitHub PAT with `contents: write` on Brinks-Logbook-Reporting.
+    // IMPORTANT: this token is embedded in the page — scope it narrowly.
+    // Leave blank to skip GitHub upload (the form will save a local JSON file instead).
+    GITHUB_TOKEN: "",
+
+    FALLBACK_STORES: [
+      "Bourbonnais","Burbank","Calumet City","Cicero","Dekalb","Downer's Grove",
+      "Elkhart","Evanston","Evergreen Park","Frankfort","Glenview","Hammond",
+      "Kildeer","Machesney Park","Michigan City","Round Lake Beach","Schererville",
+      "South Bend","South Skokie","Tinley Park","Uptown","Valparaiso"
+    ]
+  };
+  /* ============================================================ */
+
+  const $ = id => document.getElementById(id);
+  const fmtDateISO = d => d.toISOString().slice(0, 10);
+  const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+
+  function thisOrLast(d, dayOfWeek) {
+    d = new Date(d); d.setHours(0, 0, 0, 0);
+    const diff = (d.getDay() - dayOfWeek + 7) % 7;
+    d.setDate(d.getDate() - diff);
+    return d;
+  }
+  function fmtFriendlyDate(d) {
+    return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  }
+
+  /* Day configuration */
+  const DAYS = {
+    tuesday: {
+      key: "tuesday",
+      icon: "📞",
+      title: "Tuesday Phone Count Checklist",
+      subtitle: "Walk the store list, mark each store's phone count status, then submit.",
+      storageDir: "data/tuesday-phone-counts",
+      dayOfWeek: 2, // Tuesday
+      activeDate: null,   // Date object
+      activeDateISO: "",
+      state: {}           // { store: "not_done"|"accurate"|"inconsistencies" }
+    },
+    wednesday: {
+      key: "wednesday",
+      icon: "📱",
+      title: "Wednesday CPE Count Checklist",
+      subtitle: "Walk the store list, mark each store's CPE count status, then submit.",
+      storageDir: "data/wednesday-cpe-counts",
+      dayOfWeek: 3, // Wednesday
+      activeDate: null,
+      activeDateISO: "",
+      state: {}
+    }
+  };
+
+  // Compute the active date for each day
+  const TODAY = new Date();
+  for (const k of Object.keys(DAYS)) {
+    DAYS[k].activeDate = thisOrLast(TODAY, DAYS[k].dayOfWeek);
+    DAYS[k].activeDateISO = fmtDateISO(DAYS[k].activeDate);
+  }
+
+  let CURRENT_DAY = "tuesday";
+  let STORES = [];
+
+  const draftKey = day => `daily-counts-${day.key}-${day.activeDateISO}`;
+
+  // ----- Directory loading -----
+  async function loadDirectory() {
+    setStatus("info", "Loading store list…");
+    try {
+      const res = await fetch(CONFIG.DIRECTORY_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const json = await res.json();
+      if (json && Array.isArray(json.stores) && json.stores.length && typeof json.stores[0] === "string") {
+        STORES = json.stores.slice();
+      } else if (Array.isArray(json)) {
+        STORES = json.map(s => typeof s === "string" ? s : (s.store || s.name || "")).filter(Boolean);
+      } else {
+        throw new Error("Unknown directory shape");
+      }
+    } catch (err) {
+      console.warn("Directory fetch failed, using fallback:", err);
+      STORES = CONFIG.FALLBACK_STORES.slice();
+    }
+    STORES.sort();
+    // Initialize per-day state
+    for (const d of Object.values(DAYS)) {
+      for (const s of STORES) if (!(s in d.state)) d.state[s] = "not_done";
+    }
+    loadDraft();
+    applyDay();
+    setStatus("ok", `${STORES.length} stores loaded`);
+  }
+
+  function setStatus(kind, msg) {
+    const pill = $("statusPill");
+    pill.className = "status-pill " + (kind === "error" ? "error" : kind === "warn" ? "warn" : "");
+    $("statusText").textContent = msg;
+  }
+
+  // ----- Draft (localStorage) -----
+  function saveDraft(silent) {
+    const day = DAYS[CURRENT_DAY];
+    const draft = {
+      date: day.activeDateISO,
+      submitter: $("submitter").value,
+      notes: $("notes").value,
+      stores: day.state
+    };
+    try {
+      localStorage.setItem(draftKey(day), JSON.stringify(draft));
+      if (!silent) showBanner("info", "Draft saved locally for " + day.title + ". You can close this tab and pick up later.");
+    } catch (e) { console.warn("Couldn't save draft:", e); }
+  }
+  function loadDraft() {
+    // Load drafts for both days so switching keeps state
+    for (const day of Object.values(DAYS)) {
+      try {
+        const raw = localStorage.getItem(draftKey(day));
+        if (!raw) continue;
+        const draft = JSON.parse(raw);
+        if (draft.date !== day.activeDateISO) continue;
+        day._submitter = draft.submitter || "";
+        day._notes = draft.notes || "";
+        if (draft.stores && typeof draft.stores === "object") {
+          for (const [k, v] of Object.entries(draft.stores)) if (k in day.state) day.state[k] = v;
+        }
+      } catch (e) { console.warn("Couldn't load draft:", e); }
+    }
+  }
+  function clearDraft() {
+    const day = DAYS[CURRENT_DAY];
+    if (!confirm(`Clear the local draft for ${day.title} and reset every store to "Not done"?`)) return;
+    localStorage.removeItem(draftKey(day));
+    for (const s of STORES) day.state[s] = "not_done";
+    day._submitter = "";
+    day._notes = "";
+    $("submitter").value = "";
+    $("notes").value = "";
+    renderList();
+    renderStats();
+    showBanner("info", "Draft cleared.");
+  }
+
+  // ----- Day switching -----
+  function applyDay() {
+    const day = DAYS[CURRENT_DAY];
+    document.title = day.title;
+    $("dayIcon").textContent = day.icon;
+    $("dayTitle").firstChild.textContent = day.title;
+    $("daySubtitle").textContent = day.subtitle;
+    $("dateDisplay").textContent = fmtFriendlyDate(day.activeDate);
+    $("submitter").value = day._submitter || "";
+    $("notes").value = day._notes || "";
+    document.querySelectorAll(".day-tab").forEach(t => t.classList.toggle("active", t.dataset.day === CURRENT_DAY));
+    renderList();
+    renderStats();
+  }
+  document.querySelectorAll(".day-tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      // Save current day's submitter/notes into its cache before switching
+      const cur = DAYS[CURRENT_DAY];
+      cur._submitter = $("submitter").value;
+      cur._notes = $("notes").value;
+      CURRENT_DAY = btn.dataset.day;
+      applyDay();
+      // Update URL hash for deep linking
+      history.replaceState(null, "", "#" + CURRENT_DAY);
+    });
+  });
+
+  // ----- Render -----
+  function searchTerm() { return ($("search").value || "").trim().toLowerCase(); }
+  function visibleStores() {
+    const q = searchTerm();
+    return q ? STORES.filter(s => s.toLowerCase().includes(q)) : STORES;
+  }
+  function renderList() {
+    const wrap = $("storeList");
+    const stores = visibleStores();
+    const state = DAYS[CURRENT_DAY].state;
+    if (!stores.length) {
+      wrap.innerHTML = `<div class="empty">No stores match "${escapeHtml(searchTerm())}".</div>`;
+      return;
+    }
+    wrap.innerHTML = stores.map(store => {
+      const idx = STORES.indexOf(store);
+      const val = state[store] || "not_done";
+      const done = val !== "not_done";
+      const cls = done ? `done ${val}` : "";
+      const radioName = `status-${CURRENT_DAY}-${idx}`;
+      return `
+      <div class="store-row ${cls}" data-store="${escapeHtml(store)}">
+        <div class="store-name">${escapeHtml(store)}</div>
+        <div class="status-options" role="radiogroup" aria-label="Status for ${escapeHtml(store)}">
+          <input type="radio" name="${radioName}" id="${radioName}-not" value="not_done" ${val==="not_done"?"checked":""}><label for="${radioName}-not" class="lbl-not">Not done</label>
+          <input type="radio" name="${radioName}" id="${radioName}-acc" value="accurate" ${val==="accurate"?"checked":""}><label for="${radioName}-acc" class="lbl-acc">Accurate ✓</label>
+          <input type="radio" name="${radioName}" id="${radioName}-inc" value="inconsistencies" ${val==="inconsistencies"?"checked":""}><label for="${radioName}-inc" class="lbl-inc">Inconsistencies ⚠</label>
+        </div>
+      </div>`;
+    }).join("");
+    wrap.querySelectorAll(".store-row").forEach(row => {
+      row.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener("change", () => {
+          state[row.dataset.store] = input.value;
+          row.classList.remove("done","accurate","inconsistencies");
+          if (input.value !== "not_done") row.classList.add("done", input.value);
+          renderStats();
+          saveDraft(true);
+        });
+      });
+    });
+  }
+  function renderStats() {
+    const state = DAYS[CURRENT_DAY].state;
+    const total = STORES.length;
+    let acc = 0, inc = 0, nd = 0;
+    for (const s of STORES) {
+      const v = state[s];
+      if (v === "accurate") acc++;
+      else if (v === "inconsistencies") inc++;
+      else nd++;
+    }
+    $("statTotal").textContent = total;
+    $("statAccurate").textContent = acc;
+    $("statInconsistent").textContent = inc;
+    $("statNotDone").textContent = nd;
+  }
+
+  function showBanner(kind, msg) {
+    const b = $("banner");
+    b.className = "status-banner show " + kind;
+    b.textContent = msg;
+  }
+
+  // ----- Submit -----
+  async function submit() {
+    const day = DAYS[CURRENT_DAY];
+    const submitter = $("submitter").value.trim();
+    if (!submitter) {
+      showBanner("error", "Please enter your name in the Submitted by field before submitting.");
+      $("submitter").focus();
+      return;
+    }
+    const stillPending = STORES.filter(s => (day.state[s] || "not_done") === "not_done");
+    if (stillPending.length) {
+      const ok = confirm(`${stillPending.length} store${stillPending.length===1?" is":"s are"} still marked "Not done":\n\n` +
+        stillPending.slice(0, 8).map(s => "  • " + s).join("\n") +
+        (stillPending.length > 8 ? `\n  …and ${stillPending.length - 8} more` : "") +
+        `\n\nSubmit anyway? They'll be recorded as missed.`);
+      if (!ok) return;
+    }
+
+    const payload = {
+      submittedAt: new Date().toISOString(),
+      date: day.activeDateISO,
+      type: day.key,
+      submittedBy: submitter,
+      notes: $("notes").value,
+      stores: { ...day.state }
+    };
+
+    $("submitBtn").disabled = true;
+    showBanner("info", "Submitting…");
+    try {
+      if (CONFIG.GITHUB_TOKEN) {
+        await pushToGitHub(payload, day);
+        showBanner("success", `✓ ${day.title.replace(" Checklist","")} submitted! It will appear in the ${day.icon} tracker shortly.`);
+        localStorage.removeItem(draftKey(day));
+      } else {
+        downloadJSON(payload);
+        showBanner("success", "✓ No GitHub token configured. Saved as a local JSON file — drop it into the tracker's Import JSON to publish.");
+      }
+    } catch (err) {
+      console.error(err);
+      showBanner("error", `Submit failed: ${err.message}. Saving locally instead.`);
+      downloadJSON(payload);
+    } finally {
+      $("submitBtn").disabled = false;
+    }
+  }
+
+  function downloadJSON(data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${data.date}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  async function pushToGitHub(data, day) {
+    const path = `${day.storageDir}/${data.date}.json`;
+    const apiBase = `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${path}`;
+    let sha;
+    try {
+      const head = await fetch(apiBase + "?ref=" + encodeURIComponent(CONFIG.GITHUB_BRANCH), {
+        headers: { Authorization: "token " + CONFIG.GITHUB_TOKEN, Accept: "application/vnd.github+json" }
+      });
+      if (head.ok) sha = (await head.json()).sha;
+    } catch {}
+    const body = {
+      message: `${day.title}: ${data.date} (${data.submittedBy})`,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
+      branch: CONFIG.GITHUB_BRANCH
+    };
+    if (sha) body.sha = sha;
+    const res = await fetch(apiBase, {
+      method: "PUT",
+      headers: { Authorization: "token " + CONFIG.GITHUB_TOKEN, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`GitHub ${res.status}: ${text.slice(0, 200)}`);
+    }
+    return res.json();
+  }
+
+  // ----- Wire up -----
+  $("search").addEventListener("input", renderList);
+  $("submitter").addEventListener("input", () => { DAYS[CURRENT_DAY]._submitter = $("submitter").value; saveDraft(true); });
+  $("notes").addEventListener("input", () => { DAYS[CURRENT_DAY]._notes = $("notes").value; saveDraft(true); });
+  $("saveDraftBtn").onclick = () => saveDraft(false);
+  $("clearDraftBtn").onclick = clearDraft;
+  $("submitBtn").onclick = submit;
+
+  // Deep-link to a day via URL hash (#tuesday or #wednesday)
+  if (location.hash === "#wednesday") CURRENT_DAY = "wednesday";
+
+  loadDirectory();
+</script>
+</body>
+</html>
