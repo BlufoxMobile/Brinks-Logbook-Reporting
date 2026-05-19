@@ -187,7 +187,14 @@
   /* ============================================================ */
 
   const $ = id => document.getElementById(id);
-  const fmtDateISO = d => d.toISOString().slice(0, 10);
+  // LOCAL ISO date (avoids the toISOString UTC-rollover bug when submitting at night).
+  const fmtDateISO = d => {
+    d = new Date(d);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
   const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 
   function thisOrLast(d, dayOfWeek) {
