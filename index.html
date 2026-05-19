@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monday Ops Tracker</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brinks Pickup Log</title>
 <style>
   :root {
     --bg: #000000;
@@ -18,7 +18,6 @@
     --positive: #4ade80;
     --warning: #fbbf24;
     --error: #ef4444;
-    --accent: #ff5a1f;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -27,843 +26,915 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
   }
+  header.site {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+  }
+  .head-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+  .brand-logo {
+    width: 42px; height: 42px; border-radius: 8px;
+    background: linear-gradient(135deg, #14532d, #166534);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .head-title { flex: 1; min-width: 0; }
+  h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.25; margin: 0; }
+  .subtitle { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); margin-right: 6px; vertical-align: middle; }
+  .status-dot.ok { background: var(--positive); }
+  .status-dot.err { background: var(--error); }
+  .head-status { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
 
-  /* Top-level tab strip (shared with Brinks index.html) */
-  .bx-tabs { position: sticky; top: 0; z-index: 200; background: #000; border-bottom: 1px solid #2a2a2a; width: 100%; margin: 0; }
-  .bx-tabs-inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .bx-tab { padding: 14px 18px; color: #b8b8b8; text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
-  .bx-tab:hover { color: #ffffff; }
-  .bx-tab.active { color: #ff5a1f; border-bottom-color: #ff5a1f; }
+  @media (min-width: 640px) {
+    .brand-logo { width: 48px; height: 48px; font-size: 26px; }
+    h1 { font-size: 19px; }
+  }
 
-  .container { max-width: 1200px; margin: 0 auto; padding: 20px 20px 80px; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 80px; }
 
-  /* Page header */
-  .page-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-  .brand-logo { width: 42px; height: 42px; border-radius: 8px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid var(--border); }
-  .page-header h1 { margin: 0; font-size: 22px; font-weight: 700; }
-  .page-header h1 small { display: block; color: var(--text-dim); font-size: 13px; font-weight: 400; margin-top: 2px; }
-  .status-pill { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--text-dim); }
-  .status-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--positive); }
-  .status-pill.error .dot { background: var(--error); }
-  .status-pill.warn .dot { background: var(--warning); }
-
-  /* Stat cards */
+  /* KPI cards */
   .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
   @media (min-width: 640px) { .stats { grid-template-columns: repeat(4, 1fr); gap: 12px; } }
-  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
-  .stat-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); margin-bottom: 6px; }
-  .stat-value { font-size: 28px; font-weight: 700; line-height: 1; }
-  .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-  .stat.positive .stat-value { color: var(--positive); }
-  .stat.warning .stat-value { color: var(--warning); }
-  .stat.error .stat-value { color: var(--error); }
+  .stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px;
+  }
+  .stat-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); }
+  .stat-value { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; margin-top: 4px; }
+  .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .stat.warn .stat-value { color: var(--warning); }
+  .stat.err .stat-value { color: var(--error); }
+  .stat.ok .stat-value { color: var(--positive); }
 
-  /* Toolbar: search + view tabs */
-  .toolbar { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
-  .search { flex: 1; min-width: 200px; }
-  .search input { width: 100%; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; font-family: inherit; }
-  .search input:focus { outline: none; border-color: var(--border-strong); }
+  /* Toolbar */
+  .toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 16px; align-items: center;
+  }
+  .search {
+    flex: 1; min-width: 200px;
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit;
+  }
+  .search:focus { outline: none; border-color: var(--text); }
   .tabs { display: flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
-  .tab { background: transparent; border: none; color: var(--text-dim); padding: 8px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; font-family: inherit; }
+  .tab {
+    background: transparent; border: none; color: var(--text-dim);
+    padding: 8px 14px; font-size: 13px; font-weight: 500;
+    border-radius: 6px; cursor: pointer; font-family: inherit;
+  }
   .tab.active { background: var(--surface-3); color: var(--text); }
   .tab:hover:not(.active) { color: var(--text); }
 
-  /* Legend */
-  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--text-dim); margin-bottom: 16px; }
-  .legend .lg { display: inline-flex; align-items: center; gap: 6px; }
-  .legend .lg .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-  .sw.complete { background: var(--positive); }
-  .sw.partial  { background: var(--warning); }
-  .sw.missed   { background: var(--error); }
-  .sw.future   { background: var(--text-faint); }
+  /* Month navigator */
+  .month-nav {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px;
+  }
+  .month-nav button {
+    background: transparent; border: none; color: var(--text-dim);
+    width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
+    font-size: 16px; font-family: inherit; display: flex; align-items: center; justify-content: center;
+  }
+  .month-nav button:hover:not(:disabled) { background: var(--surface-3); color: var(--text); }
+  .month-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .month-nav .month-label {
+    font-size: 13px; font-weight: 600; padding: 0 8px;
+    min-width: 130px; text-align: center; cursor: pointer;
+    color: var(--text);
+  }
+  .month-nav .month-label:hover { color: var(--positive); }
+  .month-nav select {
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: 6px;
+    padding: 6px 8px; font-size: 13px; font-family: inherit;
+    cursor: pointer;
+  }
 
-  /* Grid section header */
-  .grid-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-  .grid-header .gh-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); }
-  .grid-header .badge { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--text); }
-  .grid-header .sub { color: var(--text-dim); font-size: 12px; }
-  .month-nav { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 2px; }
-  .month-nav button { background: transparent; border: none; color: var(--text-dim); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 14px; }
-  .month-nav button:hover { background: var(--surface-3); color: var(--text); }
-  .month-nav .label { padding: 0 10px; font-size: 12px; font-weight: 600; color: var(--text); min-width: 88px; text-align: center; }
+  .section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); margin: 24px 0 10px; display: flex; align-items: center; gap: 10px; }
+  .section-title .badge { font-size: 11px; font-weight: 500; color: var(--text-dim); background: var(--surface-2); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); }
 
-  /* Per-store grid table */
-  .grid-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-  table.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
-  table.grid th, table.grid td { padding: 9px 10px; text-align: center; border-bottom: 1px solid var(--surface-2); white-space: nowrap; }
-  table.grid thead th { background: #060606; font-weight: 600; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; position: sticky; top: 0; z-index: 1; }
-  table.grid tbody tr:last-child td { border-bottom: none; }
-  table.grid td.store-name { text-align: left; font-weight: 600; padding-left: 16px; position: sticky; left: 0; background: var(--surface); z-index: 1; }
-  table.grid thead th.store-name { left: 0; background: #060606; z-index: 2; }
-  table.grid tbody tr:hover td.store-name { background: var(--surface-2); }
-  table.grid tbody tr:hover td { background: rgba(255,255,255,0.02); }
-  .store-name.active { color: var(--positive); }
-  .store-name.stale  { color: var(--warning); }
-  .store-name.missed { color: var(--error); }
-  td.status-cell { font-weight: 600; padding-right: 16px; text-align: right; }
+  /* Daily grid table */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: auto;
+    max-height: 70vh;
+  }
+  table.daily-table {
+    border-collapse: separate; border-spacing: 0;
+    font-size: 13px; width: max-content; min-width: 100%;
+  }
+  .daily-table th, .daily-table td {
+    padding: 8px 10px; text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .daily-table thead th {
+    color: var(--text-dim); font-weight: 500; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    position: sticky; top: 0; z-index: 2;
+    background: var(--surface-2); border-bottom: 1px solid var(--border-strong);
+  }
+  .daily-table th.col-store, .daily-table td.col-store {
+    text-align: left; position: sticky; left: 0; z-index: 1;
+    background: var(--surface); font-weight: 500;
+    min-width: 180px; max-width: 220px;
+    border-right: 1px solid var(--border-strong);
+  }
+  .daily-table thead th.col-store { z-index: 3; background: var(--surface-2); }
+  .daily-table th.col-total, .daily-table td.col-total {
+    position: sticky; right: 0; background: var(--surface-2);
+    color: var(--text); font-weight: 600;
+    border-left: 1px solid var(--border-strong);
+    min-width: 100px;
+  }
+  .daily-table thead th.col-total { z-index: 3; }
+  .daily-table td.col-streak {
+    font-size: 11px; color: var(--text-dim); min-width: 90px;
+  }
+  .daily-table td.cell-today { background: #14231a; color: var(--positive); font-weight: 600; }
+  .daily-table td.cell-has { color: var(--positive); cursor: pointer; }
+  .daily-table td.cell-has:hover { background: #1a2820; }
+  .daily-table td.cell-empty { color: var(--text-faint); }
+  .daily-table tr.store-row:hover td:not(.col-total) { background: #141414; }
+  .daily-table tr.store-row:hover td.col-store { background: #141414; }
+  .daily-table tr.store-row:hover td.col-total { background: #1f1f1f; }
+  .daily-table tr.no-recent td.col-store { color: var(--warning); }
+  .daily-table tr.never-logged td.col-store { color: var(--error); }
 
-  /* Cells in the weekly grid */
-  td.cell { cursor: default; font-size: 14px; line-height: 1; }
-  td.cell.complete { color: var(--positive); cursor: pointer; }
-  td.cell.partial  { color: var(--warning); cursor: pointer; }
-  td.cell.missed   { color: var(--error); }
-  td.cell.future   { color: var(--text-faint); }
-  td.cell.complete:hover, td.cell.partial:hover { background: rgba(255,255,255,0.04); }
+  /* Monthly heatmap (12-month overview) */
+  .month-table th.col-month { min-width: 90px; }
+  .month-table td.cell-money { font-weight: 500; cursor: pointer; }
+  .month-table td.cell-money:hover { background: #141414; }
+  .heat-0 { color: var(--text-faint); }
+  .heat-1 { color: #4ade80; background: rgba(74,222,128,0.05); }
+  .heat-2 { color: #4ade80; background: rgba(74,222,128,0.10); }
+  .heat-3 { color: #4ade80; background: rgba(74,222,128,0.18); }
+  .heat-4 { color: #ffffff; background: rgba(74,222,128,0.28); font-weight: 600; }
 
-  /* Monthly heatmap */
-  table.heat th, table.heat td { padding: 7px 8px; text-align: center; border: 1px solid #060606; font-size: 12px; }
-  table.heat td.heat-cell { font-weight: 600; }
-  .heat-0   { background: var(--surface); color: var(--text-faint); }
-  .heat-25  { background: rgba(74, 222, 128, 0.10); color: var(--text-dim); }
-  .heat-50  { background: rgba(74, 222, 128, 0.25); color: var(--text); }
-  .heat-75  { background: rgba(74, 222, 128, 0.45); color: var(--text); }
-  .heat-100 { background: rgba(74, 222, 128, 0.75); color: #000; }
-  .heat-future { background: var(--surface-2); color: var(--text-faint); }
-
-  /* Recent table */
-  table.recent { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 14px; }
-  table.recent th, table.recent td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--surface-2); }
-  table.recent th { background: #060606; font-weight: 700; color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-  table.recent tr.row { cursor: pointer; }
-  table.recent tr.row:hover td { background: var(--surface-2); }
-  table.recent tr:last-child td { border-bottom: none; }
-  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
-  .pill.yes { background: rgba(74, 222, 128, 0.15); color: var(--positive); }
-  .pill.no  { background: rgba(239, 68, 68, 0.15); color: var(--error); }
-  .pill.mid { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
-
-  .empty { background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; padding: 60px 20px; text-align: center; color: var(--text-dim); }
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* Actions row */
-  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-  .btn { padding: 8px 12px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-  .btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
-  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
-  .btn.primary:hover { opacity: 0.92; }
+  /* Recent feed view */
+  .feed { display: grid; gap: 8px; }
+  .feed-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    display: grid; grid-template-columns: 1fr auto; gap: 10px;
+    cursor: pointer;
+  }
+  .feed-item:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .feed-store { font-weight: 600; font-size: 14px; }
+  .feed-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .feed-amount { font-weight: 600; color: var(--positive); font-size: 15px; text-align: right; white-space: nowrap; }
+  .feed-date { font-size: 12px; color: var(--text-dim); text-align: right; margin-top: 2px; }
 
   /* Modal */
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 300; display: none; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 16px; }
-  .modal-backdrop.show { display: flex; }
-  .modal { background: #0a0a0a; border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 760px; padding: 24px; }
-  .modal header { display: flex; justify-content: space-between; align-items: start; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
-  .modal h2 { margin: 0; font-size: 20px; }
-  .modal h2 small { display: block; color: var(--text-dim); font-weight: 400; font-size: 13px; margin-top: 2px; }
-  .modal .close { background: transparent; border: none; color: var(--text-dim); font-size: 24px; line-height: 1; cursor: pointer; padding: 4px 10px; }
-  .modal .close:hover { color: var(--text); }
-  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 16px; }
-  .detail-grid .item .lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 2px; }
-  .detail-grid .item .val { font-size: 14px; }
-  .answers-list { background: #050505; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
-  .answers-list div { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #161616; font-size: 14px; }
-  .answers-list div:last-child { border: none; }
-  .answers-list .a-lbl { color: var(--text-dim); }
-  .photo-sections { margin-bottom: 16px; }
-  .photo-section { margin-bottom: 18px; }
-  .photo-section:last-child { margin-bottom: 0; }
-  .photo-section-header { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .photo-section-header h3 { margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); }
-  .photo-section-header .count { font-size: 11px; color: var(--text-dim); font-weight: 500; }
-  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  .photos figure { margin: 0; }
-  .photos figcaption { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700; }
-  .photos img { width: 100%; border: 1px solid var(--border); border-radius: 8px; cursor: zoom-in; }
-  .photos-empty { color: var(--text-dim); font-size: 13px; font-style: italic; }
-  .notes-block { background: #050505; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; white-space: pre-wrap; color: var(--text); }
-  .notes-block.empty-state { color: var(--text-dim); font-style: italic; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
-
-  /* Lightbox */
-  .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; cursor: zoom-out; }
-  .lightbox.show { display: flex; }
-  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; }
-
-  @media (max-width: 640px) {
-    .detail-grid, .photos { grid-template-columns: 1fr; }
-    table.recent th.hide-sm, table.recent td.hide-sm { display: none; }
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none; align-items: flex-end; justify-content: center;
+    z-index: 100; padding: 0;
   }
+  .modal-backdrop.show { display: flex; }
+  @media (min-width: 640px) { .modal-backdrop { align-items: center; padding: 20px; } }
+  .modal {
+    background: var(--surface); width: 100%; max-width: 600px;
+    border-radius: 16px 16px 0 0; padding: 0;
+    max-height: 90vh; overflow-y: auto;
+    border: 1px solid var(--border);
+  }
+  @media (min-width: 640px) { .modal { border-radius: 12px; max-height: 80vh; } }
+  .modal-head {
+    padding: 18px 20px 12px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--surface); z-index: 1;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-head h3 { margin: 0; font-size: 17px; font-weight: 600; }
+  .modal-close {
+    background: var(--surface-3); border: none; color: var(--text-dim);
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px;
+  }
+  .modal-body { padding: 16px 20px 24px; }
+  .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+  .modal-stat { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .modal-stat .lbl { font-size: 10px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px; }
+  .modal-stat .val { font-size: 18px; font-weight: 600; margin-top: 2px; }
+  .submission-row {
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr auto; gap: 8px;
+  }
+  .submission-row:last-child { border-bottom: none; }
+  .submission-row .who { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+  .submission-row .amt { font-weight: 600; color: var(--positive); }
+  .submission-row .deposits { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .submission-row .photo-link {
+    display: inline-block; margin-top: 6px; font-size: 12px;
+    color: var(--positive); text-decoration: none;
+    background: #14231a; padding: 4px 8px; border-radius: 4px;
+    border: 1px solid #166534;
+  }
+  .submission-row .photo-link:hover { background: #1a2820; }
+
+  footer.site {
+    text-align: center; color: var(--text-faint);
+    font-size: 12px; padding: 24px 16px; border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  footer.site a { color: var(--text-dim); }
+
+  .empty-msg { text-align: center; color: var(--text-dim); padding: 40px 20px; font-size: 14px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--text-dim); margin-top: 10px; padding-left: 4px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .legend-dot.ok { background: var(--positive); }
+  .legend-dot.warn { background: var(--warning); }
+  .legend-dot.err { background: var(--error); }
 </style>
 </head>
 <body>
+<style>
+  .bx-tabs { position: sticky; top: 0; z-index: 200; background: #000; border-bottom: 1px solid #2a2a2a; width: 100%; margin: 0; }
+  .bx-tabs-inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bx-tab { padding: 14px 18px; color: #b8b8b8; text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .bx-tab:hover { color: #ffffff; }
+  .bx-tab.active { color: #ff5a1f; border-bottom-color: #ff5a1f; }
+</style>
 <nav class="bx-tabs" aria-label="Reports">
   <div class="bx-tabs-inner">
-    <a class="bx-tab" href="index.html">🚚 Brinks Pickup Log</a>
-    <a class="bx-tab active" href="monday-ops.html" aria-current="page">📋 Monday Ops Tracker</a>
+    <a class="bx-tab active" href="index.html" aria-current="page">🚚 Brinks Pickup Log</a>
+    <a class="bx-tab" href="monday-ops.html">📋 Monday Ops Tracker</a>
     <a class="bx-tab" href="tuesday-phone-tracker.html">📞 Tuesday Phone Counts</a>
     <a class="bx-tab" href="wednesday-cpe-tracker.html">📱 Wednesday CPE Counts</a>
   </div>
 </nav>
 
-<div class="container">
-  <div class="page-header">
-    <div class="brand-logo">📋</div>
-    <h1>Monday Ops Tracker<small>Cook County Cooks · weekly completion checklist</small></h1>
-    <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">Loading…</span></div>
+
+<header class="site">
+  <div class="head-inner">
+    <div class="brand-logo" aria-hidden="true">🚚</div>
+    <div class="head-title">
+      <h1>Brinks Pickup Log</h1>
+      <div class="subtitle">Cook County Cooks · cash pickup activity</div>
+    </div>
+    <div class="head-status"><span id="statusDot" class="status-dot"></span><span id="statusText">Loading…</span></div>
   </div>
+</header>
+
+<div class="container">
 
   <div class="stats">
-    <div class="stat" id="statThisMonday">
-      <div class="stat-label">This Monday</div>
-      <div class="stat-value">—</div>
-      <div class="stat-sub">stores completed</div>
+    <div class="stat">
+      <div class="stat-label">Today</div>
+      <div class="stat-value" id="stat-today">0</div>
+      <div class="stat-sub">pickups logged</div>
     </div>
-    <div class="stat" id="statMTD">
+    <div class="stat">
       <div class="stat-label">Month to date</div>
-      <div class="stat-value">—</div>
-      <div class="stat-sub">submissions</div>
+      <div class="stat-value" id="stat-mtd">0</div>
+      <div class="stat-sub">pickups logged</div>
     </div>
-    <div class="stat" id="statRate">
-      <div class="stat-label">12-month rate</div>
-      <div class="stat-value">—</div>
-      <div class="stat-sub">all-yes / submitted</div>
+    <div class="stat">
+      <div class="stat-label">MTD total $</div>
+      <div class="stat-value" id="stat-amount">$0</div>
+      <div class="stat-sub">picked up this month</div>
     </div>
-    <div class="stat error" id="statMissing">
-      <div class="stat-label">Missed this week</div>
-      <div class="stat-value">—</div>
-      <div class="stat-sub">stores</div>
+    <div class="stat warn">
+      <div class="stat-label">Inactive stores</div>
+      <div class="stat-value" id="stat-inactive">0</div>
+      <div class="stat-sub">no pickup in 7+ days</div>
     </div>
   </div>
 
   <div class="toolbar">
-    <div class="search"><input type="text" id="search" placeholder="Search store name…" autocomplete="off"></div>
-    <div class="tabs" role="tablist">
-      <button class="tab active" data-view="weekly">Weekly</button>
+    <input type="text" id="search" class="search" placeholder="Search store name…" autocomplete="off" />
+    <div class="tabs">
+      <button class="tab active" data-view="grid">Daily</button>
       <button class="tab" data-view="monthly">Monthly</button>
-      <button class="tab" data-view="recent">Recent</button>
+      <button class="tab" data-view="feed">Recent</button>
     </div>
   </div>
 
   <div class="legend">
-    <span class="lg"><span class="sw complete"></span>Complete (all yes)</span>
-    <span class="lg"><span class="sw partial"></span>Partial (some no)</span>
-    <span class="lg"><span class="sw missed"></span>Missed</span>
-    <span class="lg"><span class="sw future"></span>Future Monday</span>
-    <span class="lg" style="margin-left:auto">Store name color: <span style="color:var(--positive);margin-left:6px">Active</span> · <span style="color:var(--warning)">Stale</span> · <span style="color:var(--error)">No submissions in 4+ weeks</span></span>
+    <div class="legend-item"><span class="legend-dot ok"></span>Active (logged in last 7 days)</div>
+    <div class="legend-item"><span class="legend-dot warn"></span>Stale (7+ days since last)</div>
+    <div class="legend-item"><span class="legend-dot err"></span>Never logged</div>
   </div>
 
-  <div class="actions">
-    <button class="btn" id="refreshBtn">↻ Refresh</button>
-    <button class="btn" id="cleanupBtn" style="display:none">🧹 Clean up older than 12 months</button>
-    <button class="btn" id="exportBtn">⬇ Export CSV</button>
-    <button class="btn" id="importBtn">⬆ Import JSON</button>
-    <input type="file" id="importInput" accept="application/json,.json" multiple style="display:none">
-    <a class="btn primary" id="newSubmissionBtn" href="monday-ops-checklist.html" target="_blank" rel="noopener">+ New Submission</a>
-  </div>
-
-  <!-- WEEKLY VIEW: per-store grid with Monday columns -->
-  <section class="view active" id="view-weekly">
-    <div class="grid-header">
-      <span class="gh-title">Per-store weekly grid</span>
-      <span class="badge" id="weeklyMonthLabel">—</span>
-      <span class="sub">Mondays only · click any complete/partial cell to open that submission</span>
-      <div class="month-nav">
-        <button id="weeklyPrev" aria-label="Previous month">‹</button>
-        <span class="label" id="weeklyMonthDisplay">—</span>
-        <button id="weeklyNext" aria-label="Next month">›</button>
+  <!-- DAILY VIEW -->
+  <div id="view-grid">
+    <div class="section-title">
+      <span>Per-store daily grid</span>
+      <span class="badge" id="grid-month-badge">—</span>
+      <div style="margin-left:auto;" class="month-nav" id="monthNav">
+        <button id="prevMonth" title="Previous month">‹</button>
+        <span class="month-label" id="monthLabel" title="Click to jump to this month">—</span>
+        <button id="nextMonth" title="Next month">›</button>
+        <select id="monthJump" title="Jump to month"></select>
       </div>
     </div>
-    <div class="grid-scroll"><table class="grid" id="weeklyTable"></table></div>
-  </section>
-
-  <!-- MONTHLY VIEW: heatmap of completion rates -->
-  <section class="view" id="view-monthly">
-    <div class="grid-header">
-      <span class="gh-title">12-month overview</span>
-      <span class="sub">Completion rate per store, per month (% of Mondays with an all-yes submission)</span>
+    <div class="table-wrap">
+      <table class="daily-table" id="dailyTable">
+        <thead><tr id="dailyHeadRow"></tr></thead>
+        <tbody id="dailyBody"></tbody>
+      </table>
     </div>
-    <div class="grid-scroll"><table class="grid heat" id="monthlyTable"></table></div>
-  </section>
+  </div>
 
-  <!-- RECENT VIEW: list of submissions -->
-  <section class="view" id="view-recent">
-    <div class="grid-header">
-      <span class="gh-title">Recent submissions</span>
-      <span class="sub" id="recentCount">—</span>
+  <!-- MONTHLY VIEW -->
+  <div id="view-monthly" style="display:none;">
+    <div class="section-title">
+      <span>12-month overview</span>
+      <span class="badge">Total $ per store, per month</span>
     </div>
-    <div id="recentWrap"></div>
-  </section>
+    <div class="table-wrap">
+      <table class="daily-table month-table" id="monthlyTable">
+        <thead><tr id="monthlyHeadRow"></tr></thead>
+        <tbody id="monthlyBody"></tbody>
+      </table>
+    </div>
+    <div class="legend" style="margin-top:14px;">
+      <div class="legend-item"><span class="legend-dot" style="background:rgba(74,222,128,0.10)"></span>Lower activity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:rgba(74,222,128,0.28)"></span>Higher activity</div>
+      <div class="legend-item">· Click any cell for that store's full month detail</div>
+    </div>
+  </div>
+
+  <!-- RECENT VIEW -->
+  <div id="view-feed" style="display:none;">
+    <div class="section-title">Recent submissions</div>
+    <div class="feed" id="feedList"></div>
+  </div>
+
 </div>
 
-<!-- Detail modal -->
-<div class="modal-backdrop" id="modalBackdrop"><div class="modal" id="modalContent"></div></div>
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Store</h3>
+      <button class="modal-close" id="modalClose">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
+<footer class="site">
+  Last updated <span id="lastUpdated">—</span> · <a href="#" id="refreshLink">Refresh</a> · Showing rolling 12-month window
+</footer>
 
 <script>
-  /* ============================================================
-   * CONFIGURATION — must match the form's settings
-   * ============================================================ */
-  const CONFIG = {
-    GITHUB_OWNER: "blufoxmobile",
-    GITHUB_REPO: "Daily-Sales-Report",
-    GITHUB_BRANCH: "main",
-    SUBMISSIONS_DIR: "data/monday-ops-submissions",
+  // ============================================================
+  // CONFIGURATION
+  // Paste the URL of your "data feed" Power Automate flow below.
+  // (Flow #2 in the setup guide — the one that returns JSON.)
+  // ============================================================
+  const DATA_FEED_URL = "PASTE_YOUR_DATA_FEED_FLOW_URL_HERE";
+  const REFRESH_INTERVAL_MS = 60000; // 60s
+  const HISTORY_MONTHS = 12;         // rolling window
 
-    // Raw URL of the store directory JSON (used to list all expected stores)
-    DIRECTORY_URL: "https://raw.githubusercontent.com/blufoxmobile/Daily-Sales-Report/main/data/store-directory.json",
-
-    // Optional. Required to AUTO-DELETE submissions older than 12 months. Fine-grained PAT with contents:write recommended.
-    GITHUB_TOKEN: "",
-
-    // Rolling window in days
-    RETENTION_DAYS: 365,
-
-    // Hardcoded fallback list if directory fetch fails
-    FALLBACK_STORES: [
-      "Bourbonnais","Burbank","Calumet City","Cicero","Dekalb","Downer's Grove",
-      "Elkhart","Evanston","Evergreen Park","Frankfort","Glenview","Hammond",
-      "Kildeer","Machesney Park","Michigan City","Round Lake Beach","Schererville",
-      "South Bend","South Skokie","Tinley Park","Uptown","Valparaiso"
-    ]
-  };
-  /* ============================================================ */
-
-  const PHOTO_LABELS = {
-    week1:     "Schedules — Week 1",
-    week2:     "Schedules — Week 2",
-    week3:     "Schedules — Week 3",
-    week4:     "Schedules — Week 4",
-    upgrades:  "Empty Upgrades Bucket (XInventory)",
-    tradeins:  "Empty Trade-Ins / Returns Bucket (XInventory)",
-    brinks:    "Brinks Deposit Logs",
-    facility1: "Facilities Issue — Photo 1",
-    facility2: "Facilities Issue — Photo 2",
-    facility3: "Facilities Issue — Photo 3",
-    facility4: "Facilities Issue — Photo 4",
-    safe:      "Inside of Safe (legacy)"
-  };
-
-  const ANSWER_LABELS = {
-    depositBags:    "Two months of deposit bags & slips",
-    pciChecklist:   "PCI Checklist complete",
-    scheduleWeeks:  "4 weeks of schedules in Shiftlabs",
-    cashFloat:      "Cash Float Tracker complete",
-    returnsShipped: "Returns & trade-ins shipped"
-  };
-  const ANSWER_KEYS = Object.keys(ANSWER_LABELS);
-
-  const $ = id => document.getElementById(id);
-  const fmtDateISO = d => d.toISOString().slice(0, 10);
-  const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
-
-  // ----- Date helpers -----
-  function startOfWeekMonday(d) {
-    d = new Date(d);
-    d.setHours(0, 0, 0, 0);
-    const day = d.getDay(); // 0=Sun..6=Sat
-    const diff = (day + 6) % 7; // back to Monday
-    d.setDate(d.getDate() - diff);
-    return d;
-  }
-  function mondaysInMonth(year, monthIdx) {
-    const out = [];
-    const d = new Date(year, monthIdx, 1);
-    while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
-    while (d.getMonth() === monthIdx) {
-      out.push(new Date(d));
-      d.setDate(d.getDate() + 7);
-    }
-    return out;
-  }
-  function shiftMonth(d, delta) {
-    const x = new Date(d);
-    x.setMonth(x.getMonth() + delta);
-    return x;
-  }
-  function monthLabel(d) {
-    return d.toLocaleString(undefined, { month: "long", year: "numeric" });
-  }
-  function monthShort(d) {
-    return d.toLocaleString(undefined, { month: "short" }) + " " + String(d.getFullYear()).slice(2);
-  }
-  function dayMonth(d) { return (d.getMonth() + 1) + "/" + d.getDate(); }
-
-  // ----- State -----
-  let SUBMISSIONS = [];
-  let DIRECTORY  = [];
-  let STORES     = [];                 // canonical list of store names
-  let weeklyCursor = startOfMonth(new Date());
-  function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
-  const TODAY = new Date();
-  const RETENTION_CUTOFF = (() => { const d = new Date(); d.setDate(d.getDate() - CONFIG.RETENTION_DAYS); return d; })();
-
-  // ----- GitHub fetch -----
-  function ghHeaders() {
-    const h = { Accept: "application/vnd.github+json" };
-    if (CONFIG.GITHUB_TOKEN) h.Authorization = "token " + CONFIG.GITHUB_TOKEN;
-    return h;
-  }
-  async function fetchListing() {
-    const url = `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${CONFIG.SUBMISSIONS_DIR}?ref=${encodeURIComponent(CONFIG.GITHUB_BRANCH)}`;
-    const res = await fetch(url, { headers: ghHeaders(), cache: "no-store" });
-    if (res.status === 404) return [];
-    if (!res.ok) throw new Error(`GitHub list ${res.status}`);
-    const items = await res.json();
-    return items.filter(it => it.type === "file" && it.name.endsWith(".json"));
-  }
-  async function fetchSubmission(file) {
-    const res = await fetch(file.download_url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Fetch ${file.name} → ${res.status}`);
-    return res.json();
-  }
-  async function deleteFile(file) {
-    if (!CONFIG.GITHUB_TOKEN) throw new Error("No token configured");
-    const url = `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${file._path}`;
-    const res = await fetch(url, {
-      method: "DELETE",
-      headers: { ...ghHeaders(), "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: `Retention: remove ${file._filename} (>12 months old)`,
-        sha: file._sha,
-        branch: CONFIG.GITHUB_BRANCH
-      })
-    });
-    if (!res.ok) throw new Error(`Delete ${file._filename}: ${res.status}`);
-  }
-
-  async function loadDirectory() {
-    try {
-      const res = await fetch(CONFIG.DIRECTORY_URL, { cache: "no-store" });
-      if (!res.ok) throw new Error(res.status);
-      const json = await res.json();
-      // Blufox schema: { stores: [string], storeManagerNames: {store:name}, storeManagers: {store:email}, storeDMs: {store:email} }
-      if (json && Array.isArray(json.stores) && json.stores.length && typeof json.stores[0] === "string") {
-        const sM  = json.storeManagers     || {};
-        const sMN = json.storeManagerNames || {};
-        const sDM = json.storeDMs          || {};
-        DIRECTORY = json.stores.map(store => {
-          const dmEmail = sDM[store] || "";
-          const dmName  = dmEmail ? dmEmail.replace(/@.*$/, "") : "";
-          return { store, manager: sMN[store] || "", managerEmail: sM[store] || "", dm: dmName, dmEmail };
-        });
-        return;
-      }
-      // Generic fallback for other JSON shapes
-      let arr = [];
-      if (Array.isArray(json)) arr = json;
-      else if (Array.isArray(json?.data)) arr = json.data;
-      else if (json && typeof json === "object") arr = Object.entries(json).map(([k, v]) => (v && typeof v === "object") ? { store: k, ...v } : { store: k });
-      DIRECTORY = arr.map(e => {
-        if (typeof e === "string") return { store: e, manager: "", managerEmail: "", dm: "", dmEmail: "" };
-        const find = (...names) => {
-          for (const n of names) {
-            for (const k of Object.keys(e)) {
-              if (k.toLowerCase().replace(/[_\s-]/g, "") === n.replace(/[_\s-]/g, "").toLowerCase() && e[k]) return String(e[k]);
-            }
-          }
-          return "";
-        };
-        return { store: find("store","storeName","name","location"), manager: find("manager","managerName","storeManager","sm"), managerEmail: find("managerEmail","email","smEmail"), dm: find("dm","districtManager","dmName"), dmEmail: find("dmEmail","districtManagerEmail") };
-      }).filter(e => e.store);
-    } catch (err) {
-      console.warn("Directory fetch failed, using fallback:", err);
-      DIRECTORY = CONFIG.FALLBACK_STORES.map(s => ({ store: s, manager: "", managerEmail: "", dm: "", dmEmail: "" }));
-    }
-  }
-
-  async function loadAll() {
-    setStatus("info", "Loading submissions from GitHub…");
-    try {
-      await loadDirectory();
-      const files = await fetchListing();
-      const subs = await Promise.all(files.map(async f => {
-        try {
-          const data = await fetchSubmission(f);
-          data._filename = f.name;
-          data._path = f.path;
-          data._sha = f.sha;
-          return data;
-        } catch (e) {
-          console.warn("Failed:", f.name, e);
-          return null;
-        }
-      }));
-      SUBMISSIONS = subs.filter(Boolean);
-
-      // Retention: filter out anything older than the cutoff for display
-      SUBMISSIONS = SUBMISSIONS.filter(s => {
-        const d = new Date(s.date || s.submittedAt || 0);
-        return !isNaN(d) && d >= RETENTION_CUTOFF;
-      });
-
-      // Build canonical store list: directory first, then any extras from submissions
-      const fromDir = DIRECTORY.map(e => e.store);
-      const fromSubs = [...new Set(SUBMISSIONS.map(s => s.store).filter(Boolean))];
-      STORES = [...new Set([...fromDir, ...fromSubs])].sort();
-
-      setStatus("ok", `Last refreshed ${new Date().toLocaleTimeString()} · ${SUBMISSIONS.length} submissions · ${STORES.length} stores`);
-
-      if (CONFIG.GITHUB_TOKEN) $("cleanupBtn").style.display = "";
-
-      // Default weekly cursor: this month
-      weeklyCursor = startOfMonth(new Date());
-      renderAll();
-    } catch (err) {
-      console.error(err);
-      setStatus("error", `Couldn't load: ${err.message}`);
-      renderAll();
-    }
-  }
-
-  function setStatus(kind, msg) {
-    const pill = $("statusPill");
-    pill.className = "status-pill " + (kind === "error" ? "error" : kind === "warn" ? "warn" : "");
-    $("statusText").textContent = msg;
-  }
-
-  // ----- Cleanup (delete files older than retention) -----
-  async function cleanupOldFiles() {
-    if (!CONFIG.GITHUB_TOKEN) {
-      alert("No GITHUB_TOKEN configured. Add a fine-grained PAT with contents:write to CONFIG.GITHUB_TOKEN to enable cleanup.");
-      return;
-    }
-    try {
-      setStatus("warn", "Cleaning up…");
-      const files = await fetchListing();
-      let deleted = 0;
-      for (const f of files) {
-        // pull file to learn its date
-        try {
-          const data = await fetchSubmission(f);
-          const d = new Date(data.date || data.submittedAt || 0);
-          if (isNaN(d) || d >= RETENTION_CUTOFF) continue;
-          await deleteFile({ _path: f.path, _filename: f.name, _sha: f.sha });
-          deleted++;
-        } catch (e) {
-          console.warn("Could not process", f.name, e);
-        }
-      }
-      setStatus("ok", `Removed ${deleted} file${deleted === 1 ? "" : "s"} older than 12 months. Refreshing…`);
-      await loadAll();
-    } catch (err) {
-      console.error(err);
-      setStatus("error", `Cleanup failed: ${err.message}`);
-    }
-  }
-
-  // ----- Helpers -----
-  function submissionFor(store, mondayISO) {
-    return SUBMISSIONS.find(s => s.store === store && s.date === mondayISO);
-  }
-  function isAllYes(s) {
-    const a = s?.answers || {};
-    return ANSWER_KEYS.every(k => a[k] === "Yes");
-  }
-  function storeStatus(store) {
-    const subs = SUBMISSIONS.filter(s => s.store === store).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
-    if (!subs.length) return "missed";
-    const last = new Date(subs[0].date || subs[0].submittedAt);
-    const days = Math.floor((TODAY - last) / 86400000);
-    if (days <= 7) return "active";
-    if (days <= 21) return "stale";
-    return "missed";
-  }
-  function searchTerm() { return ($("search").value || "").trim().toLowerCase(); }
-  function visibleStores() {
-    const q = searchTerm();
-    return q ? STORES.filter(s => s.toLowerCase().includes(q)) : STORES;
-  }
-
-  // ----- Stats -----
-  function renderStats() {
-    const todayMonday = startOfWeekMonday(new Date());
-    const todayMondayISO = fmtDateISO(todayMonday);
-    const thisWeekSubs = SUBMISSIONS.filter(s => s.date === todayMondayISO);
-    const thisWeekAllYes = thisWeekSubs.filter(isAllYes).length;
-    const missingThisWeek = STORES.length - thisWeekSubs.length;
-
-    const mtd = SUBMISSIONS.filter(s => {
-      const d = new Date(s.date || 0);
-      return d.getFullYear() === TODAY.getFullYear() && d.getMonth() === TODAY.getMonth();
-    });
-    const allYesYear = SUBMISSIONS.filter(isAllYes).length;
-    const ratePct = SUBMISSIONS.length ? Math.round((allYesYear / SUBMISSIONS.length) * 100) : 0;
-
-    setStat("statThisMonday", `${thisWeekAllYes} / ${STORES.length}`, `${thisWeekSubs.length - thisWeekAllYes} partial · for week of ${dayMonth(todayMonday)}`, thisWeekAllYes === STORES.length && STORES.length > 0 ? "positive" : (thisWeekAllYes ? "warning" : ""));
-    setStat("statMTD", String(mtd.length), `${mtd.filter(isAllYes).length} all-yes this month`);
-    setStat("statRate", ratePct + "%", `${allYesYear} all-yes of ${SUBMISSIONS.length} submitted`, ratePct >= 80 ? "positive" : ratePct >= 50 ? "warning" : "error");
-    setStat("statMissing", String(Math.max(0, missingThisWeek)), `out of ${STORES.length} expected`, missingThisWeek === 0 ? "positive" : "error");
-  }
-  function setStat(id, value, sub, cls) {
-    const el = $(id);
-    el.querySelector(".stat-value").textContent = value;
-    el.querySelector(".stat-sub").textContent = sub || "";
-    el.className = "stat" + (cls ? " " + cls : "");
-  }
-
-  // ----- Weekly view -----
-  function renderWeekly() {
-    const cursor = weeklyCursor;
-    $("weeklyMonthLabel").textContent = monthLabel(cursor);
-    $("weeklyMonthDisplay").textContent = monthLabel(cursor);
-
-    const mondays = mondaysInMonth(cursor.getFullYear(), cursor.getMonth());
-    const todayMonday = startOfWeekMonday(new Date());
-
-    const stores = visibleStores();
-    const table = $("weeklyTable");
-    if (!stores.length) {
-      table.innerHTML = `<tbody><tr><td colspan="${mondays.length + 2}" style="padding:40px;color:var(--text-dim);text-align:center">No stores to display.</td></tr></tbody>`;
-      return;
-    }
-
-    let html = "<thead><tr><th class='store-name' style='text-align:left'>Store</th>";
-    for (const m of mondays) html += `<th>Mon ${dayMonth(m)}</th>`;
-    html += "<th class='status-cell'>Month</th></tr></thead><tbody>";
-
-    for (const store of stores) {
-      const status = storeStatus(store);
-      html += `<tr><td class="store-name ${status}">${escapeHtml(store)}</td>`;
-      let completed = 0, partial = 0, possible = 0;
-      for (const m of mondays) {
-        const iso = fmtDateISO(m);
-        const sub = submissionFor(store, iso);
-        const isFuture = m > todayMonday;
-        if (!isFuture) possible++;
-        if (!sub) {
-          html += isFuture
-            ? `<td class="cell future">·</td>`
-            : `<td class="cell missed" title="Missed ${iso}">✕</td>`;
-        } else if (isAllYes(sub)) {
-          completed++;
-          html += `<td class="cell complete" title="All-Yes · ${iso}" data-store="${escapeHtml(store)}" data-date="${iso}">✓</td>`;
-        } else {
-          partial++;
-          html += `<td class="cell partial" title="Partial · ${iso}" data-store="${escapeHtml(store)}" data-date="${iso}">!</td>`;
-        }
-      }
-      const score = possible ? `${completed}/${possible}${partial ? ` (+${partial}p)` : ""}` : "—";
-      html += `<td class="status-cell">${escapeHtml(score)}</td></tr>`;
-    }
-    html += "</tbody>";
-    table.innerHTML = html;
-
-    table.querySelectorAll("td.cell.complete, td.cell.partial").forEach(td => {
-      td.addEventListener("click", () => {
-        const sub = submissionFor(td.dataset.store, td.dataset.date);
-        if (sub) openDetail(sub);
-      });
-    });
-  }
-
-  // ----- Monthly view (12-month heatmap) -----
-  function renderMonthly() {
-    const table = $("monthlyTable");
-    const months = [];
-    const start = new Date(TODAY.getFullYear(), TODAY.getMonth() - 11, 1);
-    for (let i = 0; i < 12; i++) months.push(new Date(start.getFullYear(), start.getMonth() + i, 1));
-
-    const stores = visibleStores();
-    if (!stores.length) {
-      table.innerHTML = `<tbody><tr><td style="padding:40px;color:var(--text-dim);text-align:center">No stores.</td></tr></tbody>`;
-      return;
-    }
-
-    let html = "<thead><tr><th class='store-name' style='text-align:left'>Store</th>";
-    for (const m of months) html += `<th>${monthShort(m)}</th>`;
-    html += "<th class='status-cell'>Avg</th></tr></thead><tbody>";
-
-    for (const store of stores) {
-      const status = storeStatus(store);
-      html += `<tr><td class="store-name ${status}">${escapeHtml(store)}</td>`;
-      let rateTotal = 0, rateCount = 0;
-      for (const m of months) {
-        const mondays = mondaysInMonth(m.getFullYear(), m.getMonth());
-        const todayMonday = startOfWeekMonday(new Date());
-        const past = mondays.filter(d => d <= todayMonday);
-        const completed = past.filter(d => {
-          const sub = submissionFor(store, fmtDateISO(d));
-          return sub && isAllYes(sub);
-        }).length;
-        if (!past.length) {
-          html += `<td class="heat-cell heat-future">—</td>`;
-        } else {
-          const pct = Math.round((completed / past.length) * 100);
-          rateTotal += pct; rateCount++;
-          const bucket = pct === 0 ? 0 : pct < 26 ? 25 : pct < 51 ? 50 : pct < 76 ? 75 : 100;
-          html += `<td class="heat-cell heat-${bucket}" title="${store} · ${monthShort(m)} · ${completed}/${past.length} all-yes">${pct}%</td>`;
-        }
-      }
-      const avg = rateCount ? Math.round(rateTotal / rateCount) : 0;
-      html += `<td class="status-cell">${avg}%</td></tr>`;
-    }
-    html += "</tbody>";
-    table.innerHTML = html;
-  }
-
-  // ----- Recent view -----
-  function renderRecent() {
-    const wrap = $("recentWrap");
-    const q = searchTerm();
-    const list = [...SUBMISSIONS]
-      .filter(s => !q || (s.store || "").toLowerCase().includes(q) || (s.name || "").toLowerCase().includes(q))
-      .sort((a, b) => (b.submittedAt || b.date || "").localeCompare(a.submittedAt || a.date || ""));
-    $("recentCount").textContent = `${list.length} submission${list.length === 1 ? "" : "s"} in the rolling 12-month window`;
-    if (!list.length) {
-      wrap.innerHTML = `<div class="empty">No submissions yet. New ones will appear here once managers submit the form.</div>`;
-      return;
-    }
-    let html = `<table class="recent"><thead><tr>
-      <th>Date</th><th>Store</th><th>Manager</th><th class="hide-sm">DM</th>
-      <th class="hide-sm">Answers</th><th>Status</th><th class="hide-sm">Submitted</th>
-    </tr></thead><tbody>`;
-    for (const s of list) {
-      const a = s.answers || {};
-      const yes = ANSWER_KEYS.filter(k => a[k] === "Yes").length;
-      const allYes = yes === ANSWER_KEYS.length;
-      const dots = ANSWER_KEYS.map(k => `<span class="pill ${a[k]==="Yes"?"yes":"no"}" style="padding:1px 5px;font-size:9px" title="${k}">${a[k]==="Yes"?"✓":"✕"}</span>`).join(" ");
-      const submitted = s.submittedAt ? new Date(s.submittedAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "";
-      const idx = SUBMISSIONS.indexOf(s);
-      html += `<tr class="row" data-idx="${idx}">
-        <td>${escapeHtml(s.date || "")}</td>
-        <td>${escapeHtml(s.store || "")}</td>
-        <td>${escapeHtml(s.name || "")}</td>
-        <td class="hide-sm">${escapeHtml(s.dm || "")}</td>
-        <td class="hide-sm">${dots}</td>
-        <td>${allYes ? '<span class="pill yes">All Yes</span>' : `<span class="pill no">${ANSWER_KEYS.length - yes} No</span>`}</td>
-        <td class="hide-sm">${escapeHtml(submitted)}</td>
-      </tr>`;
-    }
-    html += "</tbody></table>";
-    wrap.innerHTML = html;
-    wrap.querySelectorAll("tr.row").forEach(tr => {
-      tr.addEventListener("click", () => openDetail(SUBMISSIONS[parseInt(tr.dataset.idx)]));
-    });
-  }
-
-  function renderAll() { renderStats(); renderWeekly(); renderMonthly(); renderRecent(); }
-
-  // ----- Detail modal -----
-  const PHOTO_SECTIONS = [
-    { title: "Schedules",          keys: ["week1", "week2", "week3", "week4"] },
-    { title: "XInventory",         keys: ["upgrades", "tradeins"] },
-    { title: "Brinks Deposit Logs", keys: ["brinks"] },
-    { title: "Facilities",         keys: ["facility1", "facility2", "facility3", "facility4"] }
+  const STORES = [
+    "Anderson","Avon","Battle Creek","Bourbonnais","Burbank",
+    "Canton (Belleville)","Cicero","Columbus","Dekalb","Elkhart",
+    "Evanston","Evergreen Park","Fort Gratiot","Frankfort","Glenview",
+    "Grand Blanc","Greeneville","Hammond","Inkster","Johnson City",
+    "Kildeer","Lansing","Michigan City","Muncie","Noblesville",
+    "Oak Ridge","Richmond","Roseville","Round Lake Beach","Schererville",
+    "South Bend","South Knoxville","South Skokie","Southfield","Tinley Park",
+    "Uptown","Valparaiso","Westland","White Lake","Ypsilanti"
   ];
 
-  function renderPhotos(photos) {
-    if (!photos || typeof photos !== "object") return '<div style="color:var(--text-dim);font-size:13px">No photos attached.</div>';
-    const sectionedKeys = new Set(PHOTO_SECTIONS.flatMap(s => s.keys));
-    const extras = Object.keys(photos).filter(k => !sectionedKeys.has(k) && photos[k]);
-    const sections = PHOTO_SECTIONS.map(sec => ({
-      title: sec.title,
-      items: sec.keys.filter(k => photos[k]).map(k => ({ key: k, label: PHOTO_LABELS[k] || k, src: photos[k] }))
-    }));
-    if (extras.length) {
-      sections.push({
-        title: "Other",
-        items: extras.map(k => ({ key: k, label: PHOTO_LABELS[k] || k, src: photos[k] }))
-      });
-    }
-    const populated = sections.filter(s => s.items.length);
-    if (!populated.length) return '<div style="color:var(--text-dim);font-size:13px">No photos attached.</div>';
-    return '<div class="photo-sections">' + populated.map(sec => `
-      <div class="photo-section">
-        <div class="photo-section-header">
-          <h3>${escapeHtml(sec.title)}</h3>
-          <span class="count">${sec.items.length} photo${sec.items.length === 1 ? "" : "s"}</span>
-        </div>
-        <div class="photos">
-          ${sec.items.map(it => `<figure><figcaption>${escapeHtml(it.label)}</figcaption><img src="${it.src}" alt="${escapeHtml(it.label)}"></figure>`).join("")}
-        </div>
-      </div>
-    `).join("") + '</div>';
+  // State
+  let submissions = [];
+  let currentView = "grid";
+  let searchTerm = "";
+  let selectedYearMonth = ymString(new Date()); // e.g. "2026-05"
+
+  // ---------- Helpers ----------
+  function fmtMoney(n) {
+    if (n == null || isNaN(n)) return "$0";
+    return "$" + Math.round(Number(n)).toLocaleString();
   }
-  function openDetail(s) {
-    if (!s) return;
-    const a = s.answers || {};
-    const submitted = s.submittedAt ? new Date(s.submittedAt).toLocaleString() : "—";
-    $("modalContent").innerHTML = `
-      <header>
-        <h2>${escapeHtml(s.store || "Unknown store")}<small>${escapeHtml(s.date || "")} · Submitted ${escapeHtml(submitted)}</small></h2>
-        <button class="close" id="closeModal" aria-label="Close">×</button>
-      </header>
-      <div class="detail-grid">
-        <div class="item"><div class="lbl">Manager</div><div class="val">${escapeHtml(s.name || "—")}</div></div>
-        <div class="item"><div class="lbl">Manager Email</div><div class="val">${escapeHtml(s.email || "—")}</div></div>
-        <div class="item"><div class="lbl">DM</div><div class="val">${escapeHtml(s.dm || "—")}</div></div>
-        <div class="item"><div class="lbl">DM Email</div><div class="val">${escapeHtml(s.dmEmail || "—")}</div></div>
-      </div>
-      <div class="answers-list">
-        ${Object.entries(ANSWER_LABELS).map(([k, lbl]) => {
-          const v = a[k];
-          return `<div><span class="a-lbl">${escapeHtml(lbl)}</span><span class="pill ${v==="Yes"?"yes":"no"}">${escapeHtml(v || "—")}</span></div>`;
-        }).join("")}
-      </div>
-      ${renderPhotos(s.photos || {})}
-      <div class="${s.notes ? "notes-block" : "notes-block empty-state"}">${escapeHtml(s.notes || "No facilities or ops notes left.")}</div>
-      <div class="modal-actions">
-        <button class="btn primary" id="closeModal2">Close</button>
-      </div>`;
-    $("modalBackdrop").classList.add("show");
-    const close = () => $("modalBackdrop").classList.remove("show");
-    $("closeModal").onclick = close;
-    $("closeModal2").onclick = close;
-    $("modalBackdrop").onclick = e => { if (e.target === $("modalBackdrop")) close(); };
-    document.querySelectorAll(".photos img").forEach(img => {
-      img.addEventListener("click", () => { $("lightboxImg").src = img.src; $("lightbox").classList.add("show"); });
-    });
+  function fmtMoneyFull(n) {
+    if (n == null || isNaN(n)) return "$0.00";
+    return Number(n).toLocaleString("en-US", { style: "currency", currency: "USD" });
   }
-  $("lightbox").addEventListener("click", () => $("lightbox").classList.remove("show"));
-
-  // ----- View switching -----
-  document.querySelectorAll(".tabs .tab").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tabs .tab").forEach(b => b.classList.toggle("active", b === btn));
-      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + btn.dataset.view));
-    });
-  });
-
-  // ----- Toolbar -----
-  $("refreshBtn").onclick = loadAll;
-  $("cleanupBtn").onclick = () => { if (confirm(`Delete all submissions older than ${CONFIG.RETENTION_DAYS} days?`)) cleanupOldFiles(); };
-  $("weeklyPrev").onclick = () => { weeklyCursor = shiftMonth(weeklyCursor, -1); renderWeekly(); };
-  $("weeklyNext").onclick = () => { weeklyCursor = shiftMonth(weeklyCursor, +1); renderWeekly(); };
-  $("search").addEventListener("input", () => { renderWeekly(); renderMonthly(); renderRecent(); });
-
-  // CSV export
-  $("exportBtn").onclick = () => {
-    if (!SUBMISSIONS.length) return;
-    const rows = [["Date","Store","Manager","Manager Email","DM","DM Email","Deposit Bags","PCI Checklist","Schedule Weeks","Cash Float","Returns Shipped","Notes","Submitted At"]];
-    for (const s of SUBMISSIONS) {
-      const a = s.answers || {};
-      rows.push([
-        s.date || "", s.store || "", s.name || "", s.email || "", s.dm || "", s.dmEmail || "",
-        a.depositBags||"", a.pciChecklist||"", a.scheduleWeeks||"", a.cashFloat||"", a.returnsShipped||"",
-        (s.notes||"").replace(/\n/g, " "), s.submittedAt || ""
-      ]);
+  function ymd(d) {
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function ymString(d) {
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+  }
+  function parseYM(s) {
+    const [y,m] = s.split("-").map(Number);
+    return { year: y, month: m - 1 }; // month is 0-indexed
+  }
+  function monthLabel(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    const d = new Date(year, month, 1);
+    return d.toLocaleString("en-US", { month: "long", year: "numeric" });
+  }
+  function monthLabelShort(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    const d = new Date(year, month, 1);
+    return d.toLocaleString("en-US", { month: "short", year: "2-digit" });
+  }
+  function daysInMonth(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    return new Date(year, month + 1, 0).getDate();
+  }
+  function startOfMonth(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    return new Date(year, month, 1, 0, 0, 0, 0);
+  }
+  function endOfMonth(ymStr) {
+    const { year, month } = parseYM(ymStr);
+    return new Date(year, month + 1, 0, 23, 59, 59, 999);
+  }
+  function shiftMonth(ymStr, delta) {
+    const { year, month } = parseYM(ymStr);
+    const d = new Date(year, month + delta, 1);
+    return ymString(d);
+  }
+  function getMonthList() {
+    // Last HISTORY_MONTHS months ending with current month, oldest first
+    const out = [];
+    let cur = ymString(new Date());
+    for (let i = HISTORY_MONTHS - 1; i >= 0; i--) {
+      out.push(shiftMonth(cur, -i));
     }
-    const csv = rows.map(r => r.map(c => { const t = String(c); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; }).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `monday-ops-submissions-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click(); URL.revokeObjectURL(a.href);
-  };
+    return out; // chronological
+  }
+  function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+  function daysAgo(n) { const x = startOfDay(new Date()); x.setDate(x.getDate() - n); return x; }
+  function daysBetween(a, b) {
+    return Math.round((startOfDay(a) - startOfDay(b)) / 86400000);
+  }
+  function depositsTotal(s) {
+    const ds = s.deposits || {};
+    return [ds.d1, ds.d2, ds.d3, ds.d4, ds.d5, ds.d6, ds.d7]
+      .map(v => Number(v) || 0)
+      .reduce((a,b) => a + b, 0);
+  }
 
-  // Manual JSON import
-  $("importBtn").onclick = () => $("importInput").click();
-  $("importInput").addEventListener("change", async e => {
-    for (const f of Array.from(e.target.files || [])) {
+  // ---------- Data fetch ----------
+  // Data source priority:
+  //   1. Live Power Automate feed (DATA_FEED_URL) — when the flow is configured
+  //   2. Static historical-data.json sitting next to this HTML file — for the imported
+  //      Excel history; survives forever, no auth required
+  //   3. Demo data — only if neither of the above resolves
+  async function fetchData(showSpinner = true) {
+    if (showSpinner) setStatus("loading");
+    let liveData = [];
+    let staticData = [];
+    // Try live feed
+    if (!DATA_FEED_URL.startsWith("PASTE_")) {
       try {
-        const json = JSON.parse(await f.text());
-        json._filename = f.name;
-        const idx = SUBMISSIONS.findIndex(s => s.store === json.store && s.date === json.date);
-        if (idx >= 0) SUBMISSIONS[idx] = json; else SUBMISSIONS.push(json);
-      } catch (err) { console.warn("Bad JSON:", f.name, err); }
+        const resp = await fetch(DATA_FEED_URL + (DATA_FEED_URL.includes("?") ? "&" : "?") + "t=" + Date.now());
+        if (resp.ok) {
+          const data = await resp.json();
+          liveData = Array.isArray(data) ? data : (data.submissions || []);
+        }
+      } catch (e) { console.warn("Live feed failed:", e.message); }
     }
-    e.target.value = "";
-    // Refresh store list with any new stores
-    const fromDir = DIRECTORY.map(e => e.store);
-    const fromSubs = [...new Set(SUBMISSIONS.map(s => s.store).filter(Boolean))];
-    STORES = [...new Set([...fromDir, ...fromSubs])].sort();
-    renderAll();
-  });
+    // Try static historical JSON co-located with this HTML
+    try {
+      const resp = await fetch("historical-data.json?t=" + Date.now());
+      if (resp.ok) {
+        const data = await resp.json();
+        staticData = Array.isArray(data) ? data : (data.submissions || []);
+      }
+    } catch (e) { /* static file may not exist; that's fine */ }
 
-  // Initial load
-  loadAll();
+    try {
+      if (liveData.length === 0 && staticData.length === 0) {
+        submissions = generateDemoData();
+        setStatus("demo");
+      } else {
+        // Merge: live data takes precedence over static for the same (store, submittedAt, manager) tuple
+        const seen = new Set();
+        submissions = [];
+        const keyOf = s => (s.store||"") + "|" + (s.submittedAt||"") + "|" + (s.managerName||"");
+        for (const s of liveData) { submissions.push(s); seen.add(keyOf(s)); }
+        for (const s of staticData) { if (!seen.has(keyOf(s))) submissions.push(s); }
+        if (liveData.length > 0 && staticData.length > 0) setStatus("ok", "Live + history");
+        else if (liveData.length > 0) setStatus("ok");
+        else setStatus("ok", "History only");
+      }
+      submissions.forEach(s => {
+        if (s.submittedAt) s.submittedAtDate = new Date(s.submittedAt);
+        s.totalAmount = depositsTotal(s);
+      });
+      // Same-day dedup: when a store has 2+ submissions on the same calendar date,
+      // keep only the one with the highest TotalAmount. (Humans are messy.)
+      const dedupMap = new Map();
+      for (const s of submissions) {
+        if (!s.submittedAtDate || !s.store) continue;
+        const key = s.store + "|" + ymd(s.submittedAtDate);
+        const existing = dedupMap.get(key);
+        if (!existing || (s.totalAmount || 0) > (existing.totalAmount || 0)) {
+          dedupMap.set(key, s);
+        }
+      }
+      submissions = Array.from(dedupMap.values());
+      submissions.sort((a,b) => (b.submittedAtDate||0) - (a.submittedAtDate||0));
+      render();
+      document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
+    } catch (e) {
+      console.error(e);
+      setStatus("err", e.message);
+    }
+  }
+  function setStatus(state, msg) {
+    const dot = document.getElementById("statusDot");
+    const txt = document.getElementById("statusText");
+    dot.className = "status-dot";
+    if (state === "ok") { dot.classList.add("ok"); txt.textContent = msg || "Live"; }
+    else if (state === "demo") { dot.classList.add("ok"); txt.textContent = "Demo data"; }
+    else if (state === "err") { dot.classList.add("err"); txt.textContent = "Error: " + (msg||"failed"); }
+    else { txt.textContent = "Loading…"; }
+  }
+
+  // ---------- Render ----------
+  function render() {
+    renderKpis();
+    renderMonthNav();
+    if (currentView === "grid") renderGrid();
+    else if (currentView === "monthly") renderMonthly();
+    else renderFeed();
+  }
+
+  function renderKpis() {
+    const today = ymd(new Date());
+    const monthStart = startOfMonth(ymString(new Date()));
+    let todayCount = 0, mtdCount = 0, mtdAmt = 0;
+    submissions.forEach(s => {
+      if (!s.submittedAtDate) return;
+      if (ymd(s.submittedAtDate) === today) todayCount++;
+      if (s.submittedAtDate >= monthStart) { mtdCount++; mtdAmt += s.totalAmount || 0; }
+    });
+    const sevenAgo = daysAgo(7);
+    const recentStores = new Set();
+    submissions.forEach(s => {
+      if (s.submittedAtDate && s.submittedAtDate >= sevenAgo) recentStores.add(s.store);
+    });
+    const inactive = STORES.filter(s => !recentStores.has(s)).length;
+
+    document.getElementById("stat-today").textContent = todayCount;
+    document.getElementById("stat-mtd").textContent = mtdCount;
+    document.getElementById("stat-amount").textContent = fmtMoney(mtdAmt);
+    document.getElementById("stat-inactive").textContent = inactive;
+  }
+
+  function renderMonthNav() {
+    const months = getMonthList(); // oldest -> newest
+    const oldest = months[0];
+    const newest = months[months.length - 1];
+
+    document.getElementById("monthLabel").textContent = monthLabel(selectedYearMonth);
+    document.getElementById("grid-month-badge").textContent = monthLabel(selectedYearMonth);
+    document.getElementById("prevMonth").disabled = (selectedYearMonth <= oldest);
+    document.getElementById("nextMonth").disabled = (selectedYearMonth >= newest);
+
+    // Build the dropdown
+    const sel = document.getElementById("monthJump");
+    sel.innerHTML = "";
+    months.slice().reverse().forEach(m => {  // newest first in dropdown
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = monthLabel(m);
+      if (m === selectedYearMonth) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderGrid() {
+    document.getElementById("view-grid").style.display = "";
+    document.getElementById("view-monthly").style.display = "none";
+    document.getElementById("view-feed").style.display = "none";
+
+    // Build days for the SELECTED month
+    const { year, month } = parseYM(selectedYearMonth);
+    const numDays = daysInMonth(selectedYearMonth);
+    const days = [];
+    for (let d = 1; d <= numDays; d++) days.push(new Date(year, month, d));
+
+    // Header
+    const headRow = document.getElementById("dailyHeadRow");
+    const todayYmd = ymd(new Date());
+    headRow.innerHTML = "";
+    headRow.innerHTML += '<th class="col-store">Store</th>';
+    days.forEach(d => {
+      const isToday = ymd(d) === todayYmd;
+      const lbl = (d.getMonth()+1) + "/" + d.getDate();
+      headRow.innerHTML += '<th'+(isToday?' class="cell-today"':'')+'>'+lbl+'</th>';
+    });
+    headRow.innerHTML += '<th class="col-streak">Last pickup</th>';
+    headRow.innerHTML += '<th class="col-total">Month $</th>';
+
+    // Group submissions
+    const monthStart = startOfMonth(selectedYearMonth);
+    const monthEnd = endOfMonth(selectedYearMonth);
+    const byStoreDay = {};
+    const lastByStore = {};
+    const totalByStore = {};
+    submissions.forEach(s => {
+      if (!s.submittedAtDate) return;
+      if (!lastByStore[s.store] || s.submittedAtDate > lastByStore[s.store]) lastByStore[s.store] = s.submittedAtDate;
+      if (s.submittedAtDate >= monthStart && s.submittedAtDate <= monthEnd) {
+        const k = ymd(s.submittedAtDate);
+        if (!byStoreDay[s.store]) byStoreDay[s.store] = {};
+        if (!byStoreDay[s.store][k]) byStoreDay[s.store][k] = [];
+        byStoreDay[s.store][k].push(s);
+        totalByStore[s.store] = (totalByStore[s.store]||0) + (s.totalAmount||0);
+      }
+    });
+
+    const tbody = document.getElementById("dailyBody");
+    tbody.innerHTML = "";
+    const filterTerm = searchTerm.toLowerCase();
+
+    STORES.filter(st => !filterTerm || st.toLowerCase().includes(filterTerm)).forEach(store => {
+      const tr = document.createElement("tr");
+      tr.className = "store-row";
+      const last = lastByStore[store];
+      let streakLabel = "Never";
+      if (last) {
+        const dd = daysBetween(new Date(), last);
+        if (dd === 0) streakLabel = "Today";
+        else if (dd === 1) streakLabel = "Yesterday";
+        else streakLabel = dd + " days ago";
+        if (dd > 7) tr.classList.add("no-recent");
+      } else {
+        tr.classList.add("never-logged");
+      }
+
+      let html = '<td class="col-store">'+escapeHtml(store)+'</td>';
+      days.forEach(d => {
+        const k = ymd(d);
+        const subs = (byStoreDay[store] && byStoreDay[store][k]) || [];
+        const isToday = ymd(d) === todayYmd;
+        if (subs.length > 0) {
+          const total = subs.reduce((a,b) => a + (b.totalAmount||0), 0);
+          html += '<td class="cell-has'+(isToday?' cell-today':'')+'" data-store="'+escapeAttr(store)+'" data-date="'+k+'" title="'+fmtMoneyFull(total)+'">'+(subs.length>1?subs.length+'×':'✓')+'</td>';
+        } else {
+          html += '<td class="cell-empty'+(isToday?' cell-today':'')+'">·</td>';
+        }
+      });
+      html += '<td class="col-streak">'+streakLabel+'</td>';
+      html += '<td class="col-total">'+fmtMoney(totalByStore[store]||0)+'</td>';
+      tr.innerHTML = html;
+      tr.addEventListener("click", () => openStoreModal(store, selectedYearMonth));
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderMonthly() {
+    document.getElementById("view-grid").style.display = "none";
+    document.getElementById("view-monthly").style.display = "";
+    document.getElementById("view-feed").style.display = "none";
+
+    const months = getMonthList(); // oldest -> newest
+    const currentYM = ymString(new Date());
+
+    // Header
+    const headRow = document.getElementById("monthlyHeadRow");
+    headRow.innerHTML = "";
+    headRow.innerHTML += '<th class="col-store">Store</th>';
+    months.forEach(m => {
+      const isCurrent = m === currentYM;
+      headRow.innerHTML += '<th class="col-month'+(isCurrent?' cell-today':'')+'">'+monthLabelShort(m)+'</th>';
+    });
+    headRow.innerHTML += '<th class="col-total">12-mo total</th>';
+
+    // Aggregate: store -> ym -> { count, total }
+    const agg = {};
+    submissions.forEach(s => {
+      if (!s.submittedAtDate) return;
+      const ym = ymString(s.submittedAtDate);
+      if (!months.includes(ym)) return;
+      if (!agg[s.store]) agg[s.store] = {};
+      if (!agg[s.store][ym]) agg[s.store][ym] = { count: 0, total: 0 };
+      agg[s.store][ym].count++;
+      agg[s.store][ym].total += s.totalAmount || 0;
+    });
+
+    // Find max monthly total to scale the heatmap
+    let maxTotal = 0;
+    Object.values(agg).forEach(byMonth => {
+      Object.values(byMonth).forEach(v => { if (v.total > maxTotal) maxTotal = v.total; });
+    });
+
+    function heatClass(total) {
+      if (!total) return "heat-0";
+      const ratio = total / (maxTotal || 1);
+      if (ratio < 0.10) return "heat-1";
+      if (ratio < 0.30) return "heat-2";
+      if (ratio < 0.60) return "heat-3";
+      return "heat-4";
+    }
+
+    const tbody = document.getElementById("monthlyBody");
+    tbody.innerHTML = "";
+    const filterTerm = searchTerm.toLowerCase();
+
+    STORES.filter(st => !filterTerm || st.toLowerCase().includes(filterTerm)).forEach(store => {
+      const tr = document.createElement("tr");
+      tr.className = "store-row";
+      let twelveTotal = 0;
+      let html = '<td class="col-store">'+escapeHtml(store)+'</td>';
+      months.forEach(m => {
+        const cell = (agg[store] && agg[store][m]) || { count: 0, total: 0 };
+        twelveTotal += cell.total;
+        const cls = heatClass(cell.total);
+        const isCurrent = m === currentYM;
+        const display = cell.count === 0 ? "·" : fmtMoney(cell.total);
+        const title = cell.count === 0 ? "No pickups" : (cell.count + " pickup" + (cell.count===1?"":"s") + " · " + fmtMoneyFull(cell.total));
+        html += '<td class="cell-money '+cls+(isCurrent?' cell-today':'')+'" data-store="'+escapeAttr(store)+'" data-month="'+m+'" title="'+title+'">'+display+'</td>';
+      });
+      html += '<td class="col-total">'+fmtMoney(twelveTotal)+'</td>';
+      tr.innerHTML = html;
+      // Click any cell -> open that store's detail for that month; click row -> default to current month
+      tr.addEventListener("click", (e) => {
+        const cell = e.target.closest("td.cell-money");
+        const month = cell ? cell.dataset.month : currentYM;
+        openStoreModal(store, month);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderFeed() {
+    document.getElementById("view-grid").style.display = "none";
+    document.getElementById("view-monthly").style.display = "none";
+    document.getElementById("view-feed").style.display = "";
+    const list = document.getElementById("feedList");
+    list.innerHTML = "";
+    const filterTerm = searchTerm.toLowerCase();
+    const filtered = submissions.filter(s => !filterTerm || (s.store||"").toLowerCase().includes(filterTerm));
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="empty-msg">No submissions yet.</div>';
+      return;
+    }
+    filtered.slice(0, 200).forEach(s => {
+      const div = document.createElement("div");
+      div.className = "feed-item";
+      const dateStr = s.submittedAtDate ? s.submittedAtDate.toLocaleString() : "—";
+      div.innerHTML =
+        '<div>'+
+          '<div class="feed-store">'+escapeHtml(s.store||"—")+'</div>'+
+          '<div class="feed-meta">'+escapeHtml(s.managerName||"—")+'</div>'+
+        '</div>'+
+        '<div>'+
+          '<div class="feed-amount">'+fmtMoney(s.totalAmount)+'</div>'+
+          '<div class="feed-date">'+dateStr+'</div>'+
+        '</div>';
+      div.addEventListener("click", () => openSubmissionModal(s));
+      list.appendChild(div);
+    });
+  }
+
+  function openStoreModal(store, ym) {
+    ym = ym || ymString(new Date());
+    document.getElementById("modalTitle").textContent = store + " — " + monthLabel(ym);
+    const monthStart = startOfMonth(ym);
+    const monthEnd = endOfMonth(ym);
+    const subs = submissions.filter(s => s.store === store);
+    const monthSubs = subs.filter(s => s.submittedAtDate && s.submittedAtDate >= monthStart && s.submittedAtDate <= monthEnd);
+    const monthAmt = monthSubs.reduce((a,b) => a + (b.totalAmount||0), 0);
+    const last = subs[0];
+    let lastLabel = "Never";
+    if (last && last.submittedAtDate) {
+      const dd = daysBetween(new Date(), last.submittedAtDate);
+      lastLabel = dd === 0 ? "Today" : (dd === 1 ? "1 day ago" : dd + " days ago");
+    }
+
+    let html = '';
+    html += '<div class="modal-stats">';
+    html += '<div class="modal-stat"><div class="lbl">Pickups</div><div class="val">'+monthSubs.length+'</div></div>';
+    html += '<div class="modal-stat"><div class="lbl">Total $</div><div class="val">'+fmtMoney(monthAmt)+'</div></div>';
+    html += '<div class="modal-stat"><div class="lbl">Last pickup</div><div class="val">'+lastLabel+'</div></div>';
+    html += '</div>';
+
+    if (monthSubs.length === 0) {
+      html += '<div class="empty-msg">No pickups recorded for '+monthLabel(ym)+'.</div>';
+    } else {
+      html += '<div style="font-size:11px;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin-bottom:8px;">Submissions in '+monthLabel(ym)+'</div>';
+      monthSubs.forEach(s => { html += renderSubmissionRow(s); });
+    }
+    document.getElementById("modalBody").innerHTML = html;
+    document.getElementById("modalBackdrop").classList.add("show");
+  }
+
+  function openSubmissionModal(s) {
+    document.getElementById("modalTitle").textContent = s.store || "Submission";
+    document.getElementById("modalBody").innerHTML = renderSubmissionRow(s, true);
+    document.getElementById("modalBackdrop").classList.add("show");
+  }
+
+  function renderSubmissionRow(s, expanded) {
+    const ds = s.deposits || {};
+    const list = ["d1","d2","d3","d4","d5","d6","d7"]
+      .map((k,i) => {
+        const v = Number(ds[k]);
+        if (!v || isNaN(v)) return null;
+        return "#"+(i+1)+": "+fmtMoneyFull(v);
+      })
+      .filter(Boolean)
+      .join(" · ");
+    const dateStr = s.submittedAtDate ? s.submittedAtDate.toLocaleString() : "—";
+    let html = '<div class="submission-row">';
+    html +=   '<div>';
+    html +=     '<div style="font-weight:600;">'+escapeHtml(s.managerName||"—")+'</div>';
+    html +=     '<div class="who">'+dateStr+'</div>';
+    if (list) html += '<div class="deposits">'+list+'</div>';
+    if (s.photoUrl) html += '<a class="photo-link" href="'+escapeAttr(s.photoUrl)+'" target="_blank" rel="noopener">📷 View logbook photo</a>';
+    html +=   '</div>';
+    html +=   '<div><div class="amt">'+fmtMoney(s.totalAmount)+'</div></div>';
+    html += '</div>';
+    return html;
+  }
+
+  function escapeHtml(s) { return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  // ---------- Demo data ----------
+  function generateDemoData() {
+    const out = [];
+    const names = ["Sam Patel","Maria Lopez","Chris Johnson","Ashley Kim","Jordan Reyes","Taylor Smith"];
+    const today = new Date();
+    // For 12 months of data, generate random pickups across the rolling window.
+    const windowStart = new Date(today); windowStart.setMonth(windowStart.getMonth() - HISTORY_MONTHS + 1); windowStart.setDate(1);
+    const totalDays = Math.max(1, Math.round((today - windowStart) / 86400000));
+    STORES.forEach((store, idx) => {
+      if (idx % 8 === 0) return; // some stores never log
+      // ~6-12 pickups per month on average
+      const numPickups = Math.floor(totalDays * (0.20 + Math.random() * 0.20));
+      for (let i = 0; i < numPickups; i++) {
+        const ago = Math.floor(Math.random() * totalDays);
+        const when = new Date(today); when.setDate(when.getDate() - ago);
+        when.setHours(9 + Math.floor(Math.random()*8), Math.floor(Math.random()*60), 0, 0);
+        const numD = 1 + Math.floor(Math.random() * 3);
+        const deposits = {};
+        for (let j = 1; j <= numD; j++) deposits["d"+j] = (500 + Math.random() * 4000).toFixed(2);
+        out.push({
+          submittedAt: when.toISOString(),
+          store,
+          managerName: names[Math.floor(Math.random() * names.length)],
+          deposits,
+          photoUrl: "#"
+        });
+      }
+    });
+    return out;
+  }
+
+  // ---------- Wire up controls ----------
+  document.getElementById("search").addEventListener("input", (e) => {
+    searchTerm = e.target.value.trim();
+    if (currentView === "grid") renderGrid();
+    else if (currentView === "monthly") renderMonthly();
+    else renderFeed();
+  });
+  document.querySelectorAll(".tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentView = btn.dataset.view;
+      render();
+    });
+  });
+  document.getElementById("prevMonth").addEventListener("click", () => {
+    const months = getMonthList();
+    const idx = months.indexOf(selectedYearMonth);
+    if (idx > 0) { selectedYearMonth = months[idx - 1]; render(); }
+  });
+  document.getElementById("nextMonth").addEventListener("click", () => {
+    const months = getMonthList();
+    const idx = months.indexOf(selectedYearMonth);
+    if (idx >= 0 && idx < months.length - 1) { selectedYearMonth = months[idx + 1]; render(); }
+  });
+  document.getElementById("monthLabel").addEventListener("click", () => {
+    selectedYearMonth = ymString(new Date());
+    render();
+  });
+  document.getElementById("monthJump").addEventListener("change", (e) => {
+    selectedYearMonth = e.target.value;
+    render();
+  });
+  document.getElementById("modalClose").addEventListener("click", () => {
+    document.getElementById("modalBackdrop").classList.remove("show");
+  });
+  document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+    if (e.target.id === "modalBackdrop") document.getElementById("modalBackdrop").classList.remove("show");
+  });
+  document.getElementById("refreshLink").addEventListener("click", (e) => { e.preventDefault(); fetchData(true); });
+
+  fetchData(true);
+  setInterval(() => fetchData(false), REFRESH_INTERVAL_MS);
 </script>
 </body>
 </html>
