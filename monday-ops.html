@@ -159,10 +159,17 @@
   .answers-list div { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #161616; font-size: 14px; }
   .answers-list div:last-child { border: none; }
   .answers-list .a-lbl { color: var(--text-dim); }
-  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .photo-sections { margin-bottom: 16px; }
+  .photo-section { margin-bottom: 18px; }
+  .photo-section:last-child { margin-bottom: 0; }
+  .photo-section-header { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .photo-section-header h3 { margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); }
+  .photo-section-header .count { font-size: 11px; color: var(--text-dim); font-weight: 500; }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
   .photos figure { margin: 0; }
   .photos figcaption { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700; }
   .photos img { width: 100%; border: 1px solid var(--border); border-radius: 8px; cursor: zoom-in; }
+  .photos-empty { color: var(--text-dim); font-size: 13px; font-style: italic; }
   .notes-block { background: #050505; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; white-space: pre-wrap; color: var(--text); }
   .notes-block.empty-state { color: var(--text-dim); font-style: italic; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
@@ -729,16 +736,40 @@
   function renderAll() { renderStats(); renderWeekly(); renderMonthly(); renderRecent(); }
 
   // ----- Detail modal -----
+  const PHOTO_SECTIONS = [
+    { title: "Schedules",          keys: ["week1", "week2", "week3", "week4"] },
+    { title: "XInventory",         keys: ["upgrades", "tradeins"] },
+    { title: "Brinks Deposit Logs", keys: ["brinks"] },
+    { title: "Facilities",         keys: ["facility1", "facility2", "facility3", "facility4"] }
+  ];
+
   function renderPhotos(photos) {
     if (!photos || typeof photos !== "object") return '<div style="color:var(--text-dim);font-size:13px">No photos attached.</div>';
-    const ordered = Object.keys(PHOTO_LABELS).filter(k => photos[k]);
-    const extras  = Object.keys(photos).filter(k => !PHOTO_LABELS[k] && photos[k]);
-    const all = [...ordered, ...extras];
-    if (!all.length) return '<div style="color:var(--text-dim);font-size:13px">No photos attached.</div>';
-    return all.map(k => {
-      const label = PHOTO_LABELS[k] || k;
-      return `<figure><figcaption>${escapeHtml(label)}</figcaption><img src="${photos[k]}" alt="${escapeHtml(label)}"></figure>`;
-    }).join("");
+    const sectionedKeys = new Set(PHOTO_SECTIONS.flatMap(s => s.keys));
+    const extras = Object.keys(photos).filter(k => !sectionedKeys.has(k) && photos[k]);
+    const sections = PHOTO_SECTIONS.map(sec => ({
+      title: sec.title,
+      items: sec.keys.filter(k => photos[k]).map(k => ({ key: k, label: PHOTO_LABELS[k] || k, src: photos[k] }))
+    }));
+    if (extras.length) {
+      sections.push({
+        title: "Other",
+        items: extras.map(k => ({ key: k, label: PHOTO_LABELS[k] || k, src: photos[k] }))
+      });
+    }
+    const populated = sections.filter(s => s.items.length);
+    if (!populated.length) return '<div style="color:var(--text-dim);font-size:13px">No photos attached.</div>';
+    return '<div class="photo-sections">' + populated.map(sec => `
+      <div class="photo-section">
+        <div class="photo-section-header">
+          <h3>${escapeHtml(sec.title)}</h3>
+          <span class="count">${sec.items.length} photo${sec.items.length === 1 ? "" : "s"}</span>
+        </div>
+        <div class="photos">
+          ${sec.items.map(it => `<figure><figcaption>${escapeHtml(it.label)}</figcaption><img src="${it.src}" alt="${escapeHtml(it.label)}"></figure>`).join("")}
+        </div>
+      </div>
+    `).join("") + '</div>';
   }
   function openDetail(s) {
     if (!s) return;
@@ -761,12 +792,9 @@
           return `<div><span class="a-lbl">${escapeHtml(lbl)}</span><span class="pill ${v==="Yes"?"yes":"no"}">${escapeHtml(v || "—")}</span></div>`;
         }).join("")}
       </div>
-      <div class="photos">${renderPhotos(s.photos || {})}</div>
+      ${renderPhotos(s.photos || {})}
       <div class="${s.notes ? "notes-block" : "notes-block empty-state"}">${escapeHtml(s.notes || "No facilities or ops notes left.")}</div>
       <div class="modal-actions">
-        <button class="btn" id="emailMgr">✉ Email Manager</button>
-        <button class="btn" id="emailDm">✉ Email DM</button>
-        <button class="btn" id="downloadJson">⬇ Download JSON</button>
         <button class="btn primary" id="closeModal2">Close</button>
       </div>`;
     $("modalBackdrop").classList.add("show");
@@ -774,16 +802,6 @@
     $("closeModal").onclick = close;
     $("closeModal2").onclick = close;
     $("modalBackdrop").onclick = e => { if (e.target === $("modalBackdrop")) close(); };
-    $("emailMgr").onclick = () => { if (s.email) window.location.href = `mailto:${s.email}?subject=${encodeURIComponent("Monday Ops Checklist — " + (s.store||"") + " " + (s.date||""))}`; };
-    $("emailDm").onclick  = () => { if (s.dmEmail) window.location.href = `mailto:${s.dmEmail}?subject=${encodeURIComponent("Monday Ops Checklist — " + (s.store||"") + " " + (s.date||""))}`; };
-    $("downloadJson").onclick = () => {
-      const blob = new Blob([JSON.stringify(s, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = s._filename || `${s.date || "submission"}-${(s.store||"").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    };
     document.querySelectorAll(".photos img").forEach(img => {
       img.addEventListener("click", () => { $("lightboxImg").src = img.src; $("lightbox").classList.add("show"); });
     });
