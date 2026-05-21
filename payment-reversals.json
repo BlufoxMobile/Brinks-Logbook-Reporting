@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "repName": "Test Account",
+    "repEmail": "jbilbrey@blufoxmobile.com",
+    "store": "Bourbonnais Xfinity Store",
+    "storeShortName": "Bourbonnais",
+    "storeManagerEmail": "jbilbrey@blufoxmobile.com",
+    "storeManagerName": "Vacant Position",
+    "dmEmail": "juCarrillo@blufoxmobile.com",
+    "transactionDate": "2026-05-20",
+    "paymentType": "Cash",
+    "accountNumber": "1111111111111111",
+    "amount": 67.67,
+    "amountFormatted": "$67.67",
+    "submittedAt": "2026-05-21T03:10:06.529Z",
+    "submittedAtLocal": "May 20, 2026, 10:10 PM",
+    "kind": "payment_reversal"
+  }
+]
