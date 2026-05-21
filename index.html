@@ -163,6 +163,10 @@
   .daily-table td.cell-has { color: var(--positive); cursor: pointer; }
   .daily-table td.cell-has:hover { background: #1a2820; }
   .daily-table td.cell-empty { color: var(--text-faint); }
+  /* Payment reversal marker — yellow exclamation, takes priority styling-wise */
+  .daily-table td.cell-reversal { color: var(--warning); cursor: pointer; font-weight: 700; }
+  .daily-table td.cell-reversal:hover { background: #2a1f06; }
+  .daily-table td.cell-has.has-reversal .rev-mark { color: var(--warning); font-weight: 700; margin-left: 4px; }
   .daily-table tr.store-row:hover td:not(.col-total) { background: #141414; }
   .daily-table tr.store-row:hover td.col-store { background: #141414; }
   .daily-table tr.store-row:hover td.col-total { background: #1f1f1f; }
@@ -323,6 +327,7 @@
     <div class="legend-item"><span class="legend-dot ok"></span>Active (logged in last 7 days)</div>
     <div class="legend-item"><span class="legend-dot warn"></span>Stale (7+ days since last)</div>
     <div class="legend-item"><span class="legend-dot err"></span>Never logged</div>
+    <div class="legend-item"><span style="color:var(--warning);font-weight:700;">!</span> Payment reversal on file</div>
   </div>
 
   <!-- DAILY VIEW -->
@@ -396,7 +401,15 @@
   const REFRESH_INTERVAL_MS = 60000; // 60s
   const HISTORY_MONTHS = 12;         // rolling window
 
-  const STORES = [
+  // Public store-directory feed maintained from the Admin Panel.
+  // Adding a store in https://blufoxmobile.github.io/Admin-Panel-Directory/
+  // auto-flows into the daily/monthly grids below (no code change required).
+  const DIRECTORY_URL = "https://blufoxmobile.github.io/Daily-Sales-Report/data/store-directory.json";
+
+  // Baseline: out-of-directory stores that should always have a row
+  // (legacy / non-Xfinity / closed-but-historical). The directory is unioned in
+  // at fetch time; new stores added via the Admin Panel show up automatically.
+  const STORE_BASELINE = [
     "Anderson","Avon","Battle Creek","Bourbonnais","Burbank",
     "Canton (Belleville)","Cicero","Columbus","Dekalb","Elkhart",
     "Evanston","Evergreen Park","Fort Gratiot","Frankfort","Glenview",
@@ -407,8 +420,13 @@
     "Uptown","Valparaiso","Westland","White Lake","Ypsilanti"
   ];
 
+  // Live merged list. Starts as the baseline; fetchData() unions the directory in.
+  let STORES = STORE_BASELINE.slice();
+
   // State
   let submissions = [];
+  let reversals = [];                // payment reversal records loaded from payment-reversals.json
+  let reversalsByStoreDay = {};      // { storeShortName: { "YYYY-MM-DD": [reversal, ...] } }
   let currentView = "grid";
   let searchTerm = "";
   let selectedYearMonth = ymString(new Date()); // e.g. "2026-05"
@@ -509,6 +527,33 @@
       }
     } catch (e) { /* static file may not exist; that's fine */ }
 
+    // Payment reversals — co-located JSON written by the Zapier webhook attached
+    // to the Payment Reversal form. Missing file is normal early on; quiet failure.
+    try {
+      const resp = await fetch("payment-reversals.json?t=" + Date.now());
+      if (resp.ok) {
+        const data = await resp.json();
+        reversals = Array.isArray(data) ? data : (data.reversals || []);
+      } else {
+        reversals = [];
+      }
+    } catch (e) { reversals = []; }
+
+    // Store directory — sourced from the Admin Panel. Adding a store there
+    // automatically gives it a row here. Falls back silently to the baseline.
+    try {
+      const resp = await fetch(DIRECTORY_URL + "?t=" + Date.now(), { cache: "no-store" });
+      if (resp.ok) {
+        const dir = await resp.json();
+        const dirShorts = (dir.stores || []).map(s =>
+          String(s).replace(/\s+Xfinity\s+Store\s*$/i, "").trim()
+        );
+        // Union directory stores with the baseline, drop blanks, sort A→Z
+        const merged = new Set([...STORE_BASELINE, ...dirShorts.filter(Boolean)]);
+        STORES = Array.from(merged).sort((a, b) => a.localeCompare(b));
+      }
+    } catch (e) { /* keep current STORES */ }
+
     try {
       if (liveData.length === 0 && staticData.length === 0) {
         submissions = generateDemoData();
@@ -541,6 +586,23 @@
       }
       submissions = Array.from(dedupMap.values());
       submissions.sort((a,b) => (b.submittedAtDate||0) - (a.submittedAtDate||0));
+
+      // Build the reversals lookup: store -> "YYYY-MM-DD" -> [reversal, ...]
+      // Reversals may use full names ("Bourbonnais Xfinity Store") or the short
+      // form the daily grid uses ("Bourbonnais"). Normalize to the short form so
+      // the lookup matches whichever STORES[] entry the page renders against.
+      reversalsByStoreDay = {};
+      reversals.forEach(r => {
+        if (!r) return;
+        const rawStore = r.storeShortName || r.store || "";
+        const storeKey = String(rawStore).replace(/\s+Xfinity\s+Store\s*$/i, "").trim();
+        const dateKey  = r.transactionDate || (r.submittedAt ? r.submittedAt.slice(0,10) : null);
+        if (!storeKey || !dateKey) return;
+        if (!reversalsByStoreDay[storeKey]) reversalsByStoreDay[storeKey] = {};
+        if (!reversalsByStoreDay[storeKey][dateKey]) reversalsByStoreDay[storeKey][dateKey] = [];
+        reversalsByStoreDay[storeKey][dateKey].push(r);
+      });
+
       render();
       document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
     } catch (e) {
@@ -676,10 +738,20 @@
       days.forEach(d => {
         const k = ymd(d);
         const subs = (byStoreDay[store] && byStoreDay[store][k]) || [];
+        const revs = (reversalsByStoreDay[store] && reversalsByStoreDay[store][k]) || [];
         const isToday = ymd(d) === todayYmd;
+        const hasRev = revs.length > 0;
         if (subs.length > 0) {
           const total = subs.reduce((a,b) => a + (b.totalAmount||0), 0);
-          html += '<td class="cell-has'+(isToday?' cell-today':'')+'" data-store="'+escapeAttr(store)+'" data-date="'+k+'" title="'+fmtMoneyFull(total)+'">'+(subs.length>1?subs.length+'×':'✓')+'</td>';
+          const pickupMark = subs.length > 1 ? subs.length + '×' : '✓';
+          const revMark = hasRev ? '<span class="rev-mark" title="'+escapeAttr(revs.length+' payment reversal'+(revs.length===1?'':'s'))+'">!</span>' : '';
+          const cls = 'cell-has' + (isToday?' cell-today':'') + (hasRev?' has-reversal':'');
+          const titleVal = fmtMoneyFull(total) + (hasRev ? ' · '+revs.length+' payment reversal'+(revs.length===1?'':'s') : '');
+          html += '<td class="'+cls+'" data-store="'+escapeAttr(store)+'" data-date="'+k+'" title="'+titleVal+'">'+pickupMark+revMark+'</td>';
+        } else if (hasRev) {
+          // No pickup that day, but a reversal exists -> standalone yellow !
+          const titleVal = revs.length + ' payment reversal' + (revs.length===1?'':'s');
+          html += '<td class="cell-reversal'+(isToday?' cell-today':'')+'" data-store="'+escapeAttr(store)+'" data-date="'+k+'" title="'+escapeAttr(titleVal)+'">!</td>';
         } else {
           html += '<td class="cell-empty'+(isToday?' cell-today':'')+'">·</td>';
         }
@@ -819,14 +891,57 @@
     html += '<div class="modal-stat"><div class="lbl">Last pickup</div><div class="val">'+lastLabel+'</div></div>';
     html += '</div>';
 
-    if (monthSubs.length === 0) {
+    // Reversals for this store in the selected month (matches keys we built earlier)
+    const monthRevs = [];
+    const dayMap = reversalsByStoreDay[store] || {};
+    Object.keys(dayMap).forEach(d => {
+      if (d >= ymd(monthStart) && d <= ymd(monthEnd)) {
+        dayMap[d].forEach(r => monthRevs.push(r));
+      }
+    });
+    monthRevs.sort((a,b) => String(b.transactionDate||"").localeCompare(String(a.transactionDate||"")));
+
+    if (monthSubs.length === 0 && monthRevs.length === 0) {
       html += '<div class="empty-msg">No pickups recorded for '+monthLabel(ym)+'.</div>';
     } else {
-      html += '<div style="font-size:11px;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin-bottom:8px;">Submissions in '+monthLabel(ym)+'</div>';
-      monthSubs.forEach(s => { html += renderSubmissionRow(s); });
+      if (monthSubs.length > 0) {
+        html += '<div style="font-size:11px;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin-bottom:8px;">Submissions in '+monthLabel(ym)+'</div>';
+        monthSubs.forEach(s => { html += renderSubmissionRow(s); });
+      }
+      if (monthRevs.length > 0) {
+        html += '<div style="font-size:11px;text-transform:uppercase;color:var(--warning);letter-spacing:0.5px;margin:18px 0 8px;">Payment reversals in '+monthLabel(ym)+'</div>';
+        monthRevs.forEach(r => { html += renderReversalRow(r); });
+      }
     }
     document.getElementById("modalBody").innerHTML = html;
     document.getElementById("modalBackdrop").classList.add("show");
+  }
+
+  function renderReversalRow(r) {
+    const amount = (r.amount != null) ? fmtMoneyFull(r.amount) : (r.amountFormatted || "—");
+    let html = '<div class="submission-row" style="border-left:3px solid var(--warning);padding-left:10px;margin-left:-10px;">';
+    html +=   '<div>';
+    html +=     '<div style="font-weight:600;color:var(--warning);">! ' + escapeHtml(r.adjustmentType || "Payment reversal") + '</div>';
+    html +=     '<div class="who">Transaction date: ' + escapeHtml(r.transactionDate || "—") + '</div>';
+    html +=     '<div class="who">Submitted by: ' + escapeHtml(r.repName || "—") + (r.repEmail ? ' &lt;' + escapeHtml(r.repEmail) + '&gt;' : '') + '</div>';
+    if (r.submittedAtLocal || r.submittedAt) {
+      html +=   '<div class="who">Submitted at: ' + escapeHtml(r.submittedAtLocal || r.submittedAt) + '</div>';
+    }
+    html +=     '<div class="deposits">';
+    html +=       'Payment type: ' + escapeHtml(r.paymentType || "—") + ' · ';
+    html +=       'Account #: ' + escapeHtml(r.accountNumber || "—");
+    html +=     '</div>';
+    if (r.storeManagerEmail || r.dmEmail) {
+      html +=   '<div class="deposits">';
+      if (r.storeManagerEmail) html += 'SM: ' + escapeHtml(r.storeManagerEmail);
+      if (r.storeManagerEmail && r.dmEmail) html += ' · ';
+      if (r.dmEmail) html += 'DM: ' + escapeHtml(r.dmEmail);
+      html +=   '</div>';
+    }
+    html +=   '</div>';
+    html +=   '<div><div class="amt" style="color:var(--warning);">' + amount + '</div></div>';
+    html += '</div>';
+    return html;
   }
 
   function openSubmissionModal(s) {
