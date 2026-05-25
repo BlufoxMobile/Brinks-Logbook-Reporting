@@ -444,18 +444,14 @@
     $("submitBtn").disabled = true;
     showBanner("info", "Submitting…");
     try {
-      if (CONFIG.GITHUB_TOKEN) {
-        await pushToGitHub(payload, day);
-        showBanner("success", `✓ ${day.title.replace(" Checklist","")} submitted! It will appear in the ${day.icon} tracker shortly.`);
-        localStorage.removeItem(draftKey(day));
-      } else {
-        downloadJSON(payload);
-        showBanner("success", "✓ No GitHub token configured. Saved as a local JSON file — drop it into the tracker's Import JSON to publish.");
-      }
+      if (!CONFIG.GITHUB_TOKEN) throw new Error("No GITHUB_TOKEN configured");
+      await pushToGitHub(payload, day);
+      showBanner("success", `✓ ${day.title.replace(" Checklist","")} submitted! It will appear in the ${day.icon} tracker shortly.`);
+      localStorage.removeItem(draftKey(day));
     } catch (err) {
       console.error(err);
-      showBanner("error", `Submit failed: ${err.message}. Saving locally instead.`);
-      downloadJSON(payload);
+      // No more JSON downloads — friendly, actionable error message instead.
+      showBanner("error", "Upload failed, please contact Jeff at (615) 992-8855 to report failure. Thank you.");
     } finally {
       $("submitBtn").disabled = false;
     }
