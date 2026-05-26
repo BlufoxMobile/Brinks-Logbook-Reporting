@@ -1,0 +1,33 @@
+{
+  "submittedAt": "2026-05-26T19:55:23.196Z",
+  "date": "2026-05-26",
+  "type": "tuesday",
+  "submittedBy": "Eric Rodriguez",
+  "notes": "Count still in progress at EP and multiple counts created for Evanston that could have been resolved if the manager joined during the variance screen",
+  "stores": {
+    "Bourbonnais Xfinity Store": "accurate",
+    "Burbank Xfinity Store": "accurate",
+    "Calumet City Xfinity Store": "accurate",
+    "Cicero Xfinity Store": "accurate",
+    "Dekalb Xfinity Store": "accurate",
+    "Elkhart Xfinity Store": "accurate",
+    "Evanston Xfinity Store": "inconsistencies",
+    "Evergreen Park Xfinity Store": "inconsistencies",
+    "Frankfort Xfinity Store": "accurate",
+    "Glenview Xfinity Store": "accurate",
+    "Greeneville Xfinity Store": "accurate",
+    "Hammond Xfinity Store": "accurate",
+    "Johnson City Xfinity Store": "accurate",
+    "Kildeer Xfinity Store": "accurate",
+    "Michigan City Xfinity Store": "accurate",
+    "Oak Ridge Xfinity Store": "accurate",
+    "Round Lake Beach Xfinity Store": "accurate",
+    "Schererville Xfinity Store": "accurate",
+    "South Bend Xfinity Store": "accurate",
+    "South Knoxville Xfinity Store": "accurate",
+    "South Skokie Xfinity Store": "accurate",
+    "Tinley Park Xfinity Store": "accurate",
+    "Uptown Xfinity Store": "accurate",
+    "Valparaiso Xfinity Store": "accurate"
+  }
+}
