@@ -172,10 +172,9 @@
 
     DIRECTORY_URL: "https://raw.githubusercontent.com/blufoxmobile/Daily-Sales-Report/main/data/store-directory.json",
 
-    // GitHub PAT with `contents: write` on Brinks-Logbook-Reporting.
-    // IMPORTANT: this token is embedded in the page — scope it narrowly.
-    // Leave blank to skip GitHub upload (the form will save a local JSON file instead).
-    GITHUB_TOKEN: "",
+    // Submissions are POSTed to this Cloudflare Worker, which writes them to GitHub
+    // using a server-side GITHUB_PAT secret. The PAT is no longer embedded in this page.
+    CHECKLIST_ENDPOINT: "https://brinks-pickup-orchestrator.jeff-bilbrey-jb.workers.dev/checklist",
 
     FALLBACK_STORES: [
       "Bourbonnais","Burbank","Calumet City","Cicero","Dekalb","Downer's Grove",
@@ -444,8 +443,7 @@
     $("submitBtn").disabled = true;
     showBanner("info", "Submitting…");
     try {
-      if (!CONFIG.GITHUB_TOKEN) throw new Error("No GITHUB_TOKEN configured");
-      await pushToGitHub(payload, day);
+      await pushViaWorker(payload, day);
       showBanner("success", `✓ ${day.title.replace(" Checklist","")} submitted! It will appear in the ${day.icon} tracker shortly.`);
       localStorage.removeItem(draftKey(day));
     } catch (err) {
@@ -466,32 +464,28 @@
     URL.revokeObjectURL(a.href);
   }
 
-  async function pushToGitHub(data, day) {
-    const path = `${day.storageDir}/${data.date}.json`;
-    const apiBase = `https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${path}`;
-    let sha;
-    try {
-      const head = await fetch(apiBase + "?ref=" + encodeURIComponent(CONFIG.GITHUB_BRANCH), {
-        headers: { Authorization: "token " + CONFIG.GITHUB_TOKEN, Accept: "application/vnd.github+json" }
-      });
-      if (head.ok) sha = (await head.json()).sha;
-    } catch {}
-    const body = {
-      message: `${day.title}: ${data.date} (${data.submittedBy})`,
-      content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
-      branch: CONFIG.GITHUB_BRANCH
-    };
-    if (sha) body.sha = sha;
-    const res = await fetch(apiBase, {
-      method: "PUT",
-      headers: { Authorization: "token " + CONFIG.GITHUB_TOKEN, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+  async function pushViaWorker(data, day) {
+    // Submit through the Cloudflare Worker. The Worker writes to GitHub with a
+    // server-side PAT so we don't have to ship a token in this page.
+    const res = await fetch(CONFIG.CHECKLIST_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        day: day.key,                 // "tuesday" or "wednesday"
+        date: data.date,
+        submittedAt: data.submittedAt,
+        submittedBy: data.submittedBy,
+        notes: data.notes,
+        stores: data.stores,
+      }),
     });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`GitHub ${res.status}: ${text.slice(0, 200)}`);
+    let result;
+    try { result = await res.json(); } catch { result = null; }
+    if (!res.ok || !result || result.ok !== true) {
+      const errMsg = (result && result.error) ? result.error : `HTTP ${res.status}`;
+      throw new Error(`Worker /checklist: ${errMsg}`);
     }
-    return res.json();
+    return result;
   }
 
   // ----- Wire up -----
