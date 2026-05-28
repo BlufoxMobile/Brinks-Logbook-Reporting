@@ -4,6 +4,10 @@
     "kind": "payment_reversal"
   },
   {
+    "amount": 0,
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "Test Account",
     "repEmail": "jbilbrey@blufoxmobile.com",
     "store": "Bourbonnais Xfinity Store",
