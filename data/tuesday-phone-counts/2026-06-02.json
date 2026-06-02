@@ -1,0 +1,33 @@
+{
+  "submittedAt": "2026-06-02T16:05:58.765Z",
+  "date": "2026-06-02",
+  "type": "tuesday",
+  "submittedBy": "Eric Rodriguez",
+  "notes": "Skokie is getting a device back from CX that was a drop ship but device was given to customer. Cicero SM had personal emergency in the AM so I gave permission for count tomorrow morning",
+  "stores": {
+    "Bourbonnais Xfinity Store": "not_done",
+    "Burbank Xfinity Store": "accurate",
+    "Calumet City Xfinity Store": "accurate",
+    "Cicero Xfinity Store": "not_done",
+    "Dekalb Xfinity Store": "accurate",
+    "Elkhart Xfinity Store": "accurate",
+    "Evanston Xfinity Store": "accurate",
+    "Evergreen Park Xfinity Store": "not_done",
+    "Frankfort Xfinity Store": "accurate",
+    "Glenview Xfinity Store": "accurate",
+    "Greeneville Xfinity Store": "accurate",
+    "Hammond Xfinity Store": "accurate",
+    "Johnson City Xfinity Store": "accurate",
+    "Kildeer Xfinity Store": "accurate",
+    "Michigan City Xfinity Store": "accurate",
+    "Oak Ridge Xfinity Store": "accurate",
+    "Round Lake Beach Xfinity Store": "accurate",
+    "Schererville Xfinity Store": "accurate",
+    "South Bend Xfinity Store": "not_done",
+    "South Knoxville Xfinity Store": "accurate",
+    "South Skokie Xfinity Store": "inconsistencies",
+    "Tinley Park Xfinity Store": "accurate",
+    "Uptown Xfinity Store": "accurate",
+    "Valparaiso Xfinity Store": "accurate"
+  }
+}
