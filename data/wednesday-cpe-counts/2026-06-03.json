@@ -1,0 +1,33 @@
+{
+  "submittedAt": "2026-06-03T15:20:44.047Z",
+  "date": "2026-06-03",
+  "type": "wednesday",
+  "submittedBy": "Eric Rodriguez",
+  "notes": "Waiting on access to Cal City to do the count",
+  "stores": {
+    "Bourbonnais Xfinity Store": "accurate",
+    "Burbank Xfinity Store": "accurate",
+    "Calumet City Xfinity Store": "not_done",
+    "Cicero Xfinity Store": "not_done",
+    "Dekalb Xfinity Store": "not_done",
+    "Elkhart Xfinity Store": "not_done",
+    "Evanston Xfinity Store": "accurate",
+    "Evergreen Park Xfinity Store": "accurate",
+    "Frankfort Xfinity Store": "accurate",
+    "Glenview Xfinity Store": "accurate",
+    "Greeneville Xfinity Store": "not_done",
+    "Hammond Xfinity Store": "not_done",
+    "Johnson City Xfinity Store": "not_done",
+    "Kildeer Xfinity Store": "accurate",
+    "Michigan City Xfinity Store": "not_done",
+    "Oak Ridge Xfinity Store": "not_done",
+    "Round Lake Beach Xfinity Store": "accurate",
+    "Schererville Xfinity Store": "accurate",
+    "South Bend Xfinity Store": "accurate",
+    "South Knoxville Xfinity Store": "not_done",
+    "South Skokie Xfinity Store": "accurate",
+    "Tinley Park Xfinity Store": "not_done",
+    "Uptown Xfinity Store": "accurate",
+    "Valparaiso Xfinity Store": "accurate"
+  }
+}
