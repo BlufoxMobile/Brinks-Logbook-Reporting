@@ -1,0 +1,33 @@
+{
+  "submittedAt": "2026-06-09T15:49:33.742Z",
+  "date": "2026-06-09",
+  "type": "tuesday",
+  "submittedBy": "Eric Rodriguez",
+  "notes": "",
+  "stores": {
+    "Bourbonnais Xfinity Store": "inconsistencies",
+    "Burbank Xfinity Store": "accurate",
+    "Calumet City Xfinity Store": "accurate",
+    "Cicero Xfinity Store": "accurate",
+    "Dekalb Xfinity Store": "accurate",
+    "Elkhart Xfinity Store": "accurate",
+    "Evanston Xfinity Store": "accurate",
+    "Evergreen Park Xfinity Store": "inconsistencies",
+    "Frankfort Xfinity Store": "accurate",
+    "Glenview Xfinity Store": "accurate",
+    "Greeneville Xfinity Store": "not_done",
+    "Hammond Xfinity Store": "not_done",
+    "Johnson City Xfinity Store": "not_done",
+    "Kildeer Xfinity Store": "inconsistencies",
+    "Michigan City Xfinity Store": "accurate",
+    "Oak Ridge Xfinity Store": "not_done",
+    "Round Lake Beach Xfinity Store": "accurate",
+    "Schererville Xfinity Store": "accurate",
+    "South Bend Xfinity Store": "not_done",
+    "South Knoxville Xfinity Store": "not_done",
+    "South Skokie Xfinity Store": "accurate",
+    "Tinley Park Xfinity Store": "not_done",
+    "Uptown Xfinity Store": "accurate",
+    "Valparaiso Xfinity Store": "accurate"
+  }
+}
