@@ -243,6 +243,11 @@
     border: 1px solid #166534;
   }
   .submission-row .photo-link:hover { background: #1a2820; }
+  .submission-row .photo-wrap { display: block; margin-top: 8px; }
+  .submission-row .photo-wrap img {
+    display: block; max-width: 100%; max-height: 220px;
+    border-radius: 8px; border: 1px solid var(--border); object-fit: contain;
+  }
 
   footer.site {
     text-align: center; color: var(--text-faint);
@@ -944,6 +949,31 @@
     return html;
   }
 
+  const R2_PUBLIC_BASE = "https://pub-95157e3b1ccc44079431b069ce48a44b.r2.dev";
+  // Photos live in R2 at <Store_With_Underscores>/<MonthName>/<YYYY-MM-DD_HHMM>.<ext>,
+  // where the timestamp is the submitter's LOCAL time. Older records were appended
+  // with photoUrl:"" — for those we rebuild candidate URLs across our timezones
+  // (Eastern/Central, with and without DST) and let the <img> fall through on 404.
+  function photoCandidates(s) {
+    if (s.photoUrl && s.photoUrl !== "#") return [s.photoUrl];
+    if (!s.submittedAtDate || !s.store) return [];
+    const storeKey = String(s.store).replace(/\s+/g, "_");
+    let ext = "jpg";
+    if (s.photoFileName && String(s.photoFileName).includes(".")) {
+      ext = String(s.photoFileName).split(".").pop().toLowerCase();
+    }
+    const pad = n => String(n).padStart(2, "0");
+    const out = [];
+    [-4, -5, -6].forEach(off => {
+      const d = new Date(s.submittedAtDate.getTime() + off * 3600000);
+      const month = d.toLocaleString("en-US", { month: "long", timeZone: "UTC" });
+      const key = d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate())
+                + "_" + pad(d.getUTCHours()) + pad(d.getUTCMinutes());
+      out.push(R2_PUBLIC_BASE + "/" + storeKey + "/" + month + "/" + key + "." + ext);
+    });
+    return out;
+  }
+
   function openSubmissionModal(s) {
     document.getElementById("modalTitle").textContent = s.store || "Submission";
     document.getElementById("modalBody").innerHTML = renderSubmissionRow(s, true);
@@ -966,7 +996,15 @@
     html +=     '<div style="font-weight:600;">'+escapeHtml(s.managerName||"—")+'</div>';
     html +=     '<div class="who">'+dateStr+'</div>';
     if (list) html += '<div class="deposits">'+list+'</div>';
-    if (s.photoUrl) html += '<a class="photo-link" href="'+escapeAttr(s.photoUrl)+'" target="_blank" rel="noopener">📷 View logbook photo</a>';
+    const photoCands = photoCandidates(s);
+    if (photoCands.length) {
+      html += '<a class="photo-wrap" href="'+escapeAttr(photoCands[0])+'" target="_blank" rel="noopener">'
+            + '<img loading="lazy" alt="Logbook photo" src="'+escapeAttr(photoCands[0])+'"'
+            + ' data-alts="'+escapeAttr(photoCands.slice(1).join("|"))+'"'
+            + ' onload="this.parentElement.href=this.src;"'
+            + ' onerror="var a=(this.dataset.alts||\'\').split(\'|\').filter(Boolean); if(a.length){this.src=a.shift(); this.dataset.alts=a.join(\'|\');}else{this.parentElement.style.display=\'none\';}" />'
+            + '</a>';
+    }
     html +=   '</div>';
     html +=   '<div><div class="amt">'+fmtMoney(s.totalAmount)+'</div></div>';
     html += '</div>';
