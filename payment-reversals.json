@@ -1,5 +1,22 @@
 [
   {
+    "repName": "Jordan Berry",
+    "repEmail": "jberry@blufoxmobile.com",
+    "store": "Uptown Xfinity Store",
+    "storeShortName": "Uptown",
+    "storeManagerEmail": "HDodge@blufoxmobile.com",
+    "storeManagerName": "Hunter Dodge",
+    "dmEmail": "IDhorajiwala@blufoxmobile.com",
+    "transactionDate": "2026-06-19",
+    "paymentType": "Cash",
+    "accountNumber": "8771300124296827",
+    "amount": 60,
+    "amountFormatted": "$60.00",
+    "submittedAt": "2026-06-19T20:25:15.576Z",
+    "submittedAtLocal": "Jun 19, 2026, 3:25 PM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "EMILY",
     "repEmail": "EGUZMAN@BLUFOXMOBIULE.OCM",
     "store": "Tinley Park Xfinity Store",
