@@ -792,7 +792,7 @@
           return `<div><span class="a-lbl">${escapeHtml(lbl)}</span><span class="pill ${v==="Yes"?"yes":"no"}">${escapeHtml(v || "—")}</span></div>`;
         }).join("")}
       </div>
-      ${renderPhotos(s.photos || {})}
+      ${renderPhotos(Object.assign({}, s.photoUrls || {}, s.photos || {}))}
       <div class="${s.notes ? "notes-block" : "notes-block empty-state"}">${escapeHtml(s.notes || "No facilities or ops notes left.")}</div>
       <div class="modal-actions">
         <button class="btn primary" id="closeModal2">Close</button>
