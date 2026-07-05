@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Brinks Pickup Log</title>
+<title>Uniform Orders</title>
 <style>
   :root {
     --bg: #000000;
@@ -18,1076 +18,442 @@
     --positive: #4ade80;
     --warning: #fbbf24;
     --error: #ef4444;
+    --accent: #ff5a1f;
   }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
     background: var(--bg); color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+    font-size: 15px; line-height: 1.45;
+    -webkit-text-size-adjust: 100%;
   }
-  header.site {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
-  }
-  .head-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
-  .brand-logo {
-    width: 42px; height: 42px; border-radius: 8px;
-    background: linear-gradient(135deg, #14532d, #166534);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; flex-shrink: 0;
-  }
-  .head-title { flex: 1; min-width: 0; }
-  h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.25; margin: 0; }
+
+  /* Tabs */
+  .bx-tabs { position: sticky; top: 0; z-index: 200; background: #000; border-bottom: 1px solid #2a2a2a; }
+  .bx-tabs-inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bx-tab { padding: 14px 18px; color: #b8b8b8; text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
+  .bx-tab:hover { color: #fff; }
+  .bx-tab.active { color: #ff5a1f; border-bottom-color: #ff5a1f; }
+
+  /* Header */
+  header.site { border-bottom: 1px solid var(--border); }
+  .head-inner { max-width: 1280px; margin: 0 auto; padding: 18px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .brand-logo { width: 40px; height: 40px; border-radius: 10px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid var(--border); }
+  .head-title h1 { margin: 0; font-size: 20px; letter-spacing: -0.01em; }
   .subtitle { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
-  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); margin-right: 6px; vertical-align: middle; }
+  .head-status { margin-left: auto; font-size: 12px; color: var(--text-dim); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); }
   .status-dot.ok { background: var(--positive); }
   .status-dot.err { background: var(--error); }
-  .head-status { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+  .status-dot.load { background: var(--warning); }
+  .refresh-btn { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim); border-radius: 7px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .refresh-btn:hover { color: #fff; border-color: var(--border-strong); }
 
-  @media (min-width: 640px) {
-    .brand-logo { width: 48px; height: 48px; font-size: 26px; }
-    h1 { font-size: 19px; }
-  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 18px 16px 80px; }
 
-  .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 80px; }
+  /* Summary cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .metric .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
+  .metric .value { font-size: 28px; font-weight: 800; margin-top: 6px; letter-spacing: -0.02em; }
+  .metric .sub { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+  .metric.pending .value { color: var(--warning); }
+  .metric.shipped .value { color: var(--positive); }
 
-  /* KPI cards */
-  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-  @media (min-width: 640px) { .stats { grid-template-columns: repeat(4, 1fr); gap: 12px; } }
-  .stat {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px 16px;
-  }
-  .stat-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); }
-  .stat-value { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; margin-top: 4px; }
-  .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
-  .stat.warn .stat-value { color: var(--warning); }
-  .stat.err .stat-value { color: var(--error); }
-  .stat.ok .stat-value { color: var(--positive); }
+  /* Controls */
+  .controls { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .segmented { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 3px; }
+  .segmented button { background: none; border: none; color: var(--text-dim); padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 7px; cursor: pointer; font-family: inherit; }
+  .segmented button.active { background: var(--surface-3); color: #fff; }
+  .segmented button .pill { display: inline-block; min-width: 18px; margin-left: 6px; padding: 1px 6px; font-size: 11px; border-radius: 10px; background: var(--surface-2); color: var(--text-dim); }
+  .segmented button.active .pill { background: var(--accent); color: #fff; }
+  .search { flex: 1; min-width: 180px; }
+  .search input { width: 100%; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; font-family: inherit; }
+  .search input:focus { outline: none; border-color: var(--border-strong); }
 
-  /* Toolbar */
-  .toolbar {
-    display: flex; gap: 8px; flex-wrap: wrap;
-    margin-bottom: 16px; align-items: center;
-  }
-  .search {
-    flex: 1; min-width: 200px;
-    background: var(--surface-2); color: var(--text);
-    border: 1px solid var(--border-strong); border-radius: 8px;
-    padding: 10px 14px; font-size: 14px; font-family: inherit;
-  }
-  .search:focus { outline: none; border-color: var(--text); }
-  .tabs { display: flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
-  .tab {
-    background: transparent; border: none; color: var(--text-dim);
-    padding: 8px 14px; font-size: 13px; font-weight: 500;
-    border-radius: 6px; cursor: pointer; font-family: inherit;
-  }
-  .tab.active { background: var(--surface-3); color: var(--text); }
-  .tab:hover:not(.active) { color: var(--text); }
+  /* Order cards */
+  .orders { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; }
+  .order { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+  .order-head { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 10px; }
+  .order-head .store { font-size: 17px; font-weight: 700; }
+  .order-head .date { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .badge { margin-left: auto; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+  .badge.pending { background: rgba(251,191,36,0.15); color: var(--warning); border: 1px solid rgba(251,191,36,0.35); }
+  .badge.shipped { background: rgba(74,222,128,0.15); color: var(--positive); border: 1px solid rgba(74,222,128,0.35); }
 
-  /* Month navigator */
-  .month-nav {
-    display: flex; align-items: center; gap: 6px;
-    background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 4px;
-  }
-  .month-nav button {
-    background: transparent; border: none; color: var(--text-dim);
-    width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
-    font-size: 16px; font-family: inherit; display: flex; align-items: center; justify-content: center;
-  }
-  .month-nav button:hover:not(:disabled) { background: var(--surface-3); color: var(--text); }
-  .month-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
-  .month-nav .month-label {
-    font-size: 13px; font-weight: 600; padding: 0 8px;
-    min-width: 130px; text-align: center; cursor: pointer;
-    color: var(--text);
-  }
-  .month-nav .month-label:hover { color: var(--positive); }
-  .month-nav select {
-    background: var(--surface-2); color: var(--text);
-    border: 1px solid var(--border-strong); border-radius: 6px;
-    padding: 6px 8px; font-size: 13px; font-family: inherit;
-    cursor: pointer;
-  }
+  .order-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .field-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-faint); margin-bottom: 4px; }
+  .ship-to { font-size: 13px; color: var(--text-dim); white-space: pre-line; }
 
-  .section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); margin: 24px 0 10px; display: flex; align-items: center; gap: 10px; }
-  .section-title .badge { font-size: 11px; font-weight: 500; color: var(--text-dim); background: var(--surface-2); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); }
+  table.items { width: 100%; border-collapse: collapse; }
+  table.items th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); padding: 4px 8px; border-bottom: 1px solid var(--border); }
+  table.items td { padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+  table.items tr:last-child td { border-bottom: none; }
+  table.items .sz { font-weight: 700; color: #fff; width: 52px; }
+  table.items .qty { font-weight: 700; color: var(--accent); text-align: center; width: 44px; }
+  table.items .rec { color: var(--text-dim); }
 
-  /* Daily grid table */
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: auto;
-    max-height: 70vh;
-  }
-  table.daily-table {
-    border-collapse: separate; border-spacing: 0;
-    font-size: 13px; width: max-content; min-width: 100%;
-  }
-  .daily-table th, .daily-table td {
-    padding: 8px 10px; text-align: center;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    white-space: nowrap;
-  }
-  .daily-table thead th {
-    color: var(--text-dim); font-weight: 500; font-size: 11px;
-    text-transform: uppercase; letter-spacing: 0.3px;
-    position: sticky; top: 0; z-index: 2;
-    background: var(--surface-2); border-bottom: 1px solid var(--border-strong);
-  }
-  .daily-table th.col-store, .daily-table td.col-store {
-    text-align: left; position: sticky; left: 0; z-index: 1;
-    background: var(--surface); font-weight: 500;
-    min-width: 180px; max-width: 220px;
-    border-right: 1px solid var(--border-strong);
-  }
-  .daily-table thead th.col-store { z-index: 3; background: var(--surface-2); }
-  .daily-table th.col-total, .daily-table td.col-total {
-    position: sticky; right: 0; background: var(--surface-2);
-    color: var(--text); font-weight: 600;
-    border-left: 1px solid var(--border-strong);
-    min-width: 100px;
-  }
-  .daily-table thead th.col-total { z-index: 3; }
-  .daily-table td.col-streak {
-    font-size: 11px; color: var(--text-dim); min-width: 90px;
-  }
-  .daily-table td.cell-today { background: #14231a; color: var(--positive); font-weight: 600; }
-  .daily-table td.cell-has { color: var(--positive); cursor: pointer; }
-  .daily-table td.cell-has:hover { background: #1a2820; }
-  .daily-table td.cell-empty { color: var(--text-faint); }
-  /* Payment reversal marker — yellow exclamation, takes priority styling-wise */
-  .daily-table td.cell-reversal { color: var(--warning); cursor: pointer; font-weight: 700; }
-  .daily-table td.cell-reversal:hover { background: #2a1f06; }
-  .daily-table td.cell-has.has-reversal .rev-mark { color: var(--warning); font-weight: 700; margin-left: 4px; }
-  .daily-table tr.store-row:hover td:not(.col-total) { background: #141414; }
-  .daily-table tr.store-row:hover td.col-store { background: #141414; }
-  .daily-table tr.store-row:hover td.col-total { background: #1f1f1f; }
-  .daily-table tr.no-recent td.col-store { color: var(--warning); }
-  .daily-table tr.never-logged td.col-store { color: var(--error); }
+  .total-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; padding-top: 4px; }
+  .total-row .n { font-size: 18px; color: var(--accent); }
 
-  /* Monthly heatmap (12-month overview) */
-  .month-table th.col-month { min-width: 90px; }
-  .month-table td.cell-money { font-weight: 500; cursor: pointer; }
-  .month-table td.cell-money:hover { background: #141414; }
-  .heat-0 { color: var(--text-faint); }
-  .heat-1 { color: #4ade80; background: rgba(74,222,128,0.05); }
-  .heat-2 { color: #4ade80; background: rgba(74,222,128,0.10); }
-  .heat-3 { color: #4ade80; background: rgba(74,222,128,0.18); }
-  .heat-4 { color: #ffffff; background: rgba(74,222,128,0.28); font-weight: 600; }
+  /* Shipped info block */
+  .shipped-info { background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.25); border-radius: 10px; padding: 12px 14px; }
+  .shipped-info .row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 3px 0; }
+  .shipped-info .row .k { color: var(--text-dim); }
+  .shipped-info .row .v { font-weight: 600; text-align: right; word-break: break-word; }
+  .track-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; background: var(--positive); color: #04210f; text-decoration: none; font-weight: 700; font-size: 13px; padding: 9px 16px; border-radius: 8px; }
+  .track-link:hover { filter: brightness(1.08); }
 
-  /* Recent feed view */
-  .feed { display: grid; gap: 8px; }
-  .feed-item {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px 14px;
-    display: grid; grid-template-columns: 1fr auto; gap: 10px;
-    cursor: pointer;
-  }
-  .feed-item:hover { border-color: var(--border-strong); background: var(--surface-2); }
-  .feed-store { font-weight: 600; font-size: 14px; }
-  .feed-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
-  .feed-amount { font-weight: 600; color: var(--positive); font-size: 15px; text-align: right; white-space: nowrap; }
-  .feed-date { font-size: 12px; color: var(--text-dim); text-align: right; margin-top: 2px; }
+  /* Ship action */
+  .order-foot { padding: 12px 16px; border-top: 1px solid var(--border); }
+  .ship-btn { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 9px; padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .ship-btn:hover { filter: brightness(1.05); }
+  .ship-btn:disabled { background: var(--surface-3); color: var(--text-faint); cursor: not-allowed; }
 
-  /* Modal */
-  .modal-backdrop {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none; align-items: flex-end; justify-content: center;
-    z-index: 100; padding: 0;
-  }
-  .modal-backdrop.show { display: flex; }
-  @media (min-width: 640px) { .modal-backdrop { align-items: center; padding: 20px; } }
-  .modal {
-    background: var(--surface); width: 100%; max-width: 600px;
-    border-radius: 16px 16px 0 0; padding: 0;
-    max-height: 90vh; overflow-y: auto;
-    border: 1px solid var(--border);
-  }
-  @media (min-width: 640px) { .modal { border-radius: 12px; max-height: 80vh; } }
-  .modal-head {
-    padding: 18px 20px 12px; border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; background: var(--surface); z-index: 1;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .modal-head h3 { margin: 0; font-size: 17px; font-weight: 600; }
-  .modal-close {
-    background: var(--surface-3); border: none; color: var(--text-dim);
-    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px;
-  }
-  .modal-body { padding: 16px 20px 24px; }
-  .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-  .modal-stat { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; text-align: center; }
-  .modal-stat .lbl { font-size: 10px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px; }
-  .modal-stat .val { font-size: 18px; font-weight: 600; margin-top: 2px; }
-  .submission-row {
-    padding: 12px 0; border-bottom: 1px solid var(--border);
-    display: grid; grid-template-columns: 1fr auto; gap: 8px;
-  }
-  .submission-row:last-child { border-bottom: none; }
-  .submission-row .who { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
-  .submission-row .amt { font-weight: 600; color: var(--positive); }
-  .submission-row .deposits { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-  .submission-row .photo-link {
-    display: inline-block; margin-top: 6px; font-size: 12px;
-    color: var(--positive); text-decoration: none;
-    background: #14231a; padding: 4px 8px; border-radius: 4px;
-    border: 1px solid #166534;
-  }
-  .submission-row .photo-link:hover { background: #1a2820; }
-  .submission-row .photo-wrap { display: block; margin-top: 8px; }
-  .submission-row .photo-wrap img {
-    display: block; max-width: 100%; max-height: 220px;
-    border-radius: 8px; border: 1px solid var(--border); object-fit: contain;
-  }
+  .ship-form { display: none; flex-direction: column; gap: 10px; }
+  .ship-form.open { display: flex; }
+  .ship-form label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 4px; display: block; }
+  .ship-form select, .ship-form input { width: 100%; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 15px; font-family: inherit; appearance: none; }
+  .ship-form select:focus, .ship-form input:focus { outline: none; border-color: var(--accent); }
+  .ship-form .two { display: flex; gap: 10px; }
+  .ship-form .two > div { flex: 1; }
+  .ship-actions { display: flex; gap: 10px; }
+  .ship-actions button { flex: 1; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; border: 1px solid var(--border); }
+  .btn-confirm { background: var(--positive); color: #04210f; border-color: transparent; }
+  .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-cancel { background: transparent; color: var(--text-dim); }
+  .ship-err { font-size: 12px; color: var(--error); display: none; }
+  .ship-err.show { display: block; }
 
-  footer.site {
-    text-align: center; color: var(--text-faint);
-    font-size: 12px; padding: 24px 16px; border-top: 1px solid var(--border);
-    margin-top: 40px;
-  }
-  footer.site a { color: var(--text-dim); }
+  /* States */
+  .state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+  .state .big { font-size: 32px; margin-bottom: 10px; }
+  .spinner { width: 26px; height: 26px; border: 3px solid var(--surface-3); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  .empty-msg { text-align: center; color: var(--text-dim); padding: 40px 20px; font-size: 14px; }
-  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--text-dim); margin-top: 10px; padding-left: 4px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .legend-dot.ok { background: var(--positive); }
-  .legend-dot.warn { background: var(--warning); }
-  .legend-dot.err { background: var(--error); }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--surface-2); border: 1px solid var(--border-strong); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 400; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--positive); }
+  .toast.error { border-color: var(--error); }
+
+  @media (max-width: 480px) {
+    .orders { grid-template-columns: 1fr; }
+    .head-status { width: 100%; margin-left: 0; }
+  }
 </style>
 </head>
 <body>
-<style>
-  .bx-tabs { position: sticky; top: 0; z-index: 200; background: #000; border-bottom: 1px solid #2a2a2a; width: 100%; margin: 0; }
-  .bx-tabs-inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .bx-tab { padding: 14px 18px; color: #b8b8b8; text-decoration: none; font-weight: 600; font-size: 14px; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-  .bx-tab:hover { color: #ffffff; }
-  .bx-tab.active { color: #ff5a1f; border-bottom-color: #ff5a1f; }
-</style>
+
 <nav class="bx-tabs" aria-label="Reports">
   <div class="bx-tabs-inner">
-    <a class="bx-tab active" href="index.html" aria-current="page">🚚 Brinks Pickup Log</a>
+    <a class="bx-tab" href="index.html">🚚 Brinks Pickup Log</a>
     <a class="bx-tab" href="monday-ops.html">📋 Monday Ops Tracker</a>
     <a class="bx-tab" href="tuesday-phone-tracker.html">📞 Tuesday Phone Counts</a>
     <a class="bx-tab" href="wednesday-cpe-tracker.html">📱 Wednesday CPE Counts</a>
+    <a class="bx-tab active" href="uniform-orders.html" aria-current="page">📦 Uniform Orders</a>
   </div>
 </nav>
 
-
 <header class="site">
   <div class="head-inner">
-    <div class="brand-logo" aria-hidden="true">🚚</div>
+    <div class="brand-logo" aria-hidden="true">📦</div>
     <div class="head-title">
-      <h1>Brinks Pickup Log</h1>
-      <div class="subtitle">Cook County Cooks · cash pickup activity</div>
+      <h1>Uniform Orders</h1>
+      <div class="subtitle">Cook County Cooks · shirt order fulfillment</div>
     </div>
-    <div class="head-status"><span id="statusDot" class="status-dot"></span><span id="statusText">Loading…</span></div>
+    <div class="head-status">
+      <span class="status-dot load" id="statusDot"></span>
+      <span id="statusText">Loading…</span>
+      <button class="refresh-btn" id="refreshBtn" type="button">↻ Refresh</button>
+    </div>
   </div>
 </header>
 
-<div class="container">
+<div class="wrap">
 
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-label">Today</div>
-      <div class="stat-value" id="stat-today">0</div>
-      <div class="stat-sub">pickups logged</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Month to date</div>
-      <div class="stat-value" id="stat-mtd">0</div>
-      <div class="stat-sub">pickups logged</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">MTD total $</div>
-      <div class="stat-value" id="stat-amount">$0</div>
-      <div class="stat-sub">picked up this month</div>
-    </div>
-    <div class="stat warn">
-      <div class="stat-label">Inactive stores</div>
-      <div class="stat-value" id="stat-inactive">0</div>
-      <div class="stat-sub">no pickup in 7+ days</div>
-    </div>
+  <div class="cards" id="cards">
+    <div class="metric pending"><div class="label">Pending</div><div class="value" id="mPending">—</div><div class="sub">awaiting shipment</div></div>
+    <div class="metric"><div class="label">Shirts to ship</div><div class="value" id="mShirts">—</div><div class="sub">across pending orders</div></div>
+    <div class="metric shipped"><div class="label">Shipped this month</div><div class="value" id="mShipped">—</div><div class="sub" id="mShippedSub">orders</div></div>
+    <div class="metric"><div class="label">Oldest pending</div><div class="value" id="mOldest">—</div><div class="sub" id="mOldestSub">&nbsp;</div></div>
   </div>
 
-  <div class="toolbar">
-    <input type="text" id="search" class="search" placeholder="Search store name…" autocomplete="off" />
-    <div class="tabs">
-      <button class="tab active" data-view="grid">Daily</button>
-      <button class="tab" data-view="monthly">Monthly</button>
-      <button class="tab" data-view="feed">Recent</button>
+  <div class="controls">
+    <div class="segmented" id="filterSeg">
+      <button data-filter="pending" class="active">Pending <span class="pill" id="pillPending">0</span></button>
+      <button data-filter="shipped">Shipped <span class="pill" id="pillShipped">0</span></button>
+      <button data-filter="all">All <span class="pill" id="pillAll">0</span></button>
     </div>
+    <div class="search"><input type="text" id="search" placeholder="Search store name…" autocomplete="off" /></div>
   </div>
 
-  <div class="legend">
-    <div class="legend-item"><span class="legend-dot ok"></span>Active (logged in last 7 days)</div>
-    <div class="legend-item"><span class="legend-dot warn"></span>Stale (7+ days since last)</div>
-    <div class="legend-item"><span class="legend-dot err"></span>Never logged</div>
-    <div class="legend-item"><span style="color:var(--warning);font-weight:700;">!</span> Payment reversal on file</div>
-  </div>
-
-  <!-- DAILY VIEW -->
-  <div id="view-grid">
-    <div class="section-title">
-      <span>Per-store daily grid</span>
-      <span class="badge" id="grid-month-badge">—</span>
-      <div style="margin-left:auto;" class="month-nav" id="monthNav">
-        <button id="prevMonth" title="Previous month">‹</button>
-        <span class="month-label" id="monthLabel" title="Click to jump to this month">—</span>
-        <button id="nextMonth" title="Next month">›</button>
-        <select id="monthJump" title="Jump to month"></select>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <table class="daily-table" id="dailyTable">
-        <thead><tr id="dailyHeadRow"></tr></thead>
-        <tbody id="dailyBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- MONTHLY VIEW -->
-  <div id="view-monthly" style="display:none;">
-    <div class="section-title">
-      <span>12-month overview</span>
-      <span class="badge">Total $ per store, per month</span>
-    </div>
-    <div class="table-wrap">
-      <table class="daily-table month-table" id="monthlyTable">
-        <thead><tr id="monthlyHeadRow"></tr></thead>
-        <tbody id="monthlyBody"></tbody>
-      </table>
-    </div>
-    <div class="legend" style="margin-top:14px;">
-      <div class="legend-item"><span class="legend-dot" style="background:rgba(74,222,128,0.10)"></span>Lower activity</div>
-      <div class="legend-item"><span class="legend-dot" style="background:rgba(74,222,128,0.28)"></span>Higher activity</div>
-      <div class="legend-item">· Click any cell for that store's full month detail</div>
-    </div>
-  </div>
-
-  <!-- RECENT VIEW -->
-  <div id="view-feed" style="display:none;">
-    <div class="section-title">Recent submissions</div>
-    <div class="feed" id="feedList"></div>
-  </div>
-
+  <div id="orders" class="orders"></div>
+  <div id="stateBox"></div>
 </div>
 
-<div id="modalBackdrop" class="modal-backdrop">
-  <div class="modal">
-    <div class="modal-head">
-      <h3 id="modalTitle">Store</h3>
-      <button class="modal-close" id="modalClose">×</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-  </div>
-</div>
-
-<footer class="site">
-  Last updated <span id="lastUpdated">—</span> · <a href="#" id="refreshLink">Refresh</a> · Showing rolling 12-month window
-</footer>
+<div class="toast" id="toast"></div>
 
 <script>
-  // ============================================================
-  // CONFIGURATION
-  // Paste the URL of your "data feed" Power Automate flow below.
-  // (Flow #2 in the setup guide — the one that returns JSON.)
-  // ============================================================
-  const DATA_FEED_URL = "PASTE_YOUR_DATA_FEED_FLOW_URL_HERE";
-  const REFRESH_INTERVAL_MS = 60000; // 60s
-  const HISTORY_MONTHS = 12;         // rolling window
+/* ============================================================
+ * CONFIGURATION
+ * ============================================================ */
+const CONFIG = {
+  GITHUB_OWNER: "BlufoxMobile",
+  GITHUB_REPO:  "Brinks-Logbook-Reporting",
+  GITHUB_BRANCH:"main",
+  ORDERS_DIR:   "data/uniform-orders",
 
-  // Public store-directory feed maintained from the Admin Panel.
-  // Adding a store in https://blufoxmobile.github.io/Admin-Panel-Directory/
-  // auto-flows into the daily/monthly grids below (no code change required).
-  const DIRECTORY_URL = "https://blufoxmobile.github.io/Daily-Sales-Report/data/store-directory.json";
+  // Worker route that marks an order shipped (and fires the confirmation email).
+  // If you deploy the uniform worker at a different URL, update this.
+  SHIP_ENDPOINT: "https://brinks-pickup-orchestrator.jeff-bilbrey-jb.workers.dev/uniform-ship",
 
-  // Baseline: out-of-directory stores that should always have a row
-  // (legacy / non-Xfinity / closed-but-historical). The directory is unioned in
-  // at fetch time; new stores added via the Admin Panel show up automatically.
-  const STORE_BASELINE = [
-    "Anderson","Avon","Battle Creek","Bourbonnais","Burbank",
-    "Canton (Belleville)","Cicero","Columbus","Dekalb","Elkhart",
-    "Evanston","Evergreen Park","Fort Gratiot","Frankfort","Glenview",
-    "Grand Blanc","Greeneville","Hammond","Inkster","Johnson City",
-    "Kildeer","Lansing","Michigan City","Muncie","Noblesville",
-    "Oak Ridge","Richmond","Roseville","Round Lake Beach","Schererville",
-    "South Bend","South Knoxville","South Skokie","Southfield","Tinley Park",
-    "Uptown","Valparaiso","Westland","White Lake","Ypsilanti"
-  ];
+  // Optional: a GitHub token (read-only is fine) raises the API rate limit from
+  // 60→5000 requests/hour. Leave blank for normal low-volume use.
+  GITHUB_TOKEN: "",
 
-  // Live merged list. Starts as the baseline; fetchData() unions the directory in.
-  let STORES = STORE_BASELINE.slice();
+  REFRESH_MS: 60000,
+};
+/* ============================================================ */
 
-  // State
-  let submissions = [];
-  let reversals = [];                // payment reversal records loaded from payment-reversals.json
-  let reversalsByStoreDay = {};      // { storeShortName: { "YYYY-MM-DD": [reversal, ...] } }
-  let currentView = "grid";
-  let searchTerm = "";
-  let selectedYearMonth = ymString(new Date()); // e.g. "2026-05"
+const $ = id => document.getElementById(id);
+const CARRIERS = ["UPS", "FedEx", "USPS", "DHL", "Other"];
 
-  // ---------- Helpers ----------
-  function fmtMoney(n) {
-    if (n == null || isNaN(n)) return "$0";
-    return "$" + Math.round(Number(n)).toLocaleString();
+let ORDERS = [];
+let filter = "pending";
+let searchTerm = "";
+let refreshTimer = null;
+
+/* ---------- helpers ---------- */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function ghHeaders(){ const h={Accept:"application/vnd.github+json"}; if(CONFIG.GITHUB_TOKEN) h.Authorization="token "+CONFIG.GITHUB_TOKEN; return h; }
+function fmtDate(iso){ if(!iso) return ""; const d=new Date(iso); if(isNaN(d)) return ""; return d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); }
+function fmtDay(iso){ if(!iso) return ""; const d=new Date(iso); if(isNaN(d)) return ""; return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
+function daysAgo(iso){ if(!iso) return null; const d=new Date(iso); if(isNaN(d)) return null; return Math.floor((Date.now()-d.getTime())/86400000); }
+function trackingUrl(carrier, tracking){
+  const t=encodeURIComponent(String(tracking||"").trim());
+  switch(String(carrier||"").toUpperCase()){
+    case "UPS":   return `https://www.ups.com/track?loc=en_US&tracknum=${t}`;
+    case "FEDEX": return `https://www.fedex.com/fedextrack/?trknbr=${t}`;
+    case "USPS":  return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${t}`;
+    case "DHL":   return `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${t}`;
+    default:      return `https://parcelsapp.com/en/tracking/${t}`;
   }
-  function fmtMoneyFull(n) {
-    if (n == null || isNaN(n)) return "$0.00";
-    return Number(n).toLocaleString("en-US", { style: "currency", currency: "USD" });
-  }
-  function ymd(d) {
-    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-  }
-  function ymString(d) {
-    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
-  }
-  function parseYM(s) {
-    const [y,m] = s.split("-").map(Number);
-    return { year: y, month: m - 1 }; // month is 0-indexed
-  }
-  function monthLabel(ymStr) {
-    const { year, month } = parseYM(ymStr);
-    const d = new Date(year, month, 1);
-    return d.toLocaleString("en-US", { month: "long", year: "numeric" });
-  }
-  function monthLabelShort(ymStr) {
-    const { year, month } = parseYM(ymStr);
-    const d = new Date(year, month, 1);
-    return d.toLocaleString("en-US", { month: "short", year: "2-digit" });
-  }
-  function daysInMonth(ymStr) {
-    const { year, month } = parseYM(ymStr);
-    return new Date(year, month + 1, 0).getDate();
-  }
-  function startOfMonth(ymStr) {
-    const { year, month } = parseYM(ymStr);
-    return new Date(year, month, 1, 0, 0, 0, 0);
-  }
-  function endOfMonth(ymStr) {
-    const { year, month } = parseYM(ymStr);
-    return new Date(year, month + 1, 0, 23, 59, 59, 999);
-  }
-  function shiftMonth(ymStr, delta) {
-    const { year, month } = parseYM(ymStr);
-    const d = new Date(year, month + delta, 1);
-    return ymString(d);
-  }
-  function getMonthList() {
-    // Last HISTORY_MONTHS months ending with current month, oldest first
-    const out = [];
-    let cur = ymString(new Date());
-    for (let i = HISTORY_MONTHS - 1; i >= 0; i--) {
-      out.push(shiftMonth(cur, -i));
-    }
-    return out; // chronological
-  }
-  function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
-  function daysAgo(n) { const x = startOfDay(new Date()); x.setDate(x.getDate() - n); return x; }
-  function daysBetween(a, b) {
-    return Math.round((startOfDay(a) - startOfDay(b)) / 86400000);
-  }
-  function depositsTotal(s) {
-    const ds = s.deposits || {};
-    return [ds.d1, ds.d2, ds.d3, ds.d4, ds.d5, ds.d6, ds.d7]
-      .map(v => Number(v) || 0)
-      .reduce((a,b) => a + b, 0);
-  }
+}
 
-  // ---------- Data fetch ----------
-  // Data source priority:
-  //   1. Live Power Automate feed (DATA_FEED_URL) — when the flow is configured
-  //   2. Static historical-data.json sitting next to this HTML file — for the imported
-  //      Excel history; survives forever, no auth required
-  //   3. Demo data — only if neither of the above resolves
-  async function fetchData(showSpinner = true) {
-    if (showSpinner) setStatus("loading");
-    let liveData = [];
-    let staticData = [];
-    // Try live feed
-    if (!DATA_FEED_URL.startsWith("PASTE_")) {
-      try {
-        const resp = await fetch(DATA_FEED_URL + (DATA_FEED_URL.includes("?") ? "&" : "?") + "t=" + Date.now());
-        if (resp.ok) {
-          const data = await resp.json();
-          liveData = Array.isArray(data) ? data : (data.submissions || []);
-        }
-      } catch (e) { console.warn("Live feed failed:", e.message); }
-    }
-    // Try static historical JSON co-located with this HTML
-    try {
-      const resp = await fetch("historical-data.json?t=" + Date.now());
-      if (resp.ok) {
-        const data = await resp.json();
-        staticData = Array.isArray(data) ? data : (data.submissions || []);
-      }
-    } catch (e) { /* static file may not exist; that's fine */ }
+function setStatus(kind, text){
+  const dot=$("statusDot");
+  dot.className="status-dot "+(kind==="ok"?"ok":kind==="err"?"err":"load");
+  $("statusText").textContent=text;
+}
 
-    // Payment reversals — co-located JSON written by the Zapier webhook attached
-    // to the Payment Reversal form. Missing file is normal early on; quiet failure.
-    try {
-      const resp = await fetch("payment-reversals.json?t=" + Date.now());
-      if (resp.ok) {
-        const data = await resp.json();
-        reversals = Array.isArray(data) ? data : (data.reversals || []);
-      } else {
-        reversals = [];
-      }
-    } catch (e) { reversals = []; }
+let toastTimer=null;
+function toast(kind,msg){
+  const t=$("toast");
+  t.className="toast show "+kind;
+  t.textContent=msg;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("show"),3500);
+}
 
-    // Store directory — sourced from the Admin Panel. Adding a store there
-    // automatically gives it a row here. Falls back silently to the baseline.
-    try {
-      const resp = await fetch(DIRECTORY_URL + "?t=" + Date.now(), { cache: "no-store" });
-      if (resp.ok) {
-        const dir = await resp.json();
-        const dirShorts = (dir.stores || []).map(s =>
-          String(s).replace(/\s+Xfinity\s+Store\s*$/i, "").trim()
-        );
-        // Union directory stores with the baseline, drop blanks, sort A→Z
-        const merged = new Set([...STORE_BASELINE, ...dirShorts.filter(Boolean)]);
-        STORES = Array.from(merged).sort((a, b) => a.localeCompare(b));
-      }
-    } catch (e) { /* keep current STORES */ }
-
-    try {
-      if (liveData.length === 0 && staticData.length === 0) {
-        submissions = generateDemoData();
-        setStatus("demo");
-      } else {
-        // Merge: live data takes precedence over static for the same (store, submittedAt, manager) tuple
-        const seen = new Set();
-        submissions = [];
-        const keyOf = s => (s.store||"") + "|" + (s.submittedAt||"") + "|" + (s.managerName||"");
-        for (const s of liveData) { submissions.push(s); seen.add(keyOf(s)); }
-        for (const s of staticData) { if (!seen.has(keyOf(s))) submissions.push(s); }
-        if (liveData.length > 0 && staticData.length > 0) setStatus("ok", "Live + history");
-        else if (liveData.length > 0) setStatus("ok");
-        else setStatus("ok", "History only");
-      }
-      submissions.forEach(s => {
-        if (s.submittedAt) s.submittedAtDate = new Date(s.submittedAt);
-        s.totalAmount = depositsTotal(s);
-      });
-      // Same-day dedup: when a store has 2+ submissions on the same calendar date,
-      // keep only the one with the highest TotalAmount. (Humans are messy.)
-      const dedupMap = new Map();
-      for (const s of submissions) {
-        if (!s.submittedAtDate || !s.store) continue;
-        const key = s.store + "|" + ymd(s.submittedAtDate);
-        const existing = dedupMap.get(key);
-        if (!existing || (s.totalAmount || 0) > (existing.totalAmount || 0)) {
-          dedupMap.set(key, s);
-        }
-      }
-      submissions = Array.from(dedupMap.values());
-      submissions.sort((a,b) => (b.submittedAtDate||0) - (a.submittedAtDate||0));
-
-      // Build the reversals lookup: store -> "YYYY-MM-DD" -> [reversal, ...]
-      // Reversals may use full names ("Bourbonnais Xfinity Store") or the short
-      // form the daily grid uses ("Bourbonnais"). Normalize to the short form so
-      // the lookup matches whichever STORES[] entry the page renders against.
-      reversalsByStoreDay = {};
-      reversals.forEach(r => {
-        if (!r) return;
-        const rawStore = r.storeShortName || r.store || "";
-        const storeKey = String(rawStore).replace(/\s+Xfinity\s+Store\s*$/i, "").trim();
-        const dateKey  = r.transactionDate || (r.submittedAt ? r.submittedAt.slice(0,10) : null);
-        if (!storeKey || !dateKey) return;
-        if (!reversalsByStoreDay[storeKey]) reversalsByStoreDay[storeKey] = {};
-        if (!reversalsByStoreDay[storeKey][dateKey]) reversalsByStoreDay[storeKey][dateKey] = [];
-        reversalsByStoreDay[storeKey][dateKey].push(r);
-      });
-
-      render();
-      document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString();
-    } catch (e) {
-      console.error(e);
-      setStatus("err", e.message);
-    }
-  }
-  function setStatus(state, msg) {
-    const dot = document.getElementById("statusDot");
-    const txt = document.getElementById("statusText");
-    dot.className = "status-dot";
-    if (state === "ok") { dot.classList.add("ok"); txt.textContent = msg || "Live"; }
-    else if (state === "demo") { dot.classList.add("ok"); txt.textContent = "Demo data"; }
-    else if (state === "err") { dot.classList.add("err"); txt.textContent = "Error: " + (msg||"failed"); }
-    else { txt.textContent = "Loading…"; }
-  }
-
-  // ---------- Render ----------
-  function render() {
-    renderKpis();
-    renderMonthNav();
-    if (currentView === "grid") renderGrid();
-    else if (currentView === "monthly") renderMonthly();
-    else renderFeed();
-  }
-
-  function renderKpis() {
-    const today = ymd(new Date());
-    const monthStart = startOfMonth(ymString(new Date()));
-    let todayCount = 0, mtdCount = 0, mtdAmt = 0;
-    submissions.forEach(s => {
-      if (!s.submittedAtDate) return;
-      if (ymd(s.submittedAtDate) === today) todayCount++;
-      if (s.submittedAtDate >= monthStart) { mtdCount++; mtdAmt += s.totalAmount || 0; }
-    });
-    const sevenAgo = daysAgo(7);
-    const recentStores = new Set();
-    submissions.forEach(s => {
-      if (s.submittedAtDate && s.submittedAtDate >= sevenAgo) recentStores.add(s.store);
-    });
-    const inactive = STORES.filter(s => !recentStores.has(s)).length;
-
-    document.getElementById("stat-today").textContent = todayCount;
-    document.getElementById("stat-mtd").textContent = mtdCount;
-    document.getElementById("stat-amount").textContent = fmtMoney(mtdAmt);
-    document.getElementById("stat-inactive").textContent = inactive;
-  }
-
-  function renderMonthNav() {
-    const months = getMonthList(); // oldest -> newest
-    const oldest = months[0];
-    const newest = months[months.length - 1];
-
-    document.getElementById("monthLabel").textContent = monthLabel(selectedYearMonth);
-    document.getElementById("grid-month-badge").textContent = monthLabel(selectedYearMonth);
-    document.getElementById("prevMonth").disabled = (selectedYearMonth <= oldest);
-    document.getElementById("nextMonth").disabled = (selectedYearMonth >= newest);
-
-    // Build the dropdown
-    const sel = document.getElementById("monthJump");
-    sel.innerHTML = "";
-    months.slice().reverse().forEach(m => {  // newest first in dropdown
-      const opt = document.createElement("option");
-      opt.value = m;
-      opt.textContent = monthLabel(m);
-      if (m === selectedYearMonth) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  }
-
-  function renderGrid() {
-    document.getElementById("view-grid").style.display = "";
-    document.getElementById("view-monthly").style.display = "none";
-    document.getElementById("view-feed").style.display = "none";
-
-    // Build days for the SELECTED month
-    const { year, month } = parseYM(selectedYearMonth);
-    const numDays = daysInMonth(selectedYearMonth);
-    const days = [];
-    for (let d = 1; d <= numDays; d++) days.push(new Date(year, month, d));
-
-    // Header
-    const headRow = document.getElementById("dailyHeadRow");
-    const todayYmd = ymd(new Date());
-    headRow.innerHTML = "";
-    headRow.innerHTML += '<th class="col-store">Store</th>';
-    days.forEach(d => {
-      const isToday = ymd(d) === todayYmd;
-      const lbl = (d.getMonth()+1) + "/" + d.getDate();
-      headRow.innerHTML += '<th'+(isToday?' class="cell-today"':'')+'>'+lbl+'</th>';
-    });
-    headRow.innerHTML += '<th class="col-streak">Last pickup</th>';
-    headRow.innerHTML += '<th class="col-total">Month $</th>';
-
-    // Group submissions
-    const monthStart = startOfMonth(selectedYearMonth);
-    const monthEnd = endOfMonth(selectedYearMonth);
-    const byStoreDay = {};
-    const lastByStore = {};
-    const totalByStore = {};
-    submissions.forEach(s => {
-      if (!s.submittedAtDate) return;
-      if (!lastByStore[s.store] || s.submittedAtDate > lastByStore[s.store]) lastByStore[s.store] = s.submittedAtDate;
-      if (s.submittedAtDate >= monthStart && s.submittedAtDate <= monthEnd) {
-        const k = ymd(s.submittedAtDate);
-        if (!byStoreDay[s.store]) byStoreDay[s.store] = {};
-        if (!byStoreDay[s.store][k]) byStoreDay[s.store][k] = [];
-        byStoreDay[s.store][k].push(s);
-        totalByStore[s.store] = (totalByStore[s.store]||0) + (s.totalAmount||0);
-      }
-    });
-
-    const tbody = document.getElementById("dailyBody");
-    tbody.innerHTML = "";
-    const filterTerm = searchTerm.toLowerCase();
-
-    STORES.filter(st => !filterTerm || st.toLowerCase().includes(filterTerm)).forEach(store => {
-      const tr = document.createElement("tr");
-      tr.className = "store-row";
-      const last = lastByStore[store];
-      let streakLabel = "Never";
-      if (last) {
-        const dd = daysBetween(new Date(), last);
-        if (dd === 0) streakLabel = "Today";
-        else if (dd === 1) streakLabel = "Yesterday";
-        else streakLabel = dd + " days ago";
-        if (dd > 7) tr.classList.add("no-recent");
-      } else {
-        tr.classList.add("never-logged");
-      }
-
-      let html = '<td class="col-store">'+escapeHtml(store)+'</td>';
-      days.forEach(d => {
-        const k = ymd(d);
-        const subs = (byStoreDay[store] && byStoreDay[store][k]) || [];
-        const revs = (reversalsByStoreDay[store] && reversalsByStoreDay[store][k]) || [];
-        const isToday = ymd(d) === todayYmd;
-        const hasRev = revs.length > 0;
-        if (subs.length > 0) {
-          const total = subs.reduce((a,b) => a + (b.totalAmount||0), 0);
-          const pickupMark = subs.length > 1 ? subs.length + '×' : '✓';
-          const revMark = hasRev ? '<span class="rev-mark" title="'+escapeAttr(revs.length+' payment reversal'+(revs.length===1?'':'s'))+'">!</span>' : '';
-          const cls = 'cell-has' + (isToday?' cell-today':'') + (hasRev?' has-reversal':'');
-          const titleVal = fmtMoneyFull(total) + (hasRev ? ' · '+revs.length+' payment reversal'+(revs.length===1?'':'s') : '');
-          html += '<td class="'+cls+'" data-store="'+escapeAttr(store)+'" data-date="'+k+'" title="'+titleVal+'">'+pickupMark+revMark+'</td>';
-        } else if (hasRev) {
-          // No pickup that day, but a reversal exists -> standalone yellow !
-          const titleVal = revs.length + ' payment reversal' + (revs.length===1?'':'s');
-          html += '<td class="cell-reversal'+(isToday?' cell-today':'')+'" data-store="'+escapeAttr(store)+'" data-date="'+k+'" title="'+escapeAttr(titleVal)+'">!</td>';
-        } else {
-          html += '<td class="cell-empty'+(isToday?' cell-today':'')+'">·</td>';
-        }
-      });
-      html += '<td class="col-streak">'+streakLabel+'</td>';
-      html += '<td class="col-total">'+fmtMoney(totalByStore[store]||0)+'</td>';
-      tr.innerHTML = html;
-      tr.addEventListener("click", () => openStoreModal(store, selectedYearMonth));
-      tbody.appendChild(tr);
-    });
-  }
-
-  function renderMonthly() {
-    document.getElementById("view-grid").style.display = "none";
-    document.getElementById("view-monthly").style.display = "";
-    document.getElementById("view-feed").style.display = "none";
-
-    const months = getMonthList(); // oldest -> newest
-    const currentYM = ymString(new Date());
-
-    // Header
-    const headRow = document.getElementById("monthlyHeadRow");
-    headRow.innerHTML = "";
-    headRow.innerHTML += '<th class="col-store">Store</th>';
-    months.forEach(m => {
-      const isCurrent = m === currentYM;
-      headRow.innerHTML += '<th class="col-month'+(isCurrent?' cell-today':'')+'">'+monthLabelShort(m)+'</th>';
-    });
-    headRow.innerHTML += '<th class="col-total">12-mo total</th>';
-
-    // Aggregate: store -> ym -> { count, total }
-    const agg = {};
-    submissions.forEach(s => {
-      if (!s.submittedAtDate) return;
-      const ym = ymString(s.submittedAtDate);
-      if (!months.includes(ym)) return;
-      if (!agg[s.store]) agg[s.store] = {};
-      if (!agg[s.store][ym]) agg[s.store][ym] = { count: 0, total: 0 };
-      agg[s.store][ym].count++;
-      agg[s.store][ym].total += s.totalAmount || 0;
-    });
-
-    // Find max monthly total to scale the heatmap
-    let maxTotal = 0;
-    Object.values(agg).forEach(byMonth => {
-      Object.values(byMonth).forEach(v => { if (v.total > maxTotal) maxTotal = v.total; });
-    });
-
-    function heatClass(total) {
-      if (!total) return "heat-0";
-      const ratio = total / (maxTotal || 1);
-      if (ratio < 0.10) return "heat-1";
-      if (ratio < 0.30) return "heat-2";
-      if (ratio < 0.60) return "heat-3";
-      return "heat-4";
-    }
-
-    const tbody = document.getElementById("monthlyBody");
-    tbody.innerHTML = "";
-    const filterTerm = searchTerm.toLowerCase();
-
-    STORES.filter(st => !filterTerm || st.toLowerCase().includes(filterTerm)).forEach(store => {
-      const tr = document.createElement("tr");
-      tr.className = "store-row";
-      let twelveTotal = 0;
-      let html = '<td class="col-store">'+escapeHtml(store)+'</td>';
-      months.forEach(m => {
-        const cell = (agg[store] && agg[store][m]) || { count: 0, total: 0 };
-        twelveTotal += cell.total;
-        const cls = heatClass(cell.total);
-        const isCurrent = m === currentYM;
-        const display = cell.count === 0 ? "·" : fmtMoney(cell.total);
-        const title = cell.count === 0 ? "No pickups" : (cell.count + " pickup" + (cell.count===1?"":"s") + " · " + fmtMoneyFull(cell.total));
-        html += '<td class="cell-money '+cls+(isCurrent?' cell-today':'')+'" data-store="'+escapeAttr(store)+'" data-month="'+m+'" title="'+title+'">'+display+'</td>';
-      });
-      html += '<td class="col-total">'+fmtMoney(twelveTotal)+'</td>';
-      tr.innerHTML = html;
-      // Click any cell -> open that store's detail for that month; click row -> default to current month
-      tr.addEventListener("click", (e) => {
-        const cell = e.target.closest("td.cell-money");
-        const month = cell ? cell.dataset.month : currentYM;
-        openStoreModal(store, month);
-      });
-      tbody.appendChild(tr);
-    });
-  }
-
-  function renderFeed() {
-    document.getElementById("view-grid").style.display = "none";
-    document.getElementById("view-monthly").style.display = "none";
-    document.getElementById("view-feed").style.display = "";
-    const list = document.getElementById("feedList");
-    list.innerHTML = "";
-    const filterTerm = searchTerm.toLowerCase();
-    const filtered = submissions.filter(s => !filterTerm || (s.store||"").toLowerCase().includes(filterTerm));
-    if (filtered.length === 0) {
-      list.innerHTML = '<div class="empty-msg">No submissions yet.</div>';
-      return;
-    }
-    filtered.slice(0, 200).forEach(s => {
-      const div = document.createElement("div");
-      div.className = "feed-item";
-      const dateStr = s.submittedAtDate ? s.submittedAtDate.toLocaleString() : "—";
-      div.innerHTML =
-        '<div>'+
-          '<div class="feed-store">'+escapeHtml(s.store||"—")+'</div>'+
-          '<div class="feed-meta">'+escapeHtml(s.managerName||"—")+'</div>'+
-        '</div>'+
-        '<div>'+
-          '<div class="feed-amount">'+fmtMoney(s.totalAmount)+'</div>'+
-          '<div class="feed-date">'+dateStr+'</div>'+
-        '</div>';
-      div.addEventListener("click", () => openSubmissionModal(s));
-      list.appendChild(div);
-    });
-  }
-
-  function openStoreModal(store, ym) {
-    ym = ym || ymString(new Date());
-    document.getElementById("modalTitle").textContent = store + " — " + monthLabel(ym);
-    const monthStart = startOfMonth(ym);
-    const monthEnd = endOfMonth(ym);
-    const subs = submissions.filter(s => s.store === store);
-    const monthSubs = subs.filter(s => s.submittedAtDate && s.submittedAtDate >= monthStart && s.submittedAtDate <= monthEnd);
-    const monthAmt = monthSubs.reduce((a,b) => a + (b.totalAmount||0), 0);
-    const last = subs[0];
-    let lastLabel = "Never";
-    if (last && last.submittedAtDate) {
-      const dd = daysBetween(new Date(), last.submittedAtDate);
-      lastLabel = dd === 0 ? "Today" : (dd === 1 ? "1 day ago" : dd + " days ago");
-    }
-
-    let html = '';
-    html += '<div class="modal-stats">';
-    html += '<div class="modal-stat"><div class="lbl">Pickups</div><div class="val">'+monthSubs.length+'</div></div>';
-    html += '<div class="modal-stat"><div class="lbl">Total $</div><div class="val">'+fmtMoney(monthAmt)+'</div></div>';
-    html += '<div class="modal-stat"><div class="lbl">Last pickup</div><div class="val">'+lastLabel+'</div></div>';
-    html += '</div>';
-
-    // Reversals for this store in the selected month (matches keys we built earlier)
-    const monthRevs = [];
-    const dayMap = reversalsByStoreDay[store] || {};
-    Object.keys(dayMap).forEach(d => {
-      if (d >= ymd(monthStart) && d <= ymd(monthEnd)) {
-        dayMap[d].forEach(r => monthRevs.push(r));
-      }
-    });
-    monthRevs.sort((a,b) => String(b.transactionDate||"").localeCompare(String(a.transactionDate||"")));
-
-    if (monthSubs.length === 0 && monthRevs.length === 0) {
-      html += '<div class="empty-msg">No pickups recorded for '+monthLabel(ym)+'.</div>';
-    } else {
-      if (monthSubs.length > 0) {
-        html += '<div style="font-size:11px;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;margin-bottom:8px;">Submissions in '+monthLabel(ym)+'</div>';
-        monthSubs.forEach(s => { html += renderSubmissionRow(s); });
-      }
-      if (monthRevs.length > 0) {
-        html += '<div style="font-size:11px;text-transform:uppercase;color:var(--warning);letter-spacing:0.5px;margin:18px 0 8px;">Payment reversals in '+monthLabel(ym)+'</div>';
-        monthRevs.forEach(r => { html += renderReversalRow(r); });
-      }
-    }
-    document.getElementById("modalBody").innerHTML = html;
-    document.getElementById("modalBackdrop").classList.add("show");
-  }
-
-  function renderReversalRow(r) {
-    const amount = (r.amount != null) ? fmtMoneyFull(r.amount) : (r.amountFormatted || "—");
-    let html = '<div class="submission-row" style="border-left:3px solid var(--warning);padding-left:10px;margin-left:-10px;">';
-    html +=   '<div>';
-    html +=     '<div style="font-weight:600;color:var(--warning);">! ' + escapeHtml(r.adjustmentType || "Payment reversal") + '</div>';
-    html +=     '<div class="who">Transaction date: ' + escapeHtml(r.transactionDate || "—") + '</div>';
-    html +=     '<div class="who">Submitted by: ' + escapeHtml(r.repName || "—") + (r.repEmail ? ' &lt;' + escapeHtml(r.repEmail) + '&gt;' : '') + '</div>';
-    if (r.submittedAtLocal || r.submittedAt) {
-      html +=   '<div class="who">Submitted at: ' + escapeHtml(r.submittedAtLocal || r.submittedAt) + '</div>';
-    }
-    html +=     '<div class="deposits">';
-    html +=       'Payment type: ' + escapeHtml(r.paymentType || "—") + ' · ';
-    html +=       'Account #: ' + escapeHtml(r.accountNumber || "—");
-    html +=     '</div>';
-    if (r.storeManagerEmail || r.dmEmail) {
-      html +=   '<div class="deposits">';
-      if (r.storeManagerEmail) html += 'SM: ' + escapeHtml(r.storeManagerEmail);
-      if (r.storeManagerEmail && r.dmEmail) html += ' · ';
-      if (r.dmEmail) html += 'DM: ' + escapeHtml(r.dmEmail);
-      html +=   '</div>';
-    }
-    html +=   '</div>';
-    html +=   '<div><div class="amt" style="color:var(--warning);">' + amount + '</div></div>';
-    html += '</div>';
-    return html;
-  }
-
-  const R2_PUBLIC_BASE = "https://pub-95157e3b1ccc44079431b069ce48a44b.r2.dev";
-  // Photos live in R2 at <Store_With_Underscores>/<MonthName>/<YYYY-MM-DD_HHMM>.<ext>,
-  // where the timestamp is the submitter's LOCAL time. Older records were appended
-  // with photoUrl:"" — for those we rebuild candidate URLs across our timezones
-  // (Eastern/Central, with and without DST) and let the <img> fall through on 404.
-  function photoCandidates(s) {
-    if (s.photoUrl && s.photoUrl !== "#") return [s.photoUrl];
-    if (!s.submittedAtDate || !s.store) return [];
-    const storeKey = String(s.store).replace(/\s+/g, "_");
-    let ext = "jpg";
-    if (s.photoFileName && String(s.photoFileName).includes(".")) {
-      ext = String(s.photoFileName).split(".").pop().toLowerCase();
-    }
-    const pad = n => String(n).padStart(2, "0");
-    const out = [];
-    [-4, -5, -6].forEach(off => {
-      const d = new Date(s.submittedAtDate.getTime() + off * 3600000);
-      const month = d.toLocaleString("en-US", { month: "long", timeZone: "UTC" });
-      const key = d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate())
-                + "_" + pad(d.getUTCHours()) + pad(d.getUTCMinutes());
-      out.push(R2_PUBLIC_BASE + "/" + storeKey + "/" + month + "/" + key + "." + ext);
-    });
-    return out;
-  }
-
-  function openSubmissionModal(s) {
-    document.getElementById("modalTitle").textContent = s.store || "Submission";
-    document.getElementById("modalBody").innerHTML = renderSubmissionRow(s, true);
-    document.getElementById("modalBackdrop").classList.add("show");
-  }
-
-  function renderSubmissionRow(s, expanded) {
-    const ds = s.deposits || {};
-    const list = ["d1","d2","d3","d4","d5","d6","d7"]
-      .map((k,i) => {
-        const v = Number(ds[k]);
-        if (!v || isNaN(v)) return null;
-        return "#"+(i+1)+": "+fmtMoneyFull(v);
-      })
-      .filter(Boolean)
-      .join(" · ");
-    const dateStr = s.submittedAtDate ? s.submittedAtDate.toLocaleString() : "—";
-    let html = '<div class="submission-row">';
-    html +=   '<div>';
-    html +=     '<div style="font-weight:600;">'+escapeHtml(s.managerName||"—")+'</div>';
-    html +=     '<div class="who">'+dateStr+'</div>';
-    if (list) html += '<div class="deposits">'+list+'</div>';
-    const photoCands = photoCandidates(s);
-    if (photoCands.length) {
-      html += '<a class="photo-wrap" href="'+escapeAttr(photoCands[0])+'" target="_blank" rel="noopener">'
-            + '<img loading="lazy" alt="Logbook photo" src="'+escapeAttr(photoCands[0])+'"'
-            + ' data-alts="'+escapeAttr(photoCands.slice(1).join("|"))+'"'
-            + ' onload="this.parentElement.href=this.src;"'
-            + ' onerror="var a=(this.dataset.alts||\'\').split(\'|\').filter(Boolean); if(a.length){this.src=a.shift(); this.dataset.alts=a.join(\'|\');}else{this.parentElement.style.display=\'none\';}" />'
-            + '</a>';
-    }
-    html +=   '</div>';
-    html +=   '<div><div class="amt">'+fmtMoney(s.totalAmount)+'</div></div>';
-    html += '</div>';
-    return html;
-  }
-
-  function escapeHtml(s) { return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
-  function escapeAttr(s) { return escapeHtml(s); }
-
-  // ---------- Demo data ----------
-  function generateDemoData() {
-    const out = [];
-    const names = ["Sam Patel","Maria Lopez","Chris Johnson","Ashley Kim","Jordan Reyes","Taylor Smith"];
-    const today = new Date();
-    // For 12 months of data, generate random pickups across the rolling window.
-    const windowStart = new Date(today); windowStart.setMonth(windowStart.getMonth() - HISTORY_MONTHS + 1); windowStart.setDate(1);
-    const totalDays = Math.max(1, Math.round((today - windowStart) / 86400000));
-    STORES.forEach((store, idx) => {
-      if (idx % 8 === 0) return; // some stores never log
-      // ~6-12 pickups per month on average
-      const numPickups = Math.floor(totalDays * (0.20 + Math.random() * 0.20));
-      for (let i = 0; i < numPickups; i++) {
-        const ago = Math.floor(Math.random() * totalDays);
-        const when = new Date(today); when.setDate(when.getDate() - ago);
-        when.setHours(9 + Math.floor(Math.random()*8), Math.floor(Math.random()*60), 0, 0);
-        const numD = 1 + Math.floor(Math.random() * 3);
-        const deposits = {};
-        for (let j = 1; j <= numD; j++) deposits["d"+j] = (500 + Math.random() * 4000).toFixed(2);
-        out.push({
-          submittedAt: when.toISOString(),
-          store,
-          managerName: names[Math.floor(Math.random() * names.length)],
-          deposits,
-          photoUrl: "#"
-        });
-      }
-    });
-    return out;
-  }
-
-  // ---------- Wire up controls ----------
-  document.getElementById("search").addEventListener("input", (e) => {
-    searchTerm = e.target.value.trim();
-    if (currentView === "grid") renderGrid();
-    else if (currentView === "monthly") renderMonthly();
-    else renderFeed();
-  });
-  document.querySelectorAll(".tab").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentView = btn.dataset.view;
-      render();
-    });
-  });
-  document.getElementById("prevMonth").addEventListener("click", () => {
-    const months = getMonthList();
-    const idx = months.indexOf(selectedYearMonth);
-    if (idx > 0) { selectedYearMonth = months[idx - 1]; render(); }
-  });
-  document.getElementById("nextMonth").addEventListener("click", () => {
-    const months = getMonthList();
-    const idx = months.indexOf(selectedYearMonth);
-    if (idx >= 0 && idx < months.length - 1) { selectedYearMonth = months[idx + 1]; render(); }
-  });
-  document.getElementById("monthLabel").addEventListener("click", () => {
-    selectedYearMonth = ymString(new Date());
+/* ---------- data load ---------- */
+async function loadOrders(showSpinner){
+  if(showSpinner){ $("stateBox").innerHTML='<div class="state"><div class="spinner"></div>Loading orders…</div>'; $("orders").innerHTML=""; }
+  setStatus("load","Loading…");
+  try{
+    const listUrl=`https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${CONFIG.ORDERS_DIR}?ref=${encodeURIComponent(CONFIG.GITHUB_BRANCH)}&t=${Date.now()}`;
+    const res=await fetch(listUrl,{headers:ghHeaders(),cache:"no-store"});
+    if(res.status===404){ ORDERS=[]; render(); setStatus("ok","No orders yet"); return; }
+    if(!res.ok) throw new Error("GitHub list "+res.status);
+    const files=(await res.json()).filter(f=>f.type==="file"&&f.name.endsWith(".json"));
+    const orders=await Promise.all(files.map(async f=>{
+      try{ const r=await fetch(f.download_url+"?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return null; const o=await r.json(); o._sha=f.sha; return o; }
+      catch(e){ return null; }
+    }));
+    ORDERS=orders.filter(Boolean).sort((a,b)=> new Date(b.submittedAt||0)-new Date(a.submittedAt||0));
     render();
-  });
-  document.getElementById("monthJump").addEventListener("change", (e) => {
-    selectedYearMonth = e.target.value;
-    render();
-  });
-  document.getElementById("modalClose").addEventListener("click", () => {
-    document.getElementById("modalBackdrop").classList.remove("show");
-  });
-  document.getElementById("modalBackdrop").addEventListener("click", (e) => {
-    if (e.target.id === "modalBackdrop") document.getElementById("modalBackdrop").classList.remove("show");
-  });
-  document.getElementById("refreshLink").addEventListener("click", (e) => { e.preventDefault(); fetchData(true); });
+    setStatus("ok","Updated "+new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}));
+  }catch(err){
+    console.error(err);
+    setStatus("err","Load failed");
+    if(!ORDERS.length){
+      const rate=String(err.message).includes("403");
+      $("stateBox").innerHTML='<div class="state"><div class="big">⚠️</div>'+
+        (rate?"GitHub API rate limit reached. Try again in a few minutes, or add a read-only token in CONFIG.":"Couldn’t load orders. Check your connection and refresh.")+'</div>';
+    }
+  }
+}
 
-  fetchData(true);
-  setInterval(() => fetchData(false), REFRESH_INTERVAL_MS);
+/* ---------- metrics ---------- */
+function updateMetrics(){
+  const pending=ORDERS.filter(o=>o.status!=="shipped");
+  const shipped=ORDERS.filter(o=>o.status==="shipped");
+  const now=new Date();
+  const shippedThisMonth=shipped.filter(o=>{ const d=new Date(o.shippedAt||o.submittedAt); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); });
+  const shirts=pending.reduce((s,o)=>s+(Number(o.totalShirts)||0),0);
+  let oldest=null;
+  pending.forEach(o=>{ const da=daysAgo(o.submittedAt); if(da!=null&&(oldest==null||da>oldest)) oldest=da; });
+
+  $("mPending").textContent=pending.length;
+  $("mShirts").textContent=shirts;
+  $("mShipped").textContent=shippedThisMonth.length;
+  $("mOldest").textContent=(oldest==null?"—":(oldest===0?"Today":oldest+"d"));
+  $("mOldestSub").textContent=(oldest==null?" ":(oldest===0?"newest still open":"since submitted"));
+
+  $("pillPending").textContent=pending.length;
+  $("pillShipped").textContent=shipped.length;
+  $("pillAll").textContent=ORDERS.length;
+}
+
+/* ---------- render ---------- */
+function render(){
+  updateMetrics();
+  const box=$("orders"), state=$("stateBox");
+  let list=ORDERS.slice();
+  if(filter==="pending") list=list.filter(o=>o.status!=="shipped");
+  else if(filter==="shipped") list=list.filter(o=>o.status==="shipped");
+  if(searchTerm){ const q=searchTerm.toLowerCase(); list=list.filter(o=>String(o.store||"").toLowerCase().includes(q)); }
+
+  if(!ORDERS.length){ box.innerHTML=""; state.innerHTML='<div class="state"><div class="big">📦</div>No uniform orders yet. New orders from the order form will appear here automatically.</div>'; return; }
+  if(!list.length){ box.innerHTML=""; const msg=filter==="pending"?'<div class="big">🎉</div>No pending orders — everything’s shipped!':searchTerm?"No orders match your search.":"Nothing here."; state.innerHTML='<div class="state">'+msg+'</div>'; return; }
+
+  state.innerHTML="";
+  box.innerHTML=list.map(orderCard).join("");
+  wireCards();
+}
+
+function itemsTable(o){
+  const rows=(o.items||[]).filter(it=>Number(it.qty)>0).map(it=>{
+    const recips=(it.recipients||[]).filter(Boolean).map(esc).join(", ");
+    return `<tr><td class="sz">${esc(it.size)}</td><td class="qty">${Number(it.qty)}</td><td class="rec">${recips||"—"}</td></tr>`;
+  }).join("");
+  if(!rows) return '<div class="ship-to">No items listed.</div>';
+  return `<table class="items"><thead><tr><th>Size</th><th style="text-align:center">Qty</th><th>Recipients</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function orderCard(o){
+  const shipped=o.status==="shipped";
+  const addr=o.storeAddress?esc(o.storeAddress):'<span style="color:var(--text-faint);font-style:italic;">Store address on file</span>';
+  let foot;
+  if(shipped){
+    const url=o.trackingNumber?trackingUrl(o.carrier,o.trackingNumber):"#";
+    foot=`<div class="shipped-info">
+        <div class="row"><span class="k">Carrier</span><span class="v">${esc(o.carrier||"—")}</span></div>
+        <div class="row"><span class="k">Tracking #</span><span class="v" style="font-family:ui-monospace,Menlo,Consolas,monospace;">${esc(o.trackingNumber||"—")}</span></div>
+        <div class="row"><span class="k">Shipped</span><span class="v">${esc(fmtDay(o.shippedAt))}${o.shippedBy?" · "+esc(o.shippedBy):""}</span></div>
+        ${o.trackingNumber?`<a class="track-link" href="${esc(url)}" target="_blank" rel="noopener">🔎 Track shipment</a>`:""}
+      </div>`;
+  } else {
+    const carrierOpts=CARRIERS.map(c=>`<option value="${c}">${c}</option>`).join("");
+    foot=`<button class="ship-btn" data-act="open" data-id="${esc(o.id)}">📦 Mark Shipped</button>
+      <div class="ship-form" id="sf-${esc(o.id)}">
+        <div class="two">
+          <div><label>Carrier</label><select data-role="carrier">${carrierOpts}</select></div>
+          <div><label>Your name</label><input type="text" data-role="who" placeholder="Optional" /></div>
+        </div>
+        <div><label>Tracking Number</label><input type="text" data-role="tracking" placeholder="Enter tracking #" autocomplete="off" /></div>
+        <div class="ship-err" data-role="err"></div>
+        <div class="ship-actions">
+          <button class="btn-cancel" data-act="cancel" data-id="${esc(o.id)}">Cancel</button>
+          <button class="btn-confirm" data-act="confirm" data-id="${esc(o.id)}">Confirm Shipment</button>
+        </div>
+      </div>`;
+  }
+  return `<div class="order" data-id="${esc(o.id)}">
+    <div class="order-head">
+      <div>
+        <div class="store">${esc(o.store||"—")}</div>
+        <div class="date">Ordered ${esc(fmtDate(o.submittedAt))}</div>
+      </div>
+      <span class="badge ${shipped?"shipped":"pending"}">${shipped?"Shipped":"Pending"}</span>
+    </div>
+    <div class="order-body">
+      <div><div class="field-label">Ship to</div><div class="ship-to">${addr}</div></div>
+      <div><div class="field-label">Items</div>${itemsTable(o)}</div>
+      <div class="total-row"><span>Total shirts</span><span class="n">${Number(o.totalShirts)||0}</span></div>
+    </div>
+    <div class="order-foot">${foot}</div>
+  </div>`;
+}
+
+/* ---------- interactions ---------- */
+function wireCards(){
+  document.querySelectorAll("[data-act]").forEach(el=>{
+    el.onclick=()=>handleAction(el.dataset.act, el.dataset.id, el);
+  });
+  // Restore remembered shipper name
+  const who=localStorage.getItem("uniform_shipper_name")||"";
+  if(who) document.querySelectorAll('input[data-role="who"]').forEach(i=>{ if(!i.value) i.value=who; });
+}
+
+function handleAction(act,id,el){
+  const form=$("sf-"+id);
+  const card=document.querySelector(`.order[data-id="${cssEsc(id)}"]`);
+  if(act==="open"){
+    el.style.display="none";
+    form.classList.add("open");
+    const inp=form.querySelector('input[data-role="tracking"]'); if(inp) inp.focus();
+  } else if(act==="cancel"){
+    form.classList.remove("open");
+    const btn=card.querySelector('.ship-btn'); if(btn) btn.style.display="";
+    form.querySelector('[data-role="err"]').classList.remove("show");
+  } else if(act==="confirm"){
+    confirmShip(id,form,el);
+  }
+}
+
+function cssEsc(s){ return String(s).replace(/["\\]/g,"\\$&"); }
+
+async function confirmShip(id,form,btn){
+  const carrier=form.querySelector('[data-role="carrier"]').value;
+  const tracking=form.querySelector('[data-role="tracking"]').value.trim();
+  const who=form.querySelector('[data-role="who"]').value.trim();
+  const errEl=form.querySelector('[data-role="err"]');
+  errEl.classList.remove("show");
+
+  if(!tracking){ errEl.textContent="Enter a tracking number to confirm shipment."; errEl.classList.add("show"); return; }
+  if(who) localStorage.setItem("uniform_shipper_name",who);
+
+  btn.disabled=true; btn.textContent="Sending…";
+  try{
+    const res=await fetch(CONFIG.SHIP_ENDPOINT,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({ id, trackingNumber:tracking, carrier, shippedBy:who })
+    });
+    let result=null; try{ result=await res.json(); }catch{}
+    if(!res.ok || !result || result.ok!==true){
+      throw new Error((result&&result.error)||("HTTP "+res.status));
+    }
+    // Update local model & re-render
+    const o=ORDERS.find(x=>x.id===id);
+    if(o){ Object.assign(o, result.order||{}, {status:"shipped",trackingNumber:tracking,carrier,shippedBy:who||null,shippedAt:(result.order&&result.order.shippedAt)||new Date().toISOString()}); }
+    toast("success","Marked shipped — confirmation email sent.");
+    render();
+  }catch(err){
+    console.error(err);
+    errEl.textContent="Couldn’t save: "+err.message+". Please try again.";
+    errEl.classList.add("show");
+    btn.disabled=false; btn.textContent="Confirm Shipment";
+  }
+}
+
+/* ---------- wiring ---------- */
+$("filterSeg").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-filter]"); if(!b) return;
+  filter=b.dataset.filter;
+  $("filterSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));
+  render();
+});
+$("search").addEventListener("input",e=>{ searchTerm=e.target.value; render(); });
+$("refreshBtn").addEventListener("click",()=>loadOrders(true));
+
+function startAutoRefresh(){ clearInterval(refreshTimer); refreshTimer=setInterval(()=>loadOrders(false),CONFIG.REFRESH_MS); }
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) loadOrders(false); });
+
+/* ---------- init ---------- */
+loadOrders(true);
+startAutoRefresh();
 </script>
 </body>
 </html>
