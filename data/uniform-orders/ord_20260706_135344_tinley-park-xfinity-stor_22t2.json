@@ -1,0 +1,33 @@
+{
+  "id": "ord_20260706_135344_tinley-park-xfinity-stor_22t2",
+  "submittedAt": "2026-07-06T13:53:43.722Z",
+  "store": "Tinley Park Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Sebas Orozco",
+  "storeManagerEmail": "sOrozco@blufoxmobile.com",
+  "asmEmail": "eGuzman@blufoxmobile.com",
+  "dmEmail": "juCarrillo@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 2,
+      "recipients": [
+        "Nicholas",
+        "Nicholas"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 1,
+      "recipients": [
+        "Sebastian"
+      ]
+    }
+  ],
+  "totalShirts": 3,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
