@@ -1,5 +1,22 @@
 [
   {
+    "repName": "Francisco",
+    "repEmail": "fsalazar@blufoxmobile.com",
+    "store": "Cicero Xfinity Store",
+    "storeShortName": "Cicero",
+    "storeManagerEmail": "fSalazar@blufoxmobile.com",
+    "storeManagerName": "Francisco Salazar",
+    "dmEmail": "jcabrales@blufoxmobile.com",
+    "transactionDate": "2026-07-06",
+    "paymentType": "Cash",
+    "accountNumber": "8771300422912190",
+    "amount": 68.85,
+    "amountFormatted": "$68.85",
+    "submittedAt": "2026-07-06T15:25:34.412Z",
+    "submittedAtLocal": "Jul 6, 2026, 10:25 AM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "FRANCISCO A SALAZARAGUIRRE",
     "repEmail": "fsalazar@blufoxmobile.com",
     "store": "Cicero Xfinity Store",
