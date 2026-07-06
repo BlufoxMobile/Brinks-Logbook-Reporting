@@ -1,0 +1,34 @@
+{
+  "id": "ord_20260706_145026_johnson-city-xfinity-sto_7ir3",
+  "submittedAt": "2026-07-06T14:50:24.423Z",
+  "store": "Johnson City Xfinity Store",
+  "storeAddress": "509 n state of franklin rd Johnson City Tn 37604",
+  "storeManagerName": "VG Huerto",
+  "storeManagerEmail": "vHuerto@blufoxmobile.com",
+  "asmEmail": "rCampbell@blufoxmobile.com",
+  "dmEmail": "mbrooks@blufoxmobile.com",
+  "items": [
+    {
+      "size": "XL",
+      "qty": 3,
+      "recipients": [
+        "joshua jones",
+        "chad gillan",
+        "chad gillan"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 1,
+      "recipients": [
+        "Joshua jones"
+      ]
+    }
+  ],
+  "totalShirts": 4,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
