@@ -1,0 +1,33 @@
+{
+  "id": "ord_20260713_143940_calumet-city-xfinity-sto_zad7",
+  "submittedAt": "2026-07-13T14:39:39.741Z",
+  "store": "Calumet City Xfinity Store",
+  "storeAddress": "1330 Torrence Ave\nCalumet City, IL  60409\nUnited States",
+  "storeManagerName": "Eric Reyes",
+  "storeManagerEmail": "ereyes@blufoxmobile.com",
+  "asmEmail": "kaThomas@blufoxmobile.com",
+  "dmEmail": "juCarrillo@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 8,
+      "recipients": [
+        "Nikia",
+        "Edgar"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 5,
+      "recipients": [
+        "Eric"
+      ]
+    }
+  ],
+  "totalShirts": 13,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
