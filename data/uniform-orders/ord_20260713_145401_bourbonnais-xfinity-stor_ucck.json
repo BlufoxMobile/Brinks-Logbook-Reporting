@@ -1,0 +1,33 @@
+{
+  "id": "ord_20260713_145401_bourbonnais-xfinity-stor_ucck",
+  "submittedAt": "2026-07-13T14:54:01.623Z",
+  "store": "Bourbonnais Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Jamil Soto",
+  "storeManagerEmail": "jSoto@blufoxmobile.com",
+  "asmEmail": "NTrombley@blufoxmobile.com",
+  "dmEmail": "juCarrillo@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 4,
+      "recipients": [
+        "Kyle",
+        "Alisyn"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 2,
+      "recipients": [
+        "Jamil"
+      ]
+    }
+  ],
+  "totalShirts": 6,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
