@@ -1,0 +1,34 @@
+{
+  "id": "ord_20260713_185030_johnson-city-xfinity-sto_8syz",
+  "submittedAt": "2026-07-13T18:50:30.385Z",
+  "store": "Johnson City Xfinity Store",
+  "storeAddress": "509 n st of franklin rd unit 3 Johnson City Tn 37604",
+  "storeManagerName": "VG Huerto",
+  "storeManagerEmail": "vHuerto@blufoxmobile.com",
+  "asmEmail": "rCampbell@blufoxmobile.com",
+  "dmEmail": "mbrooks@blufoxmobile.com",
+  "items": [
+    {
+      "size": "XL",
+      "qty": 1,
+      "recipients": [
+        "Joshua Jones"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 3,
+      "recipients": [
+        "Dylan Young-Alford",
+        "Dylan Young-Alford",
+        "Dylan Young-Alford"
+      ]
+    }
+  ],
+  "totalShirts": 4,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
