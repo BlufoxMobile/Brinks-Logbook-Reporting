@@ -1,0 +1,36 @@
+{
+  "id": "ord_20260713_140457_valparaiso-xfinity-store_azfa",
+  "submittedAt": "2026-07-13T14:04:56.805Z",
+  "store": "Valparaiso Xfinity Store",
+  "storeAddress": "2710 Laporte ave suite 140 Valparaiso IN 46385",
+  "storeManagerName": "Emari Washington",
+  "storeManagerEmail": "EWashington@blufoxmobile.com",
+  "asmEmail": "dBrent@blufoxmobile.com",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 1,
+      "recipients": [
+        "Alexandria",
+        "Shamika",
+        "Airelle"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 1,
+      "recipients": [
+        "Mario",
+        "Denzel",
+        "Emari"
+      ]
+    }
+  ],
+  "totalShirts": 2,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
