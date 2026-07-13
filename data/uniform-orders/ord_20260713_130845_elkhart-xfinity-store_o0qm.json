@@ -1,0 +1,32 @@
+{
+  "id": "ord_20260713_130845_elkhart-xfinity-store_o0qm",
+  "submittedAt": "2026-07-13T13:08:45.083Z",
+  "store": "Elkhart Xfinity Store",
+  "storeAddress": "199 County Rd 6 W, Elkhart IN 46514",
+  "storeManagerName": "DJ Regan",
+  "storeManagerEmail": "dRegan@blufoxmobile.com",
+  "asmEmail": "jLilly@blufoxmobile.com",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "L",
+      "qty": 3,
+      "recipients": [
+        "Karla Gonzalez"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 3,
+      "recipients": [
+        "Jason Lilly"
+      ]
+    }
+  ],
+  "totalShirts": 6,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
