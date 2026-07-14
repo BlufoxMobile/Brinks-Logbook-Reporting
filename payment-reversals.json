@@ -1,5 +1,22 @@
 [
   {
+    "repName": "michael jackson",
+    "repEmail": "mijackson@blufoxmobile.com",
+    "store": "Schererville Xfinity Store",
+    "storeShortName": "Schererville",
+    "storeManagerEmail": "miJackson@blufoxmobile.com",
+    "storeManagerName": "Michael Jackson",
+    "dmEmail": "jcabrales@blufoxmobile.com",
+    "transactionDate": "2026-06-17",
+    "paymentType": "Cash",
+    "accountNumber": "8771300323075170",
+    "amount": 113,
+    "amountFormatted": "$113.00",
+    "submittedAt": "2026-07-14T13:51:51.399Z",
+    "submittedAtLocal": "Jul 14, 2026, 8:51 AM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "Sebastian Orozco",
     "repEmail": "sorozco@blufoxmobile.com",
     "store": "Tinley Park Xfinity Store",
