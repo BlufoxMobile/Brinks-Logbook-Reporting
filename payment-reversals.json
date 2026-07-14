@@ -1,5 +1,22 @@
 [
   {
+    "repName": "Emily G",
+    "repEmail": "eguzman@blufoxmobile.com",
+    "store": "Tinley Park Xfinity Store",
+    "storeShortName": "Tinley Park",
+    "storeManagerEmail": "sOrozco@blufoxmobile.com",
+    "storeManagerName": "Sebas Orozco",
+    "dmEmail": "juCarrillo@blufoxmobile.com",
+    "transactionDate": "2026-07-14",
+    "paymentType": "Cash",
+    "accountNumber": "8771401590902904",
+    "amount": 20,
+    "amountFormatted": "$20.00",
+    "submittedAt": "2026-07-14T16:55:54.824Z",
+    "submittedAtLocal": "Jul 14, 2026, 11:55 AM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "michael jackson",
     "repEmail": "mijackson@blufoxmobile.com",
     "store": "Schererville Xfinity Store",
