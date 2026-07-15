@@ -1,5 +1,22 @@
 [
   {
+    "repName": "Matt Brooks",
+    "repEmail": "mbrooks@blufoxmobile.com",
+    "store": "South Knoxville Xfinity Store",
+    "storeShortName": "South Knoxville",
+    "storeManagerEmail": "zSpradling@blufoxmobile.com",
+    "storeManagerName": "Zoe Spradling",
+    "dmEmail": "mbrooks@blufoxmobile.com",
+    "transactionDate": "2026-07-15",
+    "paymentType": "Cash",
+    "accountNumber": "839650034509434",
+    "amount": 133,
+    "amountFormatted": "$133.00",
+    "submittedAt": "2026-07-15T15:24:49.638Z",
+    "submittedAtLocal": "Jul 15, 2026 at 11:24 AM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "Emily G",
     "repEmail": "eguzman@blufoxmobile.com",
     "store": "Tinley Park Xfinity Store",
