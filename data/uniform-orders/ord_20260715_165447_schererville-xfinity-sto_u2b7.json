@@ -1,0 +1,40 @@
+{
+  "id": "ord_20260715_165447_schererville-xfinity-sto_u2b7",
+  "submittedAt": "2026-07-15T16:54:47.511Z",
+  "store": "Schererville Xfinity Store",
+  "storeAddress": "116 us-41 s, schererville, Indiana, 46375",
+  "storeManagerName": "Michael Jackson",
+  "storeManagerEmail": "miJackson@blufoxmobile.com",
+  "asmEmail": "apVasquez@blufoxmobile.com",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 6,
+      "recipients": [
+        "Maliyah",
+        "Chris"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 3,
+      "recipients": [
+        "Ty perry"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 3,
+      "recipients": [
+        "Daisy"
+      ]
+    }
+  ],
+  "totalShirts": 12,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
