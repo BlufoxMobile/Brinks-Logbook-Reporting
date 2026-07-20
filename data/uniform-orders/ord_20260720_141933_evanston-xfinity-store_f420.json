@@ -1,0 +1,46 @@
+{
+  "id": "ord_20260720_141933_evanston-xfinity-store_f420",
+  "submittedAt": "2026-07-20T14:19:33.528Z",
+  "store": "Evanston Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Aedo Yonan",
+  "storeManagerEmail": "ayonan@blufoxmobile.com",
+  "asmEmail": "jLomax@blufoxmobile.com",
+  "dmEmail": "IDhorajiwala@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 1,
+      "recipients": [
+        "Neyeri"
+      ]
+    },
+    {
+      "size": "M",
+      "qty": 1,
+      "recipients": [
+        "Suyal"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 1,
+      "recipients": [
+        "Anaf"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 1,
+      "recipients": [
+        "Arilello"
+      ]
+    }
+  ],
+  "totalShirts": 4,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
