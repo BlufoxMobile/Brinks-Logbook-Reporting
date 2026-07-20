@@ -1,0 +1,27 @@
+{
+  "id": "ord_20260720_141901_valparaiso-xfinity-store_csy7",
+  "submittedAt": "2026-07-20T14:19:01.025Z",
+  "store": "Valparaiso Xfinity Store",
+  "storeAddress": "2710 Laporte ave suite 140 Valparaiso IN",
+  "storeManagerName": "Emari Washington",
+  "storeManagerEmail": "EWashington@blufoxmobile.com",
+  "asmEmail": "dBrent@blufoxmobile.com",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "2XL",
+      "qty": 4,
+      "recipients": [
+        "Mario Stevens",
+        "Mario Stevens",
+        "Mario Stevens"
+      ]
+    }
+  ],
+  "totalShirts": 4,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
