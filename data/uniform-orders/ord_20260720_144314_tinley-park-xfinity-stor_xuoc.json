@@ -1,0 +1,26 @@
+{
+  "id": "ord_20260720_144314_tinley-park-xfinity-stor_xuoc",
+  "submittedAt": "2026-07-20T14:43:14.037Z",
+  "store": "Tinley Park Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Sebas Orozco",
+  "storeManagerEmail": "sOrozco@blufoxmobile.com",
+  "asmEmail": "eGuzman@blufoxmobile.com",
+  "dmEmail": "juCarrillo@blufoxmobile.com",
+  "items": [
+    {
+      "size": "L",
+      "qty": 2,
+      "recipients": [
+        "Jasmine Green",
+        "Jasmine Green"
+      ]
+    }
+  ],
+  "totalShirts": 2,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
