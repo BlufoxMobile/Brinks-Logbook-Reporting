@@ -1,0 +1,39 @@
+{
+  "id": "ord_20260720_141430_michigan-city-xfinity-st_xco1",
+  "submittedAt": "2026-07-20T14:14:29.919Z",
+  "store": "Michigan City Xfinity Store",
+  "storeAddress": "5330 Franklin St. Michigan City IN 46360",
+  "storeManagerName": "Collin Crooks",
+  "storeManagerEmail": "CCrooks@blufoxmobile.com",
+  "asmEmail": "aEvans@blufoxmobile.com",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 4,
+      "recipients": [
+        "Hannah",
+        "Dalton"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 4,
+      "recipients": [
+        "Collin",
+        "Keegan"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 2,
+      "recipients": []
+    }
+  ],
+  "totalShirts": 10,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
