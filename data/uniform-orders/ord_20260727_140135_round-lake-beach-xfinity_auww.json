@@ -1,0 +1,34 @@
+{
+  "id": "ord_20260727_140135_round-lake-beach-xfinity_auww",
+  "submittedAt": "2026-07-27T14:01:35.724Z",
+  "store": "Round Lake Beach Xfinity Store",
+  "storeAddress": "532 e Rollins Rd Round lake Beach IL 60073",
+  "storeManagerName": "Bryan Perez",
+  "storeManagerEmail": "brPerez@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "IDhorajiwala@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 2,
+      "recipients": [
+        "yandel alvarez",
+        "yandel alvarez"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 2,
+      "recipients": [
+        "johan rivera",
+        "johan rivera"
+      ]
+    }
+  ],
+  "totalShirts": 4,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
