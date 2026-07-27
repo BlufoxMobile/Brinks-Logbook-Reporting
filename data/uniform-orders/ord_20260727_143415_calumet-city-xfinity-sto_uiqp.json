@@ -1,0 +1,43 @@
+{
+  "id": "ord_20260727_143415_calumet-city-xfinity-sto_uiqp",
+  "submittedAt": "2026-07-27T14:34:15.482Z",
+  "store": "Calumet City Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Eric Reyes",
+  "storeManagerEmail": "ereyes@blufoxmobile.com",
+  "asmEmail": "kaThomas@blufoxmobile.com",
+  "dmEmail": "juCarrillo@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 6,
+      "recipients": []
+    },
+    {
+      "size": "M",
+      "qty": 5,
+      "recipients": []
+    },
+    {
+      "size": "L",
+      "qty": 7,
+      "recipients": []
+    },
+    {
+      "size": "XL",
+      "qty": 5,
+      "recipients": []
+    },
+    {
+      "size": "2XL",
+      "qty": 5,
+      "recipients": []
+    }
+  ],
+  "totalShirts": 28,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
