@@ -1,0 +1,53 @@
+{
+  "id": "ord_20260728_182137_evergreen-park-xfinity-s_d9hb",
+  "submittedAt": "2026-07-28T18:21:35.717Z",
+  "store": "Evergreen Park Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Michael Rivera",
+  "storeManagerEmail": "mRivera@blufoxmobile.com",
+  "asmEmail": "aVALDEZ@blufoxmobile.com",
+  "dmEmail": "juCarrillo@blufoxmobile.com",
+  "items": [
+    {
+      "size": "XS",
+      "qty": 3,
+      "recipients": []
+    },
+    {
+      "size": "S",
+      "qty": 3,
+      "recipients": []
+    },
+    {
+      "size": "M",
+      "qty": 3,
+      "recipients": []
+    },
+    {
+      "size": "L",
+      "qty": 3,
+      "recipients": []
+    },
+    {
+      "size": "XL",
+      "qty": 3,
+      "recipients": []
+    },
+    {
+      "size": "2XL",
+      "qty": 3,
+      "recipients": []
+    },
+    {
+      "size": "3XL",
+      "qty": 3,
+      "recipients": []
+    }
+  ],
+  "totalShirts": 21,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
