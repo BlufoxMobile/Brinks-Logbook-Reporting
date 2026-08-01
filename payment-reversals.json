@@ -1,5 +1,22 @@
 [
   {
+    "repName": "Linda Weeks",
+    "repEmail": "lweeks@blufoxmobile.com",
+    "store": "Glenview Xfinity Store",
+    "storeShortName": "Glenview",
+    "storeManagerEmail": "tChowdhury@blufoxmobile.com",
+    "storeManagerName": "Tanzim Chowdhury",
+    "dmEmail": "IDhorajiwala@blufoxmobile.com",
+    "transactionDate": "2026-08-01",
+    "paymentType": "Cash",
+    "accountNumber": "8771101310773201",
+    "amount": 366.11,
+    "amountFormatted": "$366.11",
+    "submittedAt": "2026-08-01T19:31:52.462Z",
+    "submittedAtLocal": "Aug 1, 2026, 2:31 PM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "daRIONNE",
     "repEmail": "DATOWNSEND@BLUFOXMOBILE.COM",
     "store": "Tinley Park Xfinity Store",
