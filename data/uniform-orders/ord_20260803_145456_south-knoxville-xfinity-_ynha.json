@@ -1,0 +1,33 @@
+{
+  "id": "ord_20260803_145456_south-knoxville-xfinity-_ynha",
+  "submittedAt": "2026-08-03T14:54:56.088Z",
+  "store": "South Knoxville Xfinity Store",
+  "storeAddress": "4409 Chapman Hwy Unit Q Knoxville Tn",
+  "storeManagerName": "Zoe Spradling",
+  "storeManagerEmail": "zSpradling@blufoxmobile.com",
+  "asmEmail": "dMcKamey@blufoxmobile.com",
+  "dmEmail": "mbrooks@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 2,
+      "recipients": [
+        "Masahiro"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 4,
+      "recipients": [
+        "CJ",
+        "Issahh"
+      ]
+    }
+  ],
+  "totalShirts": 6,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
