@@ -1,0 +1,39 @@
+{
+  "id": "ord_20260803_151054_kildeer-xfinity-store_3f2s",
+  "submittedAt": "2026-08-03T15:10:54.061Z",
+  "store": "Kildeer Xfinity Store",
+  "storeAddress": "20291 N Rand Rd Ste 113, Kildeer, IL 60074",
+  "storeManagerName": "Gavin Williams",
+  "storeManagerEmail": "GWilliams@blufoxmobile.com",
+  "asmEmail": "ISolis@blufoxmobile.com",
+  "dmEmail": "IDhorajiwala@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 1,
+      "recipients": [
+        "Alex"
+      ]
+    },
+    {
+      "size": "M",
+      "qty": 2,
+      "recipients": [
+        "Matt"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 2,
+      "recipients": [
+        "Matt"
+      ]
+    }
+  ],
+  "totalShirts": 5,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
