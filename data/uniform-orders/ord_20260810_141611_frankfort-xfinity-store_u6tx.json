@@ -1,0 +1,25 @@
+{
+  "id": "ord_20260810_141611_frankfort-xfinity-store_u6tx",
+  "submittedAt": "2026-08-10T14:16:11.149Z",
+  "store": "Frankfort Xfinity Store",
+  "storeAddress": "20151 LaGrange Rd\nFrankfort,IL 60423",
+  "storeManagerName": "Terron Taylor",
+  "storeManagerEmail": "tTaylor@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "juCarrillo@blufoxmobile.com",
+  "items": [
+    {
+      "size": "3XL",
+      "qty": 2,
+      "recipients": [
+        "Terron Taylor"
+      ]
+    }
+  ],
+  "totalShirts": 2,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
