@@ -1,0 +1,40 @@
+{
+  "id": "ord_20260810_144049_uptown-xfinity-store_71uw",
+  "submittedAt": "2026-08-10T14:40:38.371Z",
+  "store": "Uptown Xfinity Store",
+  "storeAddress": "4401 n Clarendon ave Chicago is 60640",
+  "storeManagerName": "Hunter Dodge",
+  "storeManagerEmail": "HDodge@blufoxmobile.com",
+  "asmEmail": "JBerry@blufoxmobile.com",
+  "dmEmail": "IDhorajiwala@blufoxmobile.com",
+  "items": [
+    {
+      "size": "L",
+      "qty": 2,
+      "recipients": [
+        "Roy"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 4,
+      "recipients": [
+        "Kenisha",
+        "Oleg"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 2,
+      "recipients": [
+        "Hunter"
+      ]
+    }
+  ],
+  "totalShirts": 8,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
