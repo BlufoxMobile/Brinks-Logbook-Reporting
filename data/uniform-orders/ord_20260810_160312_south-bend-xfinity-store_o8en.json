@@ -1,0 +1,25 @@
+{
+  "id": "ord_20260810_160312_south-bend-xfinity-store_o8en",
+  "submittedAt": "2026-08-10T16:03:12.231Z",
+  "store": "South Bend Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Jason Lilly",
+  "storeManagerEmail": "jLilly@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "L",
+      "qty": 3,
+      "recipients": [
+        "Karla Estrada"
+      ]
+    }
+  ],
+  "totalShirts": 3,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
