@@ -1,0 +1,33 @@
+{
+  "id": "ord_20260817_130519_johnson-city-xfinity-sto_vo19",
+  "submittedAt": "2026-08-17T13:05:17.891Z",
+  "store": "Johnson City Xfinity Store",
+  "storeAddress": "509 n state of franklin Johnson City TN 37615",
+  "storeManagerName": "VG Huerto",
+  "storeManagerEmail": "vHuerto@blufoxmobile.com",
+  "asmEmail": "rCampbell@blufoxmobile.com",
+  "dmEmail": "mbrooks@blufoxmobile.com",
+  "items": [
+    {
+      "size": "XL",
+      "qty": 2,
+      "recipients": [
+        "Lance Gawburg",
+        "Lance Gawburg"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 1,
+      "recipients": [
+        "Joshua jones"
+      ]
+    }
+  ],
+  "totalShirts": 3,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
