@@ -1,0 +1,41 @@
+{
+  "id": "ord_20260817_154912_burbank-xfinity-store_agsd",
+  "submittedAt": "2026-08-17T15:49:11.716Z",
+  "store": "Burbank Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Zuri Salazar",
+  "storeManagerEmail": "ZSalazar@blufoxmobile.com",
+  "asmEmail": "jBenitez@blufoxmobile.com",
+  "dmEmail": "tchowdhury@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 1,
+      "recipients": [
+        "Jacqueline",
+        "Jacqueline",
+        "Jacqueline"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 1,
+      "recipients": [
+        "Omar"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 1,
+      "recipients": [
+        "Arturo"
+      ]
+    }
+  ],
+  "totalShirts": 3,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
