@@ -1,0 +1,32 @@
+{
+  "id": "ord_20260819_172559_greeneville-xfinity-stor_ubzj",
+  "submittedAt": "2026-08-19T17:25:59.155Z",
+  "store": "Greeneville Xfinity Store",
+  "storeAddress": "1331 tusculum blvd Greeneville Tn 37745",
+  "storeManagerName": "Josh Trentham",
+  "storeManagerEmail": "jTrentham@blufoxmobile.com",
+  "asmEmail": "dMitchell@blufoxmobile.com",
+  "dmEmail": "mbrooks@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 3,
+      "recipients": [
+        "Sheradon Lindsey"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 3,
+      "recipients": [
+        "Alex Harned"
+      ]
+    }
+  ],
+  "totalShirts": 6,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
