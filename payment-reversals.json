@@ -1,5 +1,22 @@
 [
   {
+    "repName": "Willaim Uporsky",
+    "repEmail": "oldskoolguy@yahoo.com",
+    "store": "Valparaiso Xfinity Store",
+    "storeShortName": "Valparaiso",
+    "storeManagerEmail": "EWashington@blufoxmobile.com",
+    "storeManagerName": "Emari Washington",
+    "dmEmail": "jcabrales@blufoxmobile.com",
+    "transactionDate": "2026-07-20",
+    "paymentType": "Check",
+    "accountNumber": "8771401870008661",
+    "amount": 262.76,
+    "amountFormatted": "$262.76",
+    "submittedAt": "2026-08-20T20:19:33.964Z",
+    "submittedAtLocal": "Aug 20, 2026, 3:19 PM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "Eric",
     "repEmail": "errodriguez@blufoxmobile.com",
     "store": "Uptown Xfinity Store",
