@@ -1,0 +1,40 @@
+{
+  "id": "ord_20260820_201443_machesney-park-xfinity-s_sidr",
+  "submittedAt": "2026-08-20T20:14:40.725Z",
+  "store": "Machesney Park Xfinity Store",
+  "storeAddress": "1556 West Lane Rd, Machesney Park, IL",
+  "storeManagerName": "Tim Collins",
+  "storeManagerEmail": "tCollins@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "IDhorajiwala@blufoxmobile.com",
+  "items": [
+    {
+      "size": "XL",
+      "qty": 2,
+      "recipients": [
+        "Leslie",
+        "Kevin"
+      ]
+    },
+    {
+      "size": "2XL",
+      "qty": 2,
+      "recipients": [
+        "Gustavo"
+      ]
+    },
+    {
+      "size": "6XL",
+      "qty": 2,
+      "recipients": [
+        "Ruben"
+      ]
+    }
+  ],
+  "totalShirts": 6,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
