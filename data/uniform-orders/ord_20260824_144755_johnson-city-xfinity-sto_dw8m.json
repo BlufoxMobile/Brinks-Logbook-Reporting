@@ -1,0 +1,26 @@
+{
+  "id": "ord_20260824_144755_johnson-city-xfinity-sto_dw8m",
+  "submittedAt": "2026-08-24T14:47:54.912Z",
+  "store": "Johnson City Xfinity Store",
+  "storeAddress": "509 n state of franklin rd 37604 johnson City Tn",
+  "storeManagerName": "VG Huerto",
+  "storeManagerEmail": "vHuerto@blufoxmobile.com",
+  "asmEmail": "rCampbell@blufoxmobile.com",
+  "dmEmail": "mbrooks@blufoxmobile.com",
+  "items": [
+    {
+      "size": "L",
+      "qty": 2,
+      "recipients": [
+        "Garrett Johnson",
+        "Garrett Johnson"
+      ]
+    }
+  ],
+  "totalShirts": 2,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
