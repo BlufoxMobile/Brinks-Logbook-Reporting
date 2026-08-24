@@ -1,0 +1,27 @@
+{
+  "id": "ord_20260824_161503_round-lake-beach-xfinity_lel6",
+  "submittedAt": "2026-08-24T16:15:02.895Z",
+  "store": "Round Lake Beach Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Bryan Perez",
+  "storeManagerEmail": "brPerez@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "tchowdhury@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 3,
+      "recipients": [
+        "fernando alvarez",
+        "fernando alvarez",
+        "fernando alvarez"
+      ]
+    }
+  ],
+  "totalShirts": 3,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
