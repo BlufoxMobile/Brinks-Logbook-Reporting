@@ -1,5 +1,22 @@
 [
   {
+    "repName": "Collin Crooks",
+    "repEmail": "ccrooks@blufoxmobile.com",
+    "store": "Michigan City Xfinity Store",
+    "storeShortName": "Michigan City",
+    "storeManagerEmail": "CCrooks@blufoxmobile.com",
+    "storeManagerName": "Collin Crooks",
+    "dmEmail": "jcabrales@blufoxmobile.com",
+    "transactionDate": "2026-08-27",
+    "paymentType": "Cash",
+    "accountNumber": "8771400620838120",
+    "amount": 20,
+    "amountFormatted": "$20.00",
+    "submittedAt": "2026-08-27T16:09:59.077Z",
+    "submittedAtLocal": "Aug 27, 2026, 11:09 AM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "Emily G",
     "repEmail": "eguzman@blufoxmobile.com",
     "store": "Tinley Park Xfinity Store",
