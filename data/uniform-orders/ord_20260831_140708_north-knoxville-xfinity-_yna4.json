@@ -1,0 +1,25 @@
+{
+  "id": "ord_20260831_140708_north-knoxville-xfinity-_yna4",
+  "submittedAt": "2026-08-31T14:07:08.411Z",
+  "store": "North Knoxville Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Zoe Spradling",
+  "storeManagerEmail": "zSpradling@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "mbrooks@blufoxmobile.com",
+  "items": [
+    {
+      "size": "L",
+      "qty": 2,
+      "recipients": [
+        "Nicholas San-Miguel"
+      ]
+    }
+  ],
+  "totalShirts": 2,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
