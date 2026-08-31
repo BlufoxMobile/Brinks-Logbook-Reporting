@@ -1,0 +1,46 @@
+{
+  "id": "ord_20260831_143725_dekalb-xfinity-store_fniv",
+  "submittedAt": "2026-08-31T14:37:22.511Z",
+  "store": "Dekalb Xfinity Store",
+  "storeAddress": "2565 sycamore rd, Dekalb IL",
+  "storeManagerName": "Joseph Wolek",
+  "storeManagerEmail": "jWolek@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "tchowdhury@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 2,
+      "recipients": [
+        "Roslyn"
+      ]
+    },
+    {
+      "size": "M",
+      "qty": 2,
+      "recipients": [
+        "Jordan",
+        "Nevaeh"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 2,
+      "recipients": [
+        "Jordan",
+        "Caleb"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 2,
+      "recipients": []
+    }
+  ],
+  "totalShirts": 8,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
