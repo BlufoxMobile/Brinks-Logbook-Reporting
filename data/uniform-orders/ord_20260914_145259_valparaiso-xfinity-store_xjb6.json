@@ -1,0 +1,27 @@
+{
+  "id": "ord_20260914_145259_valparaiso-xfinity-store_xjb6",
+  "submittedAt": "2026-09-14T14:52:56.961Z",
+  "store": "Valparaiso Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Kyle Sanchez",
+  "storeManagerEmail": "kySanchez@blufoxmobile.com",
+  "asmEmail": "dBrent@blufoxmobile.com",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "XL",
+      "qty": 3,
+      "recipients": [
+        "kyle",
+        "kyle",
+        "kyle"
+      ]
+    }
+  ],
+  "totalShirts": 3,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
