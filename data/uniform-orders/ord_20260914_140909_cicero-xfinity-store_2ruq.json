@@ -1,0 +1,36 @@
+{
+  "id": "ord_20260914_140909_cicero-xfinity-store_2ruq",
+  "submittedAt": "2026-09-14T14:09:08.771Z",
+  "store": "Cicero Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Francisco Salazar",
+  "storeManagerEmail": "fSalazar@blufoxmobile.com",
+  "asmEmail": "sPenablanca@blufoxmobile.com",
+  "dmEmail": "IDhorajiwala@blufoxmobile.com",
+  "items": [
+    {
+      "size": "L",
+      "qty": 1,
+      "recipients": [
+        "Gabriel  bucio",
+        "Gabriel bucio",
+        "Gabriel bucio"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 1,
+      "recipients": [
+        "Gabriel bucio",
+        "Gabriel bucio",
+        "Gaberiel bucio"
+      ]
+    }
+  ],
+  "totalShirts": 2,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
