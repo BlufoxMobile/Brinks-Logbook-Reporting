@@ -1,0 +1,25 @@
+{
+  "id": "ord_20260921_145808_south-bend-xfinity-store_bsg4",
+  "submittedAt": "2026-09-21T15:01:08.723Z",
+  "store": "South Bend Xfinity Store",
+  "storeAddress": "4615 Miami st. Ste. 3\nSouth Bend , Indiana\n46614",
+  "storeManagerName": "Jason Lilly",
+  "storeManagerEmail": "jLilly@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 3,
+      "recipients": [
+        "Ron Como"
+      ]
+    }
+  ],
+  "totalShirts": 3,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
