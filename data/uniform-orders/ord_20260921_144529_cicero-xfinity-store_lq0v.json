@@ -1,0 +1,36 @@
+{
+  "id": "ord_20260921_144529_cicero-xfinity-store_lq0v",
+  "submittedAt": "2026-09-21T14:45:28.766Z",
+  "store": "Cicero Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Francisco Salazar",
+  "storeManagerEmail": "fSalazar@blufoxmobile.com",
+  "asmEmail": "sPenablanca@blufoxmobile.com",
+  "dmEmail": "IDhorajiwala@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 1,
+      "recipients": [
+        "Abdiel",
+        "Abdiel",
+        "Abdiel"
+      ]
+    },
+    {
+      "size": "M",
+      "qty": 1,
+      "recipients": [
+        "Abdiel",
+        "Abdiel",
+        "Abdiel"
+      ]
+    }
+  ],
+  "totalShirts": 2,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
