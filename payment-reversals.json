@@ -1,5 +1,22 @@
 [
   {
+    "repName": "cora estrada",
+    "repEmail": "cestrada@blufoxmobile.com",
+    "store": "South Bend Xfinity Store",
+    "storeShortName": "South Bend",
+    "storeManagerEmail": "jLilly@blufoxmobile.com",
+    "storeManagerName": "Jason Lilly",
+    "dmEmail": "jcabrales@blufoxmobile.com",
+    "transactionDate": "2026-10-01",
+    "paymentType": "Check",
+    "accountNumber": "8771402012128789",
+    "amount": 40,
+    "amountFormatted": "$40.00",
+    "submittedAt": "2026-10-03T16:32:14.052Z",
+    "submittedAtLocal": "Oct 3, 2026, 12:32 PM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "Johnson ray",
     "repEmail": "fsalazar@blufoxmobile.com",
     "store": "Cicero Xfinity Store",
