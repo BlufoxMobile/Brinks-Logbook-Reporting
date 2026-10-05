@@ -1,0 +1,58 @@
+{
+  "id": "ord_20261005_150107_glenview-xfinity-store_w3tk",
+  "submittedAt": "2026-10-05T15:01:06.791Z",
+  "store": "Glenview Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Aedo Yonan",
+  "storeManagerEmail": "ayonan@blufoxmobile.com",
+  "asmEmail": "LWeeks@blufoxmobile.com",
+  "dmEmail": "tchowdhury@blufoxmobile.com",
+  "items": [
+    {
+      "size": "XS",
+      "qty": 1,
+      "recipients": [
+        "Althea"
+      ]
+    },
+    {
+      "size": "S",
+      "qty": 1,
+      "recipients": [
+        "Althea"
+      ]
+    },
+    {
+      "size": "M",
+      "qty": 2,
+      "recipients": [
+        "Steev",
+        "Okeefe"
+      ]
+    },
+    {
+      "size": "L",
+      "qty": 3,
+      "recipients": [
+        "Eric",
+        "Anthony",
+        "Iinda"
+      ]
+    },
+    {
+      "size": "XL",
+      "qty": 3,
+      "recipients": [
+        "Ahmed",
+        "Eric",
+        "Anthony"
+      ]
+    }
+  ],
+  "totalShirts": 10,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
