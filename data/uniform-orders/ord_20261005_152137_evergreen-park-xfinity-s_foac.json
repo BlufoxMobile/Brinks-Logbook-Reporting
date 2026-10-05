@@ -1,0 +1,36 @@
+{
+  "id": "ord_20261005_152137_evergreen-park-xfinity-s_foac",
+  "submittedAt": "2026-10-05T15:21:36.474Z",
+  "store": "Evergreen Park Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Michael Rivera",
+  "storeManagerEmail": "mRivera@blufoxmobile.com",
+  "asmEmail": "aVALDEZ@blufoxmobile.com",
+  "dmEmail": "juCarrillo@blufoxmobile.com",
+  "items": [
+    {
+      "size": "L",
+      "qty": 6,
+      "recipients": [
+        "Kalen",
+        "Kalen",
+        "Kalen"
+      ]
+    },
+    {
+      "size": "3XL",
+      "qty": 3,
+      "recipients": [
+        "New",
+        "New",
+        "New"
+      ]
+    }
+  ],
+  "totalShirts": 9,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
