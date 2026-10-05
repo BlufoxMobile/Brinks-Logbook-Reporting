@@ -1,0 +1,27 @@
+{
+  "id": "ord_20261005_132831_south-bend-xfinity-store_0cza",
+  "submittedAt": "2026-10-05T13:31:43.518Z",
+  "store": "South Bend Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Jason Lilly",
+  "storeManagerEmail": "jLilly@blufoxmobile.com",
+  "asmEmail": "",
+  "dmEmail": "jcabrales@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 3,
+      "recipients": [
+        "Ron",
+        "Ron",
+        "Ron"
+      ]
+    }
+  ],
+  "totalShirts": 3,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
