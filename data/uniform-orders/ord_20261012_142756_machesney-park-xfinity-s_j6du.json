@@ -1,0 +1,38 @@
+{
+  "id": "ord_20261012_142756_machesney-park-xfinity-s_j6du",
+  "submittedAt": "2026-10-12T14:27:56.216Z",
+  "store": "Machesney Park Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "Tim Collins",
+  "storeManagerEmail": "tCollins@blufoxmobile.com",
+  "asmEmail": "LBryant@blufoxmobile.com",
+  "dmEmail": "IDhorajiwala@blufoxmobile.com",
+  "items": [
+    {
+      "size": "M",
+      "qty": 2,
+      "recipients": []
+    },
+    {
+      "size": "L",
+      "qty": 2,
+      "recipients": []
+    },
+    {
+      "size": "XL",
+      "qty": 2,
+      "recipients": []
+    },
+    {
+      "size": "2XL",
+      "qty": 2,
+      "recipients": []
+    }
+  ],
+  "totalShirts": 8,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
