@@ -1,0 +1,35 @@
+{
+  "id": "ord_20261013_183448_dekalb-xfinity-store_6iag",
+  "submittedAt": "2026-10-13T18:34:47.913Z",
+  "store": "Dekalb Xfinity Store",
+  "storeAddress": "",
+  "storeManagerName": "—",
+  "storeManagerEmail": "",
+  "asmEmail": "nPatton@blufoxmobile.com",
+  "dmEmail": "tchowdhury@blufoxmobile.com",
+  "items": [
+    {
+      "size": "S",
+      "qty": 3,
+      "recipients": [
+        "nevaeh",
+        "roselyn",
+        "annette"
+      ]
+    },
+    {
+      "size": "M",
+      "qty": 2,
+      "recipients": [
+        "christian",
+        "christian"
+      ]
+    }
+  ],
+  "totalShirts": 5,
+  "status": "pending",
+  "shippedAt": null,
+  "shippedBy": null,
+  "trackingNumber": null,
+  "carrier": null
+}
