@@ -1,5 +1,22 @@
 [
   {
+    "repName": "Juan Padilla",
+    "repEmail": "bp-jpadil788@cable.comcast.com",
+    "store": "Round Lake Beach Xfinity Store",
+    "storeShortName": "Round Lake Beach",
+    "storeManagerEmail": "brPerez@blufoxmobile.com",
+    "storeManagerName": "Bryan Perez",
+    "dmEmail": "tchowdhury@blufoxmobile.com",
+    "transactionDate": "2026-10-18",
+    "paymentType": "Money Order",
+    "accountNumber": "8771100220343113",
+    "amount": 45,
+    "amountFormatted": "$45.00",
+    "submittedAt": "2026-10-18T20:17:38.919Z",
+    "submittedAtLocal": "Oct 18, 2026, 3:17 PM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "Michael Jackson",
     "repEmail": "mijackson@blufoxmobile.com",
     "store": "Schererville Xfinity Store",
