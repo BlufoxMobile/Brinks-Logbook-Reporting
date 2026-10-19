@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<style id="c3GatePre">html:not(.c3-unlocked) body > *:not(#c3Gate){visibility:hidden !important}html:not(.c3-unlocked) body{background:#0b1220}</style>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Brinks Pickup Log</title>
@@ -263,6 +264,56 @@
   .legend-dot.ok { background: var(--positive); }
   .legend-dot.warn { background: var(--warning); }
   .legend-dot.err { background: var(--error); }
+
+  /* District filter chips */
+  .district-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 14px; }
+  .chip {
+    background: var(--surface-2); color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 12px; font-size: 12px; font-weight: 500; font-family: inherit;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .chip:hover { color: var(--text); border-color: var(--border-strong); }
+  .chip.active { background: #14231a; border-color: #166534; color: var(--positive); }
+  .chip .chip-count { font-size: 11px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+  .chip.active .chip-count { color: rgba(74,222,128,0.7); }
+
+  /* District section rows (daily + monthly tables) */
+  .daily-table tr.district-row td {
+    background: var(--surface-2); color: var(--text-dim);
+    border-top: 1px solid var(--border-strong);
+    font-size: 12px; cursor: pointer; user-select: none;
+  }
+  .daily-table tr.district-row td.col-store { background: var(--surface-2); padding-top: 9px; padding-bottom: 9px; }
+  .daily-table tr.district-row td.col-total { background: var(--surface-3); color: var(--text); }
+  .daily-table tr.district-row td.cell-today { background: #14231a; color: var(--positive); }
+  .daily-table tr.district-row:hover td { background: var(--surface-3); }
+  .daily-table tr.district-row:hover td.col-total { background: #2c2c2c; }
+  .daily-table tr.district-row td.dist-sum { color: var(--text); font-weight: 600; }
+  .daily-table tr.district-row:first-child td { border-top: none; }
+  .district-name { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .district-caret { display: inline-block; width: 12px; font-size: 10px; color: var(--text-dim); transition: transform 0.15s; text-align: center; }
+  tr.district-row.collapsed .district-caret { transform: rotate(-90deg); }
+  .district-meta { font-size: 11px; font-weight: 400; color: var(--text-dim); padding-left: 20px; line-height: 1.3; margin-top: 2px; }
+  .daily-table tr.store-row td.col-store { padding-left: 30px; }
+  .daily-table tr.empty-row td { color: var(--text-dim); text-align: left; padding: 18px 14px; }
+
+  /* District tag in the Recent feed */
+  .dist-tag {
+    display: inline-block; vertical-align: 1px; margin-left: 8px;
+    font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px;
+    color: var(--text-dim); background: var(--surface-2);
+    border: 1px solid var(--border-strong); border-radius: 10px; padding: 1px 7px;
+  }
+  .stat-sub .scope { color: var(--positive); }
+
+  /* Phone: the month navigator drops to its own full-width line instead of overflowing */
+  .section-title { flex-wrap: wrap; }
+  @media (max-width: 639px) {
+    .section-title .month-nav { margin-left: 0 !important; width: 100%; }
+    .month-nav .month-label { flex: 1; min-width: 0; }
+    .month-nav select { max-width: 46%; }
+  }
 </style>
 </head>
 <body>
@@ -301,22 +352,22 @@
     <div class="stat">
       <div class="stat-label">Today</div>
       <div class="stat-value" id="stat-today">0</div>
-      <div class="stat-sub">pickups logged</div>
+      <div class="stat-sub">pickups logged<span class="scope"></span></div>
     </div>
     <div class="stat">
       <div class="stat-label">Month to date</div>
       <div class="stat-value" id="stat-mtd">0</div>
-      <div class="stat-sub">pickups logged</div>
+      <div class="stat-sub">pickups logged<span class="scope"></span></div>
     </div>
     <div class="stat">
       <div class="stat-label">MTD total $</div>
       <div class="stat-value" id="stat-amount">$0</div>
-      <div class="stat-sub">picked up this month</div>
+      <div class="stat-sub">picked up this month<span class="scope"></span></div>
     </div>
     <div class="stat warn">
       <div class="stat-label">Inactive stores</div>
       <div class="stat-value" id="stat-inactive">0</div>
-      <div class="stat-sub">no pickup in 7+ days</div>
+      <div class="stat-sub">no pickup in 7+ days<span class="scope"></span></div>
     </div>
   </div>
 
@@ -328,6 +379,8 @@
       <button class="tab" data-view="feed">Recent</button>
     </div>
   </div>
+
+  <div class="district-chips" id="districtChips" role="group" aria-label="Filter by district"></div>
 
   <div class="legend">
     <div class="legend-item"><span class="legend-dot ok"></span>Active (logged in last 7 days)</div>
@@ -398,6 +451,132 @@
 </footer>
 
 <script>
+/* ============================================================
+ * C3 OPS SHARED — inline this block, unchanged, in every page
+ * (index.html, monday-ops.html, tuesday-phone-tracker.html,
+ *  wednesday-cpe-tracker.html). Single source; keep copies identical.
+ *
+ *  1) Passcode gate. The passcode itself is never in the page —
+ *     only its SHA-256. Unlock is remembered per browser.
+ *  2) District resolver: Admin Panel Directory districts, and any
+ *     store not in the directory = "Heartland".
+ *  3) Notify hook constant (Zapier catch hook for "Incomplete" emails).
+ * ============================================================ */
+const C3 = (() => {
+  const PASS_HASH = "5edf1bee0f44262af31919da79e352c9d3dcb3529c8afbc2b5fb5beb95097097";
+  const UNLOCK_KEY = "c3OpsUnlock";
+  const DIRECTORY_URL = "https://raw.githubusercontent.com/blufoxmobile/Daily-Sales-Report/main/data/store-directory.json";
+  // Zapier catch hook — receives {task, store, date, sentBy, source}. Recipients are looked up server-side.
+  const NOTIFY_HOOK = "https://hooks.zapier.com/hooks/catch/20441079/sDSJgdj0B7VO8rOH/";
+  // Display order of districts on every page. Heartland always last.
+  const DISTRICT_ORDER = ["north-side", "east-side", "west-side", "south-side", "big-south", "heartland"];
+  const HEARTLAND = { id: "heartland", name: "Heartland", dm: "", dmName: "" };
+
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  function isUnlocked() {
+    try { return localStorage.getItem(UNLOCK_KEY) === PASS_HASH; } catch (e) { return false; }
+  }
+
+  // Call FIRST THING at page start: gate(() => { ...start the page... })
+  function gate(onUnlock) {
+    if (isUnlocked()) { document.documentElement.classList.add("c3-unlocked"); onUnlock(); return; }
+    const style = document.createElement("style");
+    style.textContent = `
+      html:not(.c3-unlocked) body > *:not(#c3Gate){visibility:hidden !important}
+      #c3Gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+        background:#0b1220;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding:16px}
+      #c3Gate form{background:#111a2e;border:1px solid #23304d;border-radius:14px;padding:28px 24px;width:100%;max-width:360px;
+        box-shadow:0 20px 60px rgba(0,0,0,.45);text-align:center}
+      #c3Gate h2{margin:0 0 6px;color:#fff;font-size:20px;font-weight:700}
+      #c3Gate p{margin:0 0 18px;color:#9aa6bf;font-size:14px}
+      #c3Gate input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #2b3a5c;
+        background:#0b1220;color:#fff;font-size:16px;outline:none}
+      #c3Gate input:focus{border-color:#4f7cff}
+      #c3Gate button{margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#4f7cff;color:#fff;
+        font-size:15px;font-weight:700;cursor:pointer}
+      #c3Gate .err{color:#ff6b6b;font-size:13px;min-height:18px;margin-top:10px}`;
+    document.head.appendChild(style);
+    const wrap = document.createElement("div");
+    wrap.id = "c3Gate";
+    wrap.innerHTML = `<form autocomplete="off">
+        <h2>C³ Ops Tracker</h2><p>Enter the passcode to continue.</p>
+        <input type="password" id="c3GateInput" placeholder="Passcode" aria-label="Passcode" autofocus>
+        <button type="submit">Unlock</button><div class="err" id="c3GateErr"></div></form>`;
+    const mount = () => { document.body.appendChild(wrap); wrap.querySelector("input").focus(); };
+    document.body ? mount() : document.addEventListener("DOMContentLoaded", mount);
+    wrap.querySelector("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const val = wrap.querySelector("input").value;
+      if (await sha256(val) === PASS_HASH) {
+        try { localStorage.setItem(UNLOCK_KEY, PASS_HASH); } catch (err) {}
+        wrap.remove();
+        document.documentElement.classList.add("c3-unlocked");
+        onUnlock();
+      } else {
+        wrap.querySelector("#c3GateErr").textContent = "That passcode isn't right.";
+        wrap.querySelector("input").select();
+      }
+    });
+  }
+
+  // ---------- Districts ----------
+  let DIR = null;
+  async function loadDirectory() {
+    if (DIR) return DIR;
+    try {
+      const res = await fetch(DIRECTORY_URL + "?t=" + Date.now(), { cache: "no-store" });
+      DIR = await res.json();
+    } catch (e) { DIR = { stores: [], districts: [], storeDistricts: {} }; }
+    return DIR;
+  }
+  // "Uptown", "Uptown Xfinity Store", "uptown-xfinity-store" → "uptown"
+  function key(name) {
+    return String(name || "").toLowerCase().replace(/xfinity store/g, "").replace(/[^a-z0-9]+/g, "");
+  }
+  // Returns the full directory store name for any spelling, or "" if not in directory.
+  function directoryName(name) {
+    const k = key(name);
+    return ((DIR && DIR.stores) || []).find(s => key(s) === k) || "";
+  }
+  // Returns {id, name, dm, dmName}. Not in directory → Heartland.
+  function districtOf(name) {
+    const full = directoryName(name);
+    const id = full && DIR.storeDistricts ? DIR.storeDistricts[full] : "";
+    const d = id && (DIR.districts || []).find(x => x.id === id);
+    return d || HEARTLAND;
+  }
+  // Group an array of store names → [{district, stores:[...]}] in DISTRICT_ORDER, empty districts dropped.
+  function groupByDistrict(storeNames) {
+    const buckets = {};
+    for (const s of storeNames) {
+      const d = districtOf(s);
+      (buckets[d.id] = buckets[d.id] || { district: d, stores: [] }).stores.push(s);
+    }
+    const ids = Object.keys(buckets).sort((a, b) => {
+      const ia = DISTRICT_ORDER.indexOf(a), ib = DISTRICT_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    return ids.map(id => (buckets[id].stores.sort((a, b) => a.localeCompare(b)), buckets[id]));
+  }
+  // Big South stores are on Eastern time; everyone else Central.
+  function timeZoneOf(name) { return districtOf(name).id === "big-south" ? "America/New_York" : "America/Chicago"; }
+
+  // ---------- Notify ----------
+  // task: "monday" | "tuesday" | "wednesday". Sends as text/plain so the browser makes no CORS preflight.
+  async function notify(task, store, date, sentBy) {
+    const body = JSON.stringify({ task, store: directoryName(store) || store, date, sentBy: sentBy || "", source: location.pathname });
+    const res = await fetch(NOTIFY_HOOK, { method: "POST", body });
+    if (!res.ok) throw new Error("Notify failed (" + res.status + ")");
+    return true;
+  }
+
+  return { gate, loadDirectory, key, directoryName, districtOf, groupByDistrict, timeZoneOf, notify, DISTRICT_ORDER };
+})();
+</script>
+<script>
   // ============================================================
   // CONFIGURATION
   // Paste the URL of your "data feed" Power Automate flow below.
@@ -410,7 +589,9 @@
   // Public store-directory feed maintained from the Admin Panel.
   // Adding a store in https://blufoxmobile.github.io/Admin-Panel-Directory/
   // auto-flows into the daily/monthly grids below (no code change required).
-  const DIRECTORY_URL = "https://blufoxmobile.github.io/Daily-Sales-Report/data/store-directory.json";
+  // Loaded once via the shared C3.loadDirectory(), which also drives the
+  // district grouping (C3.districtOf / C3.groupByDistrict). Any store that is
+  // not in the directory is grouped under "Heartland".
 
   // Baseline: out-of-directory stores that should always have a row
   // (legacy / non-Xfinity / closed-but-historical). The directory is unioned in
@@ -436,6 +617,61 @@
   let currentView = "grid";
   let searchTerm = "";
   let selectedYearMonth = ymString(new Date()); // e.g. "2026-05"
+  let directory = { stores: [], districts: [], storeDistricts: {} };
+
+  // District filter + collapsed sections (per-viewer conveniences only).
+  const LS_FILTER_KEY = "brinksDistrictFilter";
+  const LS_COLLAPSE_KEY = "brinksCollapsedDistricts";
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } }
+  let districtFilter = lsGet(LS_FILTER_KEY) || "all";
+  let collapsedDistricts = new Set();
+  try { collapsedDistricts = new Set(JSON.parse(lsGet(LS_COLLAPSE_KEY) || "[]")); } catch (e) { collapsedDistricts = new Set(); }
+
+  // Every district the page knows about, in display order (Heartland last).
+  function districtList() {
+    const fromDir = (directory.districts || []).slice();
+    const out = [];
+    C3.DISTRICT_ORDER.forEach(id => {
+      if (id === "heartland") return;
+      const d = fromDir.find(x => x.id === id);
+      if (d) out.push(d);
+    });
+    fromDir.forEach(d => { if (!out.includes(d)) out.push(d); });
+    out.push(C3.districtOf("")); // Heartland
+    return out;
+  }
+  function inDistrictFilter(store) {
+    if (districtFilter === "all") return true;
+    if (!store) return false;
+    return C3.districtOf(store).id === districtFilter;
+  }
+  function toggleDistrict(id) {
+    if (collapsedDistricts.has(id)) collapsedDistricts.delete(id); else collapsedDistricts.add(id);
+    lsSet(LS_COLLAPSE_KEY, JSON.stringify(Array.from(collapsedDistricts)));
+    if (currentView === "grid") renderGrid(); else if (currentView === "monthly") renderMonthly();
+  }
+  // First cell of a district header row (name, DM, store count).
+  function districtLabelCell(d, storeCount) {
+    const who = d.dmName ? d.dmName : (d.id === "heartland" ? "Not in directory" : "No DM listed");
+    return '<td class="col-store">'
+      + '<div class="district-name"><span class="district-caret" aria-hidden="true">▾</span>' + escapeHtml(d.name) + '</div>'
+      + '<div class="district-meta">' + escapeHtml(who) + ' · ' + storeCount + ' store' + (storeCount === 1 ? '' : 's') + '</div>'
+      + '</td>';
+  }
+  function makeDistrictRow(d, collapsed, cellsHtml) {
+    const tr = document.createElement("tr");
+    tr.className = "district-row" + (collapsed ? " collapsed" : "");
+    tr.dataset.district = d.id;
+    tr.setAttribute("role", "button");
+    tr.setAttribute("tabindex", "0");
+    tr.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    tr.title = collapsed ? "Expand " + d.name : "Collapse " + d.name;
+    tr.innerHTML = cellsHtml;
+    tr.addEventListener("click", () => toggleDistrict(d.id));
+    tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleDistrict(d.id); } });
+    return tr;
+  }
 
   // ---------- Helpers ----------
   function fmtMoney(n) {
@@ -547,18 +783,19 @@
 
     // Store directory — sourced from the Admin Panel. Adding a store there
     // automatically gives it a row here. Falls back silently to the baseline.
+    // C3.loadDirectory() fetches once per page load and caches the result.
     try {
-      const resp = await fetch(DIRECTORY_URL + "?t=" + Date.now(), { cache: "no-store" });
-      if (resp.ok) {
-        const dir = await resp.json();
-        const dirShorts = (dir.stores || []).map(s =>
-          String(s).replace(/\s+Xfinity\s+Store\s*$/i, "").trim()
-        );
-        // Union directory stores with the baseline, drop blanks, sort A→Z
-        const merged = new Set([...STORE_BASELINE, ...dirShorts.filter(Boolean)]);
-        STORES = Array.from(merged).sort((a, b) => a.localeCompare(b));
-      }
+      const dir = await C3.loadDirectory();
+      directory = dir || directory;
+      const dirShorts = ((dir && dir.stores) || []).map(s =>
+        String(s).replace(/\s+Xfinity\s+Store\s*$/i, "").trim()
+      );
+      // Union directory stores with the baseline, drop blanks, sort A→Z
+      const merged = new Set([...STORE_BASELINE, ...dirShorts.filter(Boolean)]);
+      STORES = Array.from(merged).sort((a, b) => a.localeCompare(b));
     } catch (e) { /* keep current STORES */ }
+    // A remembered filter for a district that no longer exists falls back to All.
+    if (districtFilter !== "all" && !districtList().some(d => d.id === districtFilter)) districtFilter = "all";
 
     try {
       if (liveData.length === 0 && staticData.length === 0) {
@@ -628,6 +865,7 @@
 
   // ---------- Render ----------
   function render() {
+    renderChips();
     renderKpis();
     renderMonthNav();
     if (currentView === "grid") renderGrid();
@@ -635,26 +873,42 @@
     else renderFeed();
   }
 
+  function renderChips() {
+    const wrap = document.getElementById("districtChips");
+    const counts = {};
+    STORES.forEach(st => { const id = C3.districtOf(st).id; counts[id] = (counts[id] || 0) + 1; });
+    const items = [{ id: "all", name: "All", n: STORES.length }]
+      .concat(districtList().map(d => ({ id: d.id, name: d.name, n: counts[d.id] || 0 })));
+    wrap.innerHTML = items.map(it =>
+      '<button type="button" class="chip' + (it.id === districtFilter ? ' active' : '') + '" data-district="' + escapeAttr(it.id) + '"'
+      + ' aria-pressed="' + (it.id === districtFilter) + '">'
+      + escapeHtml(it.name) + '<span class="chip-count">' + it.n + '</span></button>'
+    ).join("");
+  }
+
   function renderKpis() {
     const today = ymd(new Date());
     const monthStart = startOfMonth(ymString(new Date()));
     let todayCount = 0, mtdCount = 0, mtdAmt = 0;
-    submissions.forEach(s => {
+    const scoped = submissions.filter(s => inDistrictFilter(s.store));
+    scoped.forEach(s => {
       if (!s.submittedAtDate) return;
       if (ymd(s.submittedAtDate) === today) todayCount++;
       if (s.submittedAtDate >= monthStart) { mtdCount++; mtdAmt += s.totalAmount || 0; }
     });
     const sevenAgo = daysAgo(7);
     const recentStores = new Set();
-    submissions.forEach(s => {
+    scoped.forEach(s => {
       if (s.submittedAtDate && s.submittedAtDate >= sevenAgo) recentStores.add(s.store);
     });
-    const inactive = STORES.filter(s => !recentStores.has(s)).length;
+    const inactive = STORES.filter(s => inDistrictFilter(s) && !recentStores.has(s)).length;
 
     document.getElementById("stat-today").textContent = todayCount;
     document.getElementById("stat-mtd").textContent = mtdCount;
     document.getElementById("stat-amount").textContent = fmtMoney(mtdAmt);
     document.getElementById("stat-inactive").textContent = inactive;
+    const d = districtFilter === "all" ? null : districtList().find(x => x.id === districtFilter);
+    document.querySelectorAll(".stat-sub .scope").forEach(el => { el.textContent = d ? " · " + d.name : ""; });
   }
 
   function renderMonthNav() {
@@ -724,8 +978,37 @@
     const tbody = document.getElementById("dailyBody");
     tbody.innerHTML = "";
     const filterTerm = searchTerm.toLowerCase();
+    const visible = STORES.filter(st => (!filterTerm || st.toLowerCase().includes(filterTerm)) && inDistrictFilter(st));
+    const colCount = days.length + 3;
+    if (visible.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="' + colCount + '">No stores match.</td></tr>';
+      return;
+    }
 
-    STORES.filter(st => !filterTerm || st.toLowerCase().includes(filterTerm)).forEach(store => {
+    C3.groupByDistrict(visible).forEach(group => {
+      const d = group.district;
+      // While searching, matches are always shown even inside a collapsed section.
+      const collapsed = collapsedDistricts.has(d.id) && !filterTerm;
+      let distTotal = 0, active = 0;
+      group.stores.forEach(st => {
+        distTotal += totalByStore[st] || 0;
+        if (lastByStore[st] && daysBetween(new Date(), lastByStore[st]) <= 7) active++;
+      });
+      let cells = districtLabelCell(d, group.stores.length);
+      days.forEach(day => {
+        const k = ymd(day);
+        const n = group.stores.filter(st => byStoreDay[st] && byStoreDay[st][k] && byStoreDay[st][k].length).length;
+        const isToday = k === todayYmd;
+        cells += '<td' + (isToday ? ' class="cell-today"' : '') + ' title="' + n + ' of ' + group.stores.length + ' stores picked up">' + (n || '') + '</td>';
+      });
+      cells += '<td class="col-streak" title="Stores with a pickup in the last 7 days">' + active + '/' + group.stores.length + ' active</td>';
+      cells += '<td class="col-total" title="' + escapeAttr(d.name + ' total, ' + monthLabel(selectedYearMonth)) + '">' + fmtMoney(distTotal) + '</td>';
+      tbody.appendChild(makeDistrictRow(d, collapsed, cells));
+      if (collapsed) return;
+      group.stores.forEach(store => appendDailyStoreRow(store));
+    });
+
+    function appendDailyStoreRow(store) {
       const tr = document.createElement("tr");
       tr.className = "store-row";
       const last = lastByStore[store];
@@ -767,7 +1050,7 @@
       tr.innerHTML = html;
       tr.addEventListener("click", () => openStoreModal(store, selectedYearMonth));
       tbody.appendChild(tr);
-    });
+    }
   }
 
   function renderMonthly() {
@@ -819,7 +1102,32 @@
     tbody.innerHTML = "";
     const filterTerm = searchTerm.toLowerCase();
 
-    STORES.filter(st => !filterTerm || st.toLowerCase().includes(filterTerm)).forEach(store => {
+    const visible = STORES.filter(st => (!filterTerm || st.toLowerCase().includes(filterTerm)) && inDistrictFilter(st));
+    if (visible.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="' + (months.length + 2) + '">No stores match.</td></tr>';
+      return;
+    }
+
+    C3.groupByDistrict(visible).forEach(group => {
+      const d = group.district;
+      const collapsed = collapsedDistricts.has(d.id) && !filterTerm;
+      let cells = districtLabelCell(d, group.stores.length);
+      let distTwelve = 0;
+      months.forEach(m => {
+        let t = 0, c = 0;
+        group.stores.forEach(st => { const v = agg[st] && agg[st][m]; if (v) { t += v.total; c += v.count; } });
+        distTwelve += t;
+        const isCurrent = m === currentYM;
+        const title = d.name + " · " + c + " pickup" + (c === 1 ? "" : "s") + " · " + fmtMoneyFull(t);
+        cells += '<td class="dist-sum' + (isCurrent ? ' cell-today' : '') + '" title="' + escapeAttr(title) + '">' + (c ? fmtMoney(t) : '·') + '</td>';
+      });
+      cells += '<td class="col-total" title="' + escapeAttr(d.name + ' 12-month total') + '">' + fmtMoney(distTwelve) + '</td>';
+      tbody.appendChild(makeDistrictRow(d, collapsed, cells));
+      if (collapsed) return;
+      group.stores.forEach(store => appendMonthlyStoreRow(store));
+    });
+
+    function appendMonthlyStoreRow(store) {
       const tr = document.createElement("tr");
       tr.className = "store-row";
       let twelveTotal = 0;
@@ -842,7 +1150,7 @@
         openStoreModal(store, month);
       });
       tbody.appendChild(tr);
-    });
+    }
   }
 
   function renderFeed() {
@@ -852,18 +1160,19 @@
     const list = document.getElementById("feedList");
     list.innerHTML = "";
     const filterTerm = searchTerm.toLowerCase();
-    const filtered = submissions.filter(s => !filterTerm || (s.store||"").toLowerCase().includes(filterTerm));
+    const filtered = submissions.filter(s => (!filterTerm || (s.store||"").toLowerCase().includes(filterTerm)) && inDistrictFilter(s.store));
     if (filtered.length === 0) {
-      list.innerHTML = '<div class="empty-msg">No submissions yet.</div>';
+      list.innerHTML = '<div class="empty-msg">' + (submissions.length ? 'No submissions match.' : 'No submissions yet.') + '</div>';
       return;
     }
     filtered.slice(0, 200).forEach(s => {
       const div = document.createElement("div");
       div.className = "feed-item";
       const dateStr = s.submittedAtDate ? s.submittedAtDate.toLocaleString() : "—";
+      const distTag = s.store ? '<span class="dist-tag">'+escapeHtml(C3.districtOf(s.store).name)+'</span>' : '';
       div.innerHTML =
         '<div>'+
-          '<div class="feed-store">'+escapeHtml(s.store||"—")+'</div>'+
+          '<div class="feed-store">'+escapeHtml(s.store||"—")+distTag+'</div>'+
           '<div class="feed-meta">'+escapeHtml(s.managerName||"—")+'</div>'+
         '</div>'+
         '<div>'+
@@ -1086,9 +1395,19 @@
     if (e.target.id === "modalBackdrop") document.getElementById("modalBackdrop").classList.remove("show");
   });
   document.getElementById("refreshLink").addEventListener("click", (e) => { e.preventDefault(); fetchData(true); });
+  document.getElementById("districtChips").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    districtFilter = chip.dataset.district || "all";
+    lsSet(LS_FILTER_KEY, districtFilter);
+    render();
+  });
 
-  fetchData(true);
-  setInterval(() => fetchData(false), REFRESH_INTERVAL_MS);
+  // Nothing loads until the passcode gate is cleared.
+  C3.gate(() => {
+    fetchData(true);
+    setInterval(() => fetchData(false), REFRESH_INTERVAL_MS);
+  });
 </script>
 </body>
 </html>

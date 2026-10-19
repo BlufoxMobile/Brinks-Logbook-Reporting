@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<style id="c3GatePre">html:not(.c3-unlocked) body > *:not(#c3Gate){visibility:hidden !important}html:not(.c3-unlocked) body{background:#0b1220}</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Monday Ops Tracker</title>
@@ -179,9 +180,72 @@
   .lightbox.show { display: flex; }
   .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; }
 
+  /* District header rows inside the grid tables */
+  table.grid tr.district-row td { background: #060606; text-align: left; padding: 0; border-bottom: 1px solid var(--border); }
+  table.grid tbody tr.district-row:hover td { background: #060606; }
+  .dr-in { position: sticky; left: 0; display: flex; align-items: baseline; gap: 10px; width: max-content; padding: 14px 16px 8px; }
+  .dr-in .dr-name { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent); }
+  .dr-in .dr-dm { font-size: 12px; color: var(--text-dim); font-weight: 500; }
+  .dr-in .dr-n { font-size: 11px; color: var(--text-faint); font-weight: 500; }
+  table.recent td.dist { color: var(--text-dim); font-size: 13px; }
+
+  /* ===== "This Monday" follow-up panel ===== */
+  .fu { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 20px; margin-bottom: 22px; }
+  .fu-top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 24px; }
+  .fu-eyebrow { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent); }
+  .fu-title h2 { margin: 2px 0 0; font-size: 20px; font-weight: 700; }
+  .fu-total { min-width: 180px; flex: 1; max-width: 340px; }
+  .fu-total .num { font-size: 30px; font-weight: 800; line-height: 1; }
+  .fu-total .num small { font-size: 14px; font-weight: 500; color: var(--text-dim); margin-left: 4px; }
+  .fu-bar { height: 6px; background: var(--surface-3); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+  .fu-bar i { display: block; height: 100%; background: var(--positive); border-radius: 999px; transition: width 0.3s; }
+  .fu-you { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim); }
+  .fu-you select { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-family: inherit; font-size: 13px; }
+  .fu-note { margin: 12px 0 0; font-size: 12px; color: var(--text-dim); }
+  .fu-district { margin-top: 20px; }
+  .fu-dhead { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .fu-dhead .dn { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; }
+  .fu-dhead .dm { font-size: 13px; color: var(--text-dim); }
+  .fu-dhead .dc { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .fu-dhead .dc.all { color: var(--positive); }
+  .fu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 8px; }
+  .fu-store { display: flex; align-items: center; gap: 12px; background: #050505; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+  .fu-store .who { flex: 1; min-width: 0; }
+  .fu-store .sn { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fu-store .mn { font-size: 12px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fu-act { display: flex; flex-direction: column; align-items: stretch; gap: 3px; flex-shrink: 0; width: 140px; }
+  .fu-btn { min-height: 44px; padding: 0 12px; border-radius: 8px; border: 2px solid transparent; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .fu-btn.done { background: var(--positive); color: #052e14; }
+  .fu-btn.done:hover { filter: brightness(1.08); }
+  .fu-btn.todo { background: var(--error); color: #fff; }
+  .fu-btn.todo:hover { filter: brightness(1.1); }
+  .fu-btn.sent, .fu-btn.sent:disabled { background: transparent; border-color: var(--error); color: var(--error); cursor: default; opacity: 1; font-size: 13px; }
+  .fu-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .fu-time { font-size: 11px; color: var(--text-dim); text-align: center; line-height: 1.3; }
+  .fu-empty { color: var(--text-dim); font-size: 14px; padding: 24px 0 4px; text-align: center; }
+
+  /* Small confirmation modal */
+  .modal-backdrop.confirm { align-items: center; z-index: 350; }
+  .modal.modal-sm { max-width: 440px; padding: 22px; }
+  .modal.modal-sm h2 { font-size: 18px; margin-bottom: 8px; }
+  .modal.modal-sm p { margin: 0 0 6px; color: var(--text-dim); font-size: 14px; }
+  .modal.modal-sm p b { color: var(--text); }
+  .confirm-err { min-height: 20px; color: var(--error); font-size: 13px; margin: 8px 0 12px; }
+  .modal.modal-sm .modal-actions .btn { min-height: 44px; padding: 0 18px; font-size: 14px; }
+  .btn.danger { background: var(--error); border-color: var(--error); color: #fff; }
+  .btn.danger:hover { background: var(--error); filter: brightness(1.1); }
+  .btn:disabled { opacity: 0.6; cursor: default; }
+
   @media (max-width: 640px) {
+    .container { padding: 16px 16px 80px; }
     .detail-grid, .photos { grid-template-columns: 1fr; }
     table.recent th.hide-sm, table.recent td.hide-sm { display: none; }
+    .page-header { flex-wrap: wrap; }
+    .status-pill { margin-left: 0; }
+    .fu { padding: 14px 12px 16px; }
+    .fu-you { margin-left: 0; }
+    .fu-act { width: 128px; }
+    .legend .lg[style] { margin-left: 0 !important; }
   }
 </style>
 </head>
@@ -201,6 +265,29 @@
     <h1>Monday Ops Tracker<small>Cook County Cooks · weekly completion checklist</small></h1>
     <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">Loading…</span></div>
   </div>
+
+  <!-- THIS MONDAY: follow-up panel (one status button per store, grouped by district) -->
+  <section class="fu" id="followUp" aria-labelledby="fuTitle">
+    <div class="fu-top">
+      <div class="fu-title">
+        <div class="fu-eyebrow">This Monday</div>
+        <h2 id="fuTitle">—</h2>
+      </div>
+      <div class="fu-total">
+        <div class="num" id="fuTotal">—</div>
+        <div class="fu-bar"><i id="fuBar" style="width:0%"></i></div>
+      </div>
+      <label class="fu-you">You are:
+        <select id="sentBy">
+          <option>Eric Rodriguez</option>
+          <option>Tyler</option>
+          <option>Jeff Bilbrey</option>
+        </select>
+      </label>
+    </div>
+    <p class="fu-note">Stores that haven't submitted by 10:30 AM local get an automatic reminder email. Tap a red button to send a high-priority follow-up now.</p>
+    <div id="fuDistricts"><div class="fu-empty">Loading stores…</div></div>
+  </section>
 
   <div class="stats">
     <div class="stat" id="statThisMonday">
@@ -288,9 +375,148 @@
 <!-- Detail modal -->
 <div class="modal-backdrop" id="modalBackdrop"><div class="modal" id="modalContent"></div></div>
 
+<!-- Follow-up confirmation modal -->
+<div class="modal-backdrop confirm" id="confirmBackdrop">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <h2 id="confirmTitle">Send follow-up?</h2>
+    <p id="confirmText"></p>
+    <div class="confirm-err" id="confirmErr" role="alert"></div>
+    <div class="modal-actions">
+      <button class="btn" id="confirmCancel" type="button">Cancel</button>
+      <button class="btn danger" id="confirmSend" type="button">Send email</button>
+    </div>
+  </div>
+</div>
+
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
+<script>
+/* ============================================================
+ * C3 OPS SHARED — inline this block, unchanged, in every page
+ * (index.html, monday-ops.html, tuesday-phone-tracker.html,
+ *  wednesday-cpe-tracker.html). Single source; keep copies identical.
+ *
+ *  1) Passcode gate. The passcode itself is never in the page —
+ *     only its SHA-256. Unlock is remembered per browser.
+ *  2) District resolver: Admin Panel Directory districts, and any
+ *     store not in the directory = "Heartland".
+ *  3) Notify hook constant (Zapier catch hook for "Incomplete" emails).
+ * ============================================================ */
+const C3 = (() => {
+  const PASS_HASH = "5edf1bee0f44262af31919da79e352c9d3dcb3529c8afbc2b5fb5beb95097097";
+  const UNLOCK_KEY = "c3OpsUnlock";
+  const DIRECTORY_URL = "https://raw.githubusercontent.com/blufoxmobile/Daily-Sales-Report/main/data/store-directory.json";
+  // Zapier catch hook — receives {task, store, date, sentBy, source}. Recipients are looked up server-side.
+  const NOTIFY_HOOK = "https://hooks.zapier.com/hooks/catch/20441079/sDSJgdj0B7VO8rOH/";
+  // Display order of districts on every page. Heartland always last.
+  const DISTRICT_ORDER = ["north-side", "east-side", "west-side", "south-side", "big-south", "heartland"];
+  const HEARTLAND = { id: "heartland", name: "Heartland", dm: "", dmName: "" };
+
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  function isUnlocked() {
+    try { return localStorage.getItem(UNLOCK_KEY) === PASS_HASH; } catch (e) { return false; }
+  }
+
+  // Call FIRST THING at page start: gate(() => { ...start the page... })
+  function gate(onUnlock) {
+    if (isUnlocked()) { document.documentElement.classList.add("c3-unlocked"); onUnlock(); return; }
+    const style = document.createElement("style");
+    style.textContent = `
+      html:not(.c3-unlocked) body > *:not(#c3Gate){visibility:hidden !important}
+      #c3Gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+        background:#0b1220;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding:16px}
+      #c3Gate form{background:#111a2e;border:1px solid #23304d;border-radius:14px;padding:28px 24px;width:100%;max-width:360px;
+        box-shadow:0 20px 60px rgba(0,0,0,.45);text-align:center}
+      #c3Gate h2{margin:0 0 6px;color:#fff;font-size:20px;font-weight:700}
+      #c3Gate p{margin:0 0 18px;color:#9aa6bf;font-size:14px}
+      #c3Gate input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #2b3a5c;
+        background:#0b1220;color:#fff;font-size:16px;outline:none}
+      #c3Gate input:focus{border-color:#4f7cff}
+      #c3Gate button{margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#4f7cff;color:#fff;
+        font-size:15px;font-weight:700;cursor:pointer}
+      #c3Gate .err{color:#ff6b6b;font-size:13px;min-height:18px;margin-top:10px}`;
+    document.head.appendChild(style);
+    const wrap = document.createElement("div");
+    wrap.id = "c3Gate";
+    wrap.innerHTML = `<form autocomplete="off">
+        <h2>C³ Ops Tracker</h2><p>Enter the passcode to continue.</p>
+        <input type="password" id="c3GateInput" placeholder="Passcode" aria-label="Passcode" autofocus>
+        <button type="submit">Unlock</button><div class="err" id="c3GateErr"></div></form>`;
+    const mount = () => { document.body.appendChild(wrap); wrap.querySelector("input").focus(); };
+    document.body ? mount() : document.addEventListener("DOMContentLoaded", mount);
+    wrap.querySelector("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const val = wrap.querySelector("input").value;
+      if (await sha256(val) === PASS_HASH) {
+        try { localStorage.setItem(UNLOCK_KEY, PASS_HASH); } catch (err) {}
+        wrap.remove();
+        document.documentElement.classList.add("c3-unlocked");
+        onUnlock();
+      } else {
+        wrap.querySelector("#c3GateErr").textContent = "That passcode isn't right.";
+        wrap.querySelector("input").select();
+      }
+    });
+  }
+
+  // ---------- Districts ----------
+  let DIR = null;
+  async function loadDirectory() {
+    if (DIR) return DIR;
+    try {
+      const res = await fetch(DIRECTORY_URL + "?t=" + Date.now(), { cache: "no-store" });
+      DIR = await res.json();
+    } catch (e) { DIR = { stores: [], districts: [], storeDistricts: {} }; }
+    return DIR;
+  }
+  // "Uptown", "Uptown Xfinity Store", "uptown-xfinity-store" → "uptown"
+  function key(name) {
+    return String(name || "").toLowerCase().replace(/xfinity store/g, "").replace(/[^a-z0-9]+/g, "");
+  }
+  // Returns the full directory store name for any spelling, or "" if not in directory.
+  function directoryName(name) {
+    const k = key(name);
+    return ((DIR && DIR.stores) || []).find(s => key(s) === k) || "";
+  }
+  // Returns {id, name, dm, dmName}. Not in directory → Heartland.
+  function districtOf(name) {
+    const full = directoryName(name);
+    const id = full && DIR.storeDistricts ? DIR.storeDistricts[full] : "";
+    const d = id && (DIR.districts || []).find(x => x.id === id);
+    return d || HEARTLAND;
+  }
+  // Group an array of store names → [{district, stores:[...]}] in DISTRICT_ORDER, empty districts dropped.
+  function groupByDistrict(storeNames) {
+    const buckets = {};
+    for (const s of storeNames) {
+      const d = districtOf(s);
+      (buckets[d.id] = buckets[d.id] || { district: d, stores: [] }).stores.push(s);
+    }
+    const ids = Object.keys(buckets).sort((a, b) => {
+      const ia = DISTRICT_ORDER.indexOf(a), ib = DISTRICT_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    return ids.map(id => (buckets[id].stores.sort((a, b) => a.localeCompare(b)), buckets[id]));
+  }
+  // Big South stores are on Eastern time; everyone else Central.
+  function timeZoneOf(name) { return districtOf(name).id === "big-south" ? "America/New_York" : "America/Chicago"; }
+
+  // ---------- Notify ----------
+  // task: "monday" | "tuesday" | "wednesday". Sends as text/plain so the browser makes no CORS preflight.
+  async function notify(task, store, date, sentBy) {
+    const body = JSON.stringify({ task, store: directoryName(store) || store, date, sentBy: sentBy || "", source: location.pathname });
+    const res = await fetch(NOTIFY_HOOK, { method: "POST", body });
+    if (!res.ok) throw new Error("Notify failed (" + res.status + ")");
+    return true;
+  }
+
+  return { gate, loadDirectory, key, directoryName, districtOf, groupByDistrict, timeZoneOf, notify, DISTRICT_ORDER };
+})();
+</script>
 <script>
   /* ============================================================
    * CONFIGURATION — must match the form's settings
@@ -345,7 +571,13 @@
   const ANSWER_KEYS = Object.keys(ANSWER_LABELS);
 
   const $ = id => document.getElementById(id);
-  const fmtDateISO = d => d.toISOString().slice(0, 10);
+  // Local calendar date (toISOString() would shift to UTC and can land on the wrong day)
+  const fmtDateISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  // "2026-10-19" → local midnight (new Date("2026-10-19") would be UTC midnight = the evening before in Chicago)
+  function parseLocalDate(s) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || ""));
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s || 0);
+  }
   const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 
   // ----- Date helpers -----
@@ -423,43 +655,50 @@
     if (!res.ok) throw new Error(`Delete ${file._filename}: ${res.status}`);
   }
 
+  // Admin Panel Directory, loaded through the shared C3.loadDirectory() (which also
+  // drives C3.districtOf / C3.groupByDistrict). It caches for the page's lifetime.
   async function loadDirectory() {
-    try {
-      const res = await fetch(CONFIG.DIRECTORY_URL, { cache: "no-store" });
-      if (!res.ok) throw new Error(res.status);
-      const json = await res.json();
-      // Blufox schema: { stores: [string], storeManagerNames: {store:name}, storeManagers: {store:email}, storeDMs: {store:email} }
-      if (json && Array.isArray(json.stores) && json.stores.length && typeof json.stores[0] === "string") {
-        const sM  = json.storeManagers     || {};
-        const sMN = json.storeManagerNames || {};
-        const sDM = json.storeDMs          || {};
-        DIRECTORY = json.stores.map(store => {
-          const dmEmail = sDM[store] || "";
-          const dmName  = dmEmail ? dmEmail.replace(/@.*$/, "") : "";
-          return { store, manager: sMN[store] || "", managerEmail: sM[store] || "", dm: dmName, dmEmail };
-        });
-        return;
-      }
-      // Generic fallback for other JSON shapes
-      let arr = [];
-      if (Array.isArray(json)) arr = json;
-      else if (Array.isArray(json?.data)) arr = json.data;
-      else if (json && typeof json === "object") arr = Object.entries(json).map(([k, v]) => (v && typeof v === "object") ? { store: k, ...v } : { store: k });
-      DIRECTORY = arr.map(e => {
-        if (typeof e === "string") return { store: e, manager: "", managerEmail: "", dm: "", dmEmail: "" };
-        const find = (...names) => {
-          for (const n of names) {
-            for (const k of Object.keys(e)) {
-              if (k.toLowerCase().replace(/[_\s-]/g, "") === n.replace(/[_\s-]/g, "").toLowerCase() && e[k]) return String(e[k]);
-            }
-          }
-          return "";
-        };
-        return { store: find("store","storeName","name","location"), manager: find("manager","managerName","storeManager","sm"), managerEmail: find("managerEmail","email","smEmail"), dm: find("dm","districtManager","dmName"), dmEmail: find("dmEmail","districtManagerEmail") };
-      }).filter(e => e.store);
-    } catch (err) {
-      console.warn("Directory fetch failed, using fallback:", err);
-      DIRECTORY = CONFIG.FALLBACK_STORES.map(s => ({ store: s, manager: "", managerEmail: "", dm: "", dmEmail: "" }));
+    const json = await C3.loadDirectory();
+    // Blufox schema: { stores: [string], storeManagerNames: {store:name}, storeManagers: {store:email}, storeDMs: {store:email}, ... }
+    if (json && Array.isArray(json.stores) && json.stores.length && typeof json.stores[0] === "string") {
+      const sM   = json.storeManagers     || {};
+      const sMN  = json.storeManagerNames || {};
+      const sDM  = json.storeDMs          || {};
+      const sDMN = json.storeDMNames      || {};
+      DIRECTORY = json.stores.map(store => {
+        const dmEmail = sDM[store] || "";
+        const dmName  = sDMN[store] || (dmEmail ? dmEmail.replace(/@.*$/, "") : "");
+        return { store, manager: sMN[store] || "", managerEmail: sM[store] || "", dm: dmName, dmEmail };
+      });
+      return;
+    }
+    console.warn("Directory unavailable, using fallback store list");
+    DIRECTORY = CONFIG.FALLBACK_STORES.map(s => ({ store: s, manager: "", managerEmail: "", dm: "", dmEmail: "" }));
+  }
+
+  // One display name per store: directory spelling wins; submissions for stores not in
+  // the directory are added as-is (they group under Heartland). Matching uses C3.key,
+  // so "Uptown", "Uptown Xfinity Store" and "uptown-xfinity-store" are the same store.
+  function buildStores() {
+    const map = new Map();
+    for (const e of DIRECTORY) { const k = C3.key(e.store); if (k && !map.has(k)) map.set(k, e.store); }
+    for (const s of SUBMISSIONS) { const k = C3.key(s.store); if (k && !map.has(k)) map.set(k, s.store); }
+    STORES = [...map.values()].sort((a, b) => a.localeCompare(b));
+  }
+
+  // store-key|week-Monday → latest submission. A submission counts for the week its
+  // date falls in, so a late (Tuesday) submission still fills that week's Monday.
+  let SUB_INDEX = new Map();
+  function reindex() {
+    SUB_INDEX = new Map();
+    for (const s of SUBMISSIONS) {
+      s._k = C3.key(s.store);
+      const d = parseLocalDate(s.date || s.submittedAt);
+      if (isNaN(d)) continue;
+      s._week = fmtDateISO(startOfWeekMonday(d));
+      const id = s._k + "|" + s._week;
+      const prev = SUB_INDEX.get(id);
+      if (!prev || (s.submittedAt || "") > (prev.submittedAt || "")) SUB_INDEX.set(id, s);
     }
   }
 
@@ -489,9 +728,7 @@
       });
 
       // Build canonical store list: directory first, then any extras from submissions
-      const fromDir = DIRECTORY.map(e => e.store);
-      const fromSubs = [...new Set(SUBMISSIONS.map(s => s.store).filter(Boolean))];
-      STORES = [...new Set([...fromDir, ...fromSubs])].sort();
+      buildStores();
 
       setStatus("ok", `Last refreshed ${new Date().toLocaleTimeString()} · ${SUBMISSIONS.length} submissions · ${STORES.length} stores`);
 
@@ -545,16 +782,40 @@
 
   // ----- Helpers -----
   function submissionFor(store, mondayISO) {
-    return SUBMISSIONS.find(s => s.store === store && s.date === mondayISO);
+    return SUB_INDEX.get(C3.key(store) + "|" + mondayISO);
+  }
+  const shortName = s => String(s || "").replace(/\s*xfinity store\s*$/i, "").trim() || String(s || "");
+  function directoryEntry(store) {
+    const k = C3.key(store);
+    return DIRECTORY.find(e => C3.key(e.store) === k);
+  }
+  function latestSubmission(store) {
+    const k = C3.key(store);
+    return SUBMISSIONS.filter(s => s._k === k).sort((a, b) => (b.submittedAt || b.date || "").localeCompare(a.submittedAt || a.date || ""))[0];
+  }
+  function managerOf(store) {
+    const e = directoryEntry(store);
+    if (e && e.manager) return e.manager;
+    const s = latestSubmission(store);
+    return (s && s.name) || "";
+  }
+  // Store name cell + optional district header rows for the grid tables
+  function districtHeaderRow(group, colspan) {
+    const d = group.district, n = group.stores.length;
+    return `<tr class="district-row"><td colspan="${colspan}"><div class="dr-in">
+      <span class="dr-name">${escapeHtml(d.name)}</span>
+      <span class="dr-dm">${escapeHtml(d.dmName || "No district manager")}</span>
+      <span class="dr-n">${n} store${n === 1 ? "" : "s"}</span></div></td></tr>`;
   }
   function isAllYes(s) {
     const a = s?.answers || {};
     return ANSWER_KEYS.every(k => a[k] === "Yes");
   }
   function storeStatus(store) {
-    const subs = SUBMISSIONS.filter(s => s.store === store).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    const k = C3.key(store);
+    const subs = SUBMISSIONS.filter(s => s._k === k).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     if (!subs.length) return "missed";
-    const last = new Date(subs[0].date || subs[0].submittedAt);
+    const last = parseLocalDate(subs[0].date || subs[0].submittedAt);
     const days = Math.floor((TODAY - last) / 86400000);
     if (days <= 7) return "active";
     if (days <= 21) return "stale";
@@ -570,12 +831,13 @@
   function renderStats() {
     const todayMonday = startOfWeekMonday(new Date());
     const todayMondayISO = fmtDateISO(todayMonday);
-    const thisWeekSubs = SUBMISSIONS.filter(s => s.date === todayMondayISO);
+    // One (latest) submission per store for this week
+    const thisWeekSubs = STORES.map(st => submissionFor(st, todayMondayISO)).filter(Boolean);
     const thisWeekAllYes = thisWeekSubs.filter(isAllYes).length;
     const missingThisWeek = STORES.length - thisWeekSubs.length;
 
     const mtd = SUBMISSIONS.filter(s => {
-      const d = new Date(s.date || 0);
+      const d = parseLocalDate(s.date || 0);
       return d.getFullYear() === TODAY.getFullYear() && d.getMonth() === TODAY.getMonth();
     });
     const allYesYear = SUBMISSIONS.filter(isAllYes).length;
@@ -613,9 +875,11 @@
     for (const m of mondays) html += `<th>Mon ${dayMonth(m)}</th>`;
     html += "<th class='status-cell'>Month</th></tr></thead><tbody>";
 
-    for (const store of stores) {
+    for (const group of C3.groupByDistrict(stores)) {
+     html += districtHeaderRow(group, mondays.length + 2);
+     for (const store of group.stores) {
       const status = storeStatus(store);
-      html += `<tr><td class="store-name ${status}">${escapeHtml(store)}</td>`;
+      html += `<tr><td class="store-name ${status}" title="${escapeHtml(store)}">${escapeHtml(shortName(store))}</td>`;
       let completed = 0, partial = 0, possible = 0;
       for (const m of mondays) {
         const iso = fmtDateISO(m);
@@ -636,6 +900,7 @@
       }
       const score = possible ? `${completed}/${possible}${partial ? ` (+${partial}p)` : ""}` : "—";
       html += `<td class="status-cell">${escapeHtml(score)}</td></tr>`;
+     }
     }
     html += "</tbody>";
     table.innerHTML = html;
@@ -665,9 +930,11 @@
     for (const m of months) html += `<th>${monthShort(m)}</th>`;
     html += "<th class='status-cell'>Avg</th></tr></thead><tbody>";
 
-    for (const store of stores) {
+    for (const group of C3.groupByDistrict(stores)) {
+     html += districtHeaderRow(group, months.length + 2);
+     for (const store of group.stores) {
       const status = storeStatus(store);
-      html += `<tr><td class="store-name ${status}">${escapeHtml(store)}</td>`;
+      html += `<tr><td class="store-name ${status}" title="${escapeHtml(store)}">${escapeHtml(shortName(store))}</td>`;
       let rateTotal = 0, rateCount = 0;
       for (const m of months) {
         const mondays = mondaysInMonth(m.getFullYear(), m.getMonth());
@@ -683,11 +950,12 @@
           const pct = Math.round((completed / past.length) * 100);
           rateTotal += pct; rateCount++;
           const bucket = pct === 0 ? 0 : pct < 26 ? 25 : pct < 51 ? 50 : pct < 76 ? 75 : 100;
-          html += `<td class="heat-cell heat-${bucket}" title="${store} · ${monthShort(m)} · ${completed}/${past.length} all-yes">${pct}%</td>`;
+          html += `<td class="heat-cell heat-${bucket}" title="${escapeHtml(store)} · ${monthShort(m)} · ${completed}/${past.length} all-yes">${pct}%</td>`;
         }
       }
       const avg = rateCount ? Math.round(rateTotal / rateCount) : 0;
       html += `<td class="status-cell">${avg}%</td></tr>`;
+     }
     }
     html += "</tbody>";
     table.innerHTML = html;
@@ -706,7 +974,7 @@
       return;
     }
     let html = `<table class="recent"><thead><tr>
-      <th>Date</th><th>Store</th><th>Manager</th><th class="hide-sm">DM</th>
+      <th>Date</th><th>Store</th><th class="hide-sm">District</th><th>Manager</th><th class="hide-sm">DM</th>
       <th class="hide-sm">Answers</th><th>Status</th><th class="hide-sm">Submitted</th>
     </tr></thead><tbody>`;
     for (const s of list) {
@@ -719,6 +987,7 @@
       html += `<tr class="row" data-idx="${idx}">
         <td>${escapeHtml(s.date || "")}</td>
         <td>${escapeHtml(s.store || "")}</td>
+        <td class="hide-sm dist">${escapeHtml(C3.districtOf(s.store).name)}</td>
         <td>${escapeHtml(s.name || "")}</td>
         <td class="hide-sm">${escapeHtml(s.dm || "")}</td>
         <td class="hide-sm">${dots}</td>
@@ -733,7 +1002,133 @@
     });
   }
 
-  function renderAll() { renderStats(); renderWeekly(); renderMonthly(); renderRecent(); }
+  // ----- "This Monday" follow-up panel -----
+  const SENTBY_KEY = "c3OpsSentBy";
+  const NOTIFIED_MEM = {};               // in-session fallback when localStorage is blocked
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  const thisMondayISO = () => fmtDateISO(startOfWeekMonday(new Date()));
+  const notifiedKey = (store, iso) => `c3Notified:monday:${iso}:${C3.key(store)}`;
+  function notifiedAt(store, iso) {
+    const k = notifiedKey(store, iso);
+    return NOTIFIED_MEM[k] || lsGet(k) || "";
+  }
+  function fmtClock(iso, timeZone) {
+    const d = new Date(iso);
+    if (isNaN(d)) return "";
+    try { return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone }); }
+    catch (e) { return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); }
+  }
+  function getSentBy() { return $("sentBy").value || ""; }
+
+  function renderFollowUp() {
+    const monday = startOfWeekMonday(new Date());
+    const iso = fmtDateISO(monday);
+    $("fuTitle").textContent = monday.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    const wrap = $("fuDistricts");
+    if (!STORES.length) {
+      wrap.innerHTML = `<div class="fu-empty">No stores to show.</div>`;
+      $("fuTotal").innerHTML = "—"; $("fuBar").style.width = "0%";
+      return;
+    }
+    let doneAll = 0;
+    const html = C3.groupByDistrict(STORES).map(group => {
+      const d = group.district;
+      let done = 0;
+      const tiles = group.stores.map(store => {
+        const sub = submissionFor(store, iso);
+        const mgr = managerOf(store);
+        let act;
+        if (sub) {
+          done++;
+          const tz = C3.timeZoneOf(store);
+          const t = sub.submittedAt ? fmtClock(sub.submittedAt, tz) : "";
+          act = `<button class="fu-btn done" type="button" data-act="open" data-store="${escapeHtml(store)}" aria-label="${escapeHtml(shortName(store))}: complete, view submission">✓ Complete</button>
+                 <div class="fu-time">${t ? `Submitted ${escapeHtml(t)} ${tz === "America/New_York" ? "ET" : "CT"}` : "Submitted"}</div>`;
+        } else {
+          const sentAt = notifiedAt(store, iso);
+          act = sentAt
+            ? `<button class="fu-btn sent" type="button" disabled title="Follow-up already sent from this browser">Notified · ${escapeHtml(fmtClock(sentAt))}</button>`
+            : `<button class="fu-btn todo" type="button" data-act="notify" data-store="${escapeHtml(store)}" aria-label="${escapeHtml(shortName(store))}: incomplete, send follow-up">Incomplete</button>`;
+        }
+        return `<div class="fu-store">
+            <div class="who"><div class="sn" title="${escapeHtml(store)}">${escapeHtml(shortName(store))}</div>
+              <div class="mn">${escapeHtml(mgr || "Manager not listed")}</div></div>
+            <div class="fu-act">${act}</div></div>`;
+      }).join("");
+      doneAll += done;
+      const n = group.stores.length;
+      return `<div class="fu-district" data-district="${escapeHtml(d.id)}">
+          <div class="fu-dhead"><span class="dn">${escapeHtml(d.name)}</span>
+            <span class="dm">${escapeHtml(d.dmName || "No district manager")}</span>
+            <span class="dc${done === n ? " all" : ""}">${done} of ${n} complete</span></div>
+          <div class="fu-grid">${tiles}</div></div>`;
+    }).join("");
+    wrap.innerHTML = html;
+    $("fuTotal").innerHTML = `${doneAll} of ${STORES.length}<small>complete</small>`;
+    $("fuBar").style.width = Math.round((doneAll / STORES.length) * 100) + "%";
+  }
+
+  $("fuDistricts").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    const store = btn.dataset.store;
+    if (btn.dataset.act === "open") openDetail(submissionFor(store, thisMondayISO()));
+    else if (btn.dataset.act === "notify") openConfirm(store);
+  });
+
+  // Confirmation modal → C3.notify
+  let PENDING = null, SENDING = false;
+  function openConfirm(store) {
+    PENDING = { store, iso: thisMondayISO() };
+    $("confirmText").innerHTML = `Send a high-priority follow-up to <b>${escapeHtml(store)}</b>? It goes to the store manager, ASM, district manager and Eric, from Jeff.`;
+    $("confirmErr").textContent = "";
+    $("confirmSend").disabled = false;
+    $("confirmSend").textContent = "Send email";
+    $("confirmBackdrop").classList.add("show");
+    $("confirmCancel").focus();
+  }
+  function closeConfirm() {
+    if (SENDING) return;
+    $("confirmBackdrop").classList.remove("show");
+    PENDING = null;
+  }
+  async function sendFollowUp() {
+    if (!PENDING || SENDING) return;
+    const { store, iso } = PENDING;
+    SENDING = true;
+    $("confirmSend").disabled = true; $("confirmCancel").disabled = true;
+    $("confirmSend").textContent = "Sending…";
+    $("confirmErr").textContent = "";
+    try {
+      await C3.notify("monday", store, iso, getSentBy());
+      const at = new Date().toISOString();
+      NOTIFIED_MEM[notifiedKey(store, iso)] = at;
+      lsSet(notifiedKey(store, iso), at);
+      SENDING = false; $("confirmCancel").disabled = false;
+      closeConfirm();
+      renderFollowUp();
+    } catch (err) {
+      console.warn("Follow-up failed:", err);
+      SENDING = false; $("confirmCancel").disabled = false;
+      $("confirmSend").disabled = false;
+      $("confirmSend").textContent = "Try again";
+      $("confirmErr").textContent = "The email didn't go out. Check your connection and try again.";
+    }
+  }
+  $("confirmSend").onclick = sendFollowUp;
+  $("confirmCancel").onclick = closeConfirm;
+  $("confirmBackdrop").addEventListener("click", e => { if (e.target === $("confirmBackdrop")) closeConfirm(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && $("confirmBackdrop").classList.contains("show")) closeConfirm(); });
+
+  // "You are:" picker — remembered per browser
+  (() => {
+    const saved = lsGet(SENTBY_KEY);
+    if (saved && [...$("sentBy").options].some(o => o.value === saved)) $("sentBy").value = saved;
+    $("sentBy").addEventListener("change", () => lsSet(SENTBY_KEY, $("sentBy").value));
+  })();
+
+  function renderAll() { reindex(); renderFollowUp(); renderStats(); renderWeekly(); renderMonthly(); renderRecent(); }
 
   // ----- Detail modal -----
   const PHOTO_SECTIONS = [
@@ -850,20 +1245,18 @@
       try {
         const json = JSON.parse(await f.text());
         json._filename = f.name;
-        const idx = SUBMISSIONS.findIndex(s => s.store === json.store && s.date === json.date);
+        const idx = SUBMISSIONS.findIndex(s => C3.key(s.store) === C3.key(json.store) && s.date === json.date);
         if (idx >= 0) SUBMISSIONS[idx] = json; else SUBMISSIONS.push(json);
       } catch (err) { console.warn("Bad JSON:", f.name, err); }
     }
     e.target.value = "";
     // Refresh store list with any new stores
-    const fromDir = DIRECTORY.map(e => e.store);
-    const fromSubs = [...new Set(SUBMISSIONS.map(s => s.store).filter(Boolean))];
-    STORES = [...new Set([...fromDir, ...fromSubs])].sort();
+    buildStores();
     renderAll();
   });
 
-  // Initial load
-  loadAll();
+  // Initial load — only once the passcode gate is unlocked
+  C3.gate(() => { loadAll(); });
 </script>
 </body>
 </html>

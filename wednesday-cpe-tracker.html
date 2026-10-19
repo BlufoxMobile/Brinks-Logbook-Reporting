@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<style id="c3GatePre">html:not(.c3-unlocked) body > *:not(#c3Gate){visibility:hidden !important}html:not(.c3-unlocked) body{background:#0b1220}</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wednesday CPE Count Tracker</title>
@@ -142,6 +143,85 @@
     .detail-grid { grid-template-columns: 1fr; }
     table.recent th.hide-sm, table.recent td.hide-sm { display: none; }
   }
+
+  /* ---------- District header rows (weekly + monthly grids) ---------- */
+  table.grid tr.district-row td { background: var(--surface-2); border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border); color: var(--text-dim); font-size: 12px; font-weight: 600; }
+  table.grid tr.district-row td.store-name { background: var(--surface-2); padding-top: 8px; padding-bottom: 8px; }
+  table.grid tbody tr.district-row:hover td, table.grid tbody tr.district-row:hover td.store-name { background: var(--surface-2); }
+  table.grid tbody tr.district-row:first-child td { border-top: none; }
+  table.grid tr.district-row td.dist-all { color: var(--positive); }
+  table.grid tr.district-row td.dist-none { color: var(--text-faint); }
+  table.grid tr.store-row td.store-name { padding-left: 26px; }
+  .district-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .district-meta { font-size: 11px; font-weight: 400; color: var(--text-dim); line-height: 1.3; margin-top: 1px; }
+  .stores-table tr.dist-sub td { background: #0b0b0b; color: var(--text-dim); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding-top: 6px; padding-bottom: 6px; }
+
+  /* ---------- Follow-up panel ---------- */
+  .fu { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+  .fu-head { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; padding: 16px 18px; background: #060606; border-bottom: 1px solid var(--border); }
+  .fu-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent); }
+  .fu-date { font-size: 18px; font-weight: 700; line-height: 1.25; margin-top: 2px; }
+  .fu-progress { flex: 1 1 220px; min-width: 0; }
+  .fu-count { font-size: 13px; color: var(--text-dim); margin-bottom: 7px; }
+  .fu-count b { color: var(--text); font-size: 16px; font-variant-numeric: tabular-nums; }
+  .fu-count .fu-sub { color: var(--text-faint); }
+  .fu-bar { height: 6px; background: var(--surface-3); border-radius: 999px; overflow: hidden; }
+  .fu-bar span { display: block; height: 100%; width: 0; background: var(--positive); border-radius: 999px; transition: width 0.25s; }
+  .fu-who { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-dim); }
+  .fu-who select { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0 10px; min-height: 40px; font-size: 14px; font-family: inherit; font-weight: 600; cursor: pointer; }
+  .fu-who select:focus { outline: none; border-color: var(--border-strong); }
+  .fu-who.need select { border-color: var(--error); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.22); }
+  .fu-who-msg { flex-basis: 100%; margin-top: -6px; font-size: 13px; font-weight: 600; color: var(--error); }
+  .fu-who-msg[hidden] { display: none; }
+  .fu-dist { display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; padding: 10px 18px; background: var(--surface-2); border-top: 1px solid var(--border-strong); }
+  .fu-dist:first-child { border-top: none; }
+  .fu-dist .nm { font-size: 13px; font-weight: 700; }
+  .fu-dist .dm { font-size: 12px; color: var(--text-dim); }
+  .fu-dist .ct { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--text-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fu-dist .ct.all { color: var(--positive); }
+  .fu-row { display: flex; align-items: center; gap: 8px 14px; padding: 10px 18px; border-top: 1px solid var(--surface-2); }
+  .fu-dist + .fu-row { border-top: none; }
+  .fu-row.is-complete { background: rgba(74, 222, 128, 0.035); }
+  .fu-store { flex: 1; min-width: 0; }
+  .fu-store .nm { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .fu-store .ppl { font-size: 12px; color: var(--text-dim); line-height: 1.4; margin-top: 1px; }
+  .fu-store .ppl span { white-space: nowrap; }
+  .fu-store .ppl .missing { color: var(--text-faint); }
+  .fu-ctl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .fu-btn { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid transparent; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; transition: opacity 0.12s, background 0.12s; }
+  .fu-btn.complete { background: var(--positive); color: #000; min-width: 150px; }
+  .fu-btn.incomplete { background: var(--error); color: #fff; min-width: 150px; }
+  .fu-btn.notified { background: transparent; color: var(--error); border-color: var(--error); min-width: 150px; cursor: default; }
+  .fu-btn.mark { background: transparent; color: var(--positive); border-color: var(--positive); min-width: 132px; }
+  .fu-btn.mark:hover { background: rgba(74, 222, 128, 0.1); }
+  .fu-btn.complete:hover, .fu-btn.incomplete:hover { opacity: 0.9; }
+  .fu-btn:disabled { opacity: 0.55; cursor: progress; }
+  .fu-tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(251, 191, 36, 0.15); color: var(--warning); white-space: nowrap; }
+  .fu-err { flex-basis: 100%; font-size: 12px; font-weight: 600; color: var(--error); }
+  .fu-empty { padding: 28px 18px; text-align: center; color: var(--text-dim); font-size: 14px; }
+  @media (max-width: 640px) {
+    .page-header { flex-wrap: wrap; }
+    .page-header h1 { flex: 1; min-width: 0; }
+    .status-pill { margin-left: 0; width: 100%; }
+    .fu-head { padding: 14px; }
+    .fu-who { width: 100%; }
+    .fu-who select { flex: 1; }
+    .fu-dist { padding: 10px 14px; }
+    .fu-row { flex-wrap: wrap; padding: 12px 14px; }
+    .fu-ctl { width: 100%; }
+    .fu-ctl .fu-btn { flex: 1 1 0; min-width: 0; padding: 0 10px; }
+  }
+
+  /* Small confirm modal (follow-up + undo) */
+  .modal.sm { max-width: 440px; padding: 22px; }
+  .modal.sm h2 { font-size: 18px; }
+  .modal.sm p { margin: 0 0 18px; color: var(--text-dim); font-size: 14px; }
+  .modal.sm p b { color: var(--text); }
+  .modal.sm .modal-err { margin: -6px 0 14px; font-size: 13px; font-weight: 600; color: var(--error); }
+  .modal.sm .modal-actions .btn { min-height: 44px; padding: 0 18px; font-size: 14px; }
+  .btn.danger { background: var(--error); color: #fff; border-color: var(--error); }
+  .btn.danger:hover { background: var(--error); opacity: 0.9; }
+  .btn:disabled { opacity: 0.55; cursor: progress; }
 </style>
 </head>
 <body>
@@ -160,6 +240,24 @@
     <h1>Wednesday CPE Count Tracker<small>Cook County Cooks · weekly CPE count audit</small></h1>
     <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">Loading…</span></div>
   </div>
+
+  <section class="fu" id="followUp" aria-labelledby="fuTitle">
+    <div class="fu-head">
+      <div class="fu-when">
+        <div class="fu-title" id="fuTitle">Follow-up</div>
+        <div class="fu-date" id="fuDate">—</div>
+      </div>
+      <div class="fu-progress">
+        <div class="fu-count" id="fuCount">Loading stores…</div>
+        <div class="fu-bar"><span id="fuBar"></span></div>
+      </div>
+      <label class="fu-who" id="fuWho">You are:
+        <select id="fuUser" aria-label="You are"><option value="">Choose…</option></select>
+      </label>
+      <div class="fu-who-msg" id="fuWhoMsg" role="alert" hidden></div>
+    </div>
+    <div id="fuBody"><div class="fu-empty">Loading stores…</div></div>
+  </section>
 
   <div class="stats">
     <div class="stat" id="statThisWeek">
@@ -240,7 +338,134 @@
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop"><div class="modal" id="modalContent"></div></div>
+<div class="modal-backdrop" id="fuModalBackdrop"><div class="modal sm" id="fuModal" role="dialog" aria-modal="true" aria-labelledby="fuModalTitle"></div></div>
 
+<script>
+/* ============================================================
+ * C3 OPS SHARED — inline this block, unchanged, in every page
+ * (index.html, monday-ops.html, tuesday-phone-tracker.html,
+ *  wednesday-cpe-tracker.html). Single source; keep copies identical.
+ *
+ *  1) Passcode gate. The passcode itself is never in the page —
+ *     only its SHA-256. Unlock is remembered per browser.
+ *  2) District resolver: Admin Panel Directory districts, and any
+ *     store not in the directory = "Heartland".
+ *  3) Notify hook constant (Zapier catch hook for "Incomplete" emails).
+ * ============================================================ */
+const C3 = (() => {
+  const PASS_HASH = "5edf1bee0f44262af31919da79e352c9d3dcb3529c8afbc2b5fb5beb95097097";
+  const UNLOCK_KEY = "c3OpsUnlock";
+  const DIRECTORY_URL = "https://raw.githubusercontent.com/blufoxmobile/Daily-Sales-Report/main/data/store-directory.json";
+  // Zapier catch hook — receives {task, store, date, sentBy, source}. Recipients are looked up server-side.
+  const NOTIFY_HOOK = "https://hooks.zapier.com/hooks/catch/20441079/sDSJgdj0B7VO8rOH/";
+  // Display order of districts on every page. Heartland always last.
+  const DISTRICT_ORDER = ["north-side", "east-side", "west-side", "south-side", "big-south", "heartland"];
+  const HEARTLAND = { id: "heartland", name: "Heartland", dm: "", dmName: "" };
+
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  function isUnlocked() {
+    try { return localStorage.getItem(UNLOCK_KEY) === PASS_HASH; } catch (e) { return false; }
+  }
+
+  // Call FIRST THING at page start: gate(() => { ...start the page... })
+  function gate(onUnlock) {
+    if (isUnlocked()) { document.documentElement.classList.add("c3-unlocked"); onUnlock(); return; }
+    const style = document.createElement("style");
+    style.textContent = `
+      html:not(.c3-unlocked) body > *:not(#c3Gate){visibility:hidden !important}
+      #c3Gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+        background:#0b1220;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding:16px}
+      #c3Gate form{background:#111a2e;border:1px solid #23304d;border-radius:14px;padding:28px 24px;width:100%;max-width:360px;
+        box-shadow:0 20px 60px rgba(0,0,0,.45);text-align:center}
+      #c3Gate h2{margin:0 0 6px;color:#fff;font-size:20px;font-weight:700}
+      #c3Gate p{margin:0 0 18px;color:#9aa6bf;font-size:14px}
+      #c3Gate input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #2b3a5c;
+        background:#0b1220;color:#fff;font-size:16px;outline:none}
+      #c3Gate input:focus{border-color:#4f7cff}
+      #c3Gate button{margin-top:12px;width:100%;padding:12px;border:0;border-radius:10px;background:#4f7cff;color:#fff;
+        font-size:15px;font-weight:700;cursor:pointer}
+      #c3Gate .err{color:#ff6b6b;font-size:13px;min-height:18px;margin-top:10px}`;
+    document.head.appendChild(style);
+    const wrap = document.createElement("div");
+    wrap.id = "c3Gate";
+    wrap.innerHTML = `<form autocomplete="off">
+        <h2>C³ Ops Tracker</h2><p>Enter the passcode to continue.</p>
+        <input type="password" id="c3GateInput" placeholder="Passcode" aria-label="Passcode" autofocus>
+        <button type="submit">Unlock</button><div class="err" id="c3GateErr"></div></form>`;
+    const mount = () => { document.body.appendChild(wrap); wrap.querySelector("input").focus(); };
+    document.body ? mount() : document.addEventListener("DOMContentLoaded", mount);
+    wrap.querySelector("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const val = wrap.querySelector("input").value;
+      if (await sha256(val) === PASS_HASH) {
+        try { localStorage.setItem(UNLOCK_KEY, PASS_HASH); } catch (err) {}
+        wrap.remove();
+        document.documentElement.classList.add("c3-unlocked");
+        onUnlock();
+      } else {
+        wrap.querySelector("#c3GateErr").textContent = "That passcode isn't right.";
+        wrap.querySelector("input").select();
+      }
+    });
+  }
+
+  // ---------- Districts ----------
+  let DIR = null;
+  async function loadDirectory() {
+    if (DIR) return DIR;
+    try {
+      const res = await fetch(DIRECTORY_URL + "?t=" + Date.now(), { cache: "no-store" });
+      DIR = await res.json();
+    } catch (e) { DIR = { stores: [], districts: [], storeDistricts: {} }; }
+    return DIR;
+  }
+  // "Uptown", "Uptown Xfinity Store", "uptown-xfinity-store" → "uptown"
+  function key(name) {
+    return String(name || "").toLowerCase().replace(/xfinity store/g, "").replace(/[^a-z0-9]+/g, "");
+  }
+  // Returns the full directory store name for any spelling, or "" if not in directory.
+  function directoryName(name) {
+    const k = key(name);
+    return ((DIR && DIR.stores) || []).find(s => key(s) === k) || "";
+  }
+  // Returns {id, name, dm, dmName}. Not in directory → Heartland.
+  function districtOf(name) {
+    const full = directoryName(name);
+    const id = full && DIR.storeDistricts ? DIR.storeDistricts[full] : "";
+    const d = id && (DIR.districts || []).find(x => x.id === id);
+    return d || HEARTLAND;
+  }
+  // Group an array of store names → [{district, stores:[...]}] in DISTRICT_ORDER, empty districts dropped.
+  function groupByDistrict(storeNames) {
+    const buckets = {};
+    for (const s of storeNames) {
+      const d = districtOf(s);
+      (buckets[d.id] = buckets[d.id] || { district: d, stores: [] }).stores.push(s);
+    }
+    const ids = Object.keys(buckets).sort((a, b) => {
+      const ia = DISTRICT_ORDER.indexOf(a), ib = DISTRICT_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    return ids.map(id => (buckets[id].stores.sort((a, b) => a.localeCompare(b)), buckets[id]));
+  }
+  // Big South stores are on Eastern time; everyone else Central.
+  function timeZoneOf(name) { return districtOf(name).id === "big-south" ? "America/New_York" : "America/Chicago"; }
+
+  // ---------- Notify ----------
+  // task: "monday" | "tuesday" | "wednesday". Sends as text/plain so the browser makes no CORS preflight.
+  async function notify(task, store, date, sentBy) {
+    const body = JSON.stringify({ task, store: directoryName(store) || store, date, sentBy: sentBy || "", source: location.pathname });
+    const res = await fetch(NOTIFY_HOOK, { method: "POST", body });
+    if (!res.ok) throw new Error("Notify failed (" + res.status + ")");
+    return true;
+  }
+
+  return { gate, loadDirectory, key, directoryName, districtOf, groupByDistrict, timeZoneOf, notify, DISTRICT_ORDER };
+})();
+</script>
 <script>
   /* ============================================================
    * CONFIGURATION
@@ -254,6 +479,12 @@
     DAY_LABEL: "Wednesday",
     NEW_LINK: "counts-checklist.html#wednesday",
     PAGE_TITLE: "Wednesday CPE Count",
+    TASK: "wednesday",      // Worker "day" + C3.notify task
+    SHOW_ASM: true,        // Wednesday shows the ASM too (they usually do the CPE count)
+
+    // Follow-up panel: "Mark complete" / undo write the day file through this Worker.
+    CHECKLIST_ENDPOINT: "https://brinks-pickup-orchestrator.jeff-bilbrey-jb.workers.dev/checklist",
+    FOLLOWUP_USERS: ["Eric Rodriguez", "Tyler", "Jeff Bilbrey"],
 
     DIRECTORY_URL: "https://raw.githubusercontent.com/blufoxmobile/Daily-Sales-Report/main/data/store-directory.json",
 
@@ -272,7 +503,11 @@
   /* ============================================================ */
 
   const $ = id => document.getElementById(id);
-  const fmtDateISO = d => d.toISOString().slice(0, 10);
+  // LOCAL ISO date (toISOString is UTC and can roll to the wrong day).
+  const fmtDateISO = d => {
+    d = new Date(d);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
   const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 
   function thisOrLast(d, dayOfWeek) {
@@ -337,22 +572,40 @@
     if (!res.ok) throw new Error(`Delete ${file._filename}: ${res.status}`);
   }
 
+  // Store list + districts come from the shared Admin Panel Directory loader (C3).
+  let DIRECTORY = null;   // raw directory JSON (managers, ASMs, districts…)
+  let DIR_STORES = [];    // directory store names
   async function loadDirectory() {
     try {
-      const res = await fetch(CONFIG.DIRECTORY_URL, { cache: "no-store" });
-      if (!res.ok) throw new Error(res.status);
-      const json = await res.json();
-      if (json && Array.isArray(json.stores) && typeof json.stores[0] === "string") {
-        STORES = json.stores.slice();
-      } else if (Array.isArray(json)) {
-        STORES = json.map(s => typeof s === "string" ? s : (s.store || s.name || "")).filter(Boolean);
-      }
+      DIRECTORY = await C3.loadDirectory();
+      DIR_STORES = Array.isArray(DIRECTORY && DIRECTORY.stores) ? DIRECTORY.stores.filter(s => typeof s === "string" && s) : [];
     } catch (err) {
       console.warn("Directory fetch failed, fallback:", err);
+      DIR_STORES = [];
     }
-    if (!STORES.length) STORES = CONFIG.FALLBACK_STORES.slice();
+    STORES = DIR_STORES.length ? DIR_STORES.slice() : CONFIG.FALLBACK_STORES.slice();
     STORES.sort();
   }
+  // Any spelling ("Uptown", "Uptown Xfinity Store") → the directory's name when it has one.
+  const canonical = name => C3.directoryName(name) || name;
+  function uniqByKey(arr) {
+    const seen = new Set();
+    return arr.filter(s => { const k = C3.key(s); if (!k || seen.has(k)) return false; seen.add(k); return true; });
+  }
+  // The key a submission's store map uses for this store (exact, else same C3.key), or null.
+  function findKey(map, store) {
+    if (!map) return null;
+    if (Object.prototype.hasOwnProperty.call(map, store)) return store;
+    const k = C3.key(store);
+    for (const n of Object.keys(map)) if (C3.key(n) === k) return n;
+    return null;
+  }
+  function statusIn(sub, store) {
+    const m = sub && sub.stores;
+    const k = findKey(m, store);
+    return k === null ? undefined : m[k];
+  }
+  const isComplete = v => v === "accurate" || v === "inconsistencies";
 
   async function loadAll() {
     setStatus("info", "Loading submissions…");
@@ -373,13 +626,16 @@
         return !isNaN(d) && d >= RETENTION_CUTOFF;
       });
       // Pick up any extra store names that showed up in submissions
-      const extras = new Set();
+      // (matched to the directory spelling so one store never shows twice).
+      const extras = [];
       for (const s of SUBMISSIONS) {
         if (s.stores && typeof s.stores === "object") {
-          for (const k of Object.keys(s.stores)) extras.add(k);
+          for (const k of Object.keys(s.stores)) extras.push(canonical(k));
         }
       }
-      STORES = [...new Set([...STORES, ...extras])].sort();
+      STORES = uniqByKey([...STORES, ...extras]).sort();
+      // The follow-up panel needs the target day as it is right now, not the CDN copy.
+      await refreshTargetDay();
 
       setStatus("ok", `Last refreshed ${new Date().toLocaleTimeString()} · ${SUBMISSIONS.length} submissions · ${STORES.length} stores`);
       if (CONFIG.GITHUB_TOKEN) $("cleanupBtn").style.display = "";
@@ -427,15 +683,21 @@
   function submissionFor(iso) { return SUBMISSIONS.find(s => s.date === iso); }
   function storeStatus(store) {
     // Find latest submission with this store
-    const subs = SUBMISSIONS.filter(s => s.stores && (store in s.stores)).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    const subs = SUBMISSIONS.filter(s => statusIn(s, store) !== undefined).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     if (!subs.length) return "missed";
-    const v = subs[0].stores[store];
+    const v = statusIn(subs[0], store);
     const last = new Date(subs[0].date);
     const days = Math.floor((TODAY - last) / 86400000);
     if (v === "not_done") return "missed";
     if (days <= 7) return "active";
     if (days <= 21) return "stale";
     return "missed";
+  }
+  // First cell of a district header row in the weekly / monthly grids.
+  function districtLabelCell(group) {
+    const d = group.district, n = group.stores.length;
+    const meta = (d.dmName ? escapeHtml(d.dmName) + " · " : "") + `${n} store${n === 1 ? "" : "s"}`;
+    return `<td class="store-name"><div class="district-name">${escapeHtml(d.name)}</div><div class="district-meta">${meta}</div></td>`;
   }
   function searchTerm() { return ($("search").value || "").trim().toLowerCase(); }
   function visibleStores() {
@@ -495,32 +757,43 @@
     for (const d of days) html += `<th>${CONFIG.DAY_LABEL.slice(0,3)} ${dayMonth(d)}</th>`;
     html += "<th class='status-cell'>Month</th></tr></thead><tbody>";
 
-    for (const store of stores) {
-      const status = storeStatus(store);
-      html += `<tr><td class="store-name ${status}">${escapeHtml(store)}</td>`;
-      let accCount = 0, incCount = 0, possible = 0;
+    for (const group of C3.groupByDistrict(stores)) {
+      // District header row: counted / stores for each day.
+      let distCells = "";
       for (const d of days) {
-        const iso = fmtDateISO(d);
-        const isFuture = d > today;
-        if (!isFuture) possible++;
-        const sub = submissionFor(iso);
-        const storeStatusVal = sub ? (sub.stores || {})[store] : null;
-        if (isFuture) {
-          html += `<td class="cell future">·</td>`;
-        } else if (!sub || !storeStatusVal || storeStatusVal === "not_done") {
-          html += `<td class="cell missed" title="Missed ${iso}">✕</td>`;
-        } else if (storeStatusVal === "accurate") {
-          accCount++;
-          html += `<td class="cell accurate" title="Accurate · ${iso}" data-date="${iso}">✓</td>`;
-        } else if (storeStatusVal === "inconsistencies") {
-          incCount++;
-          html += `<td class="cell inconsistencies" title="Inconsistencies · ${iso}" data-date="${iso}">⚠</td>`;
-        } else {
-          html += `<td class="cell missed" title="${storeStatusVal}">?</td>`;
-        }
+        if (d > today) { distCells += `<td class="dist-none">·</td>`; continue; }
+        const sub = submissionFor(fmtDateISO(d));
+        const n = group.stores.filter(s => isComplete(statusIn(sub, s))).length;
+        distCells += `<td class="${n === group.stores.length ? "dist-all" : ""}" title="${n} of ${group.stores.length} counted">${n}/${group.stores.length}</td>`;
       }
-      const score = possible ? `${accCount}/${possible}${incCount ? ` (+${incCount}⚠)` : ""}` : "—";
-      html += `<td class="status-cell">${escapeHtml(score)}</td></tr>`;
+      html += `<tr class="district-row">${districtLabelCell(group)}${distCells}<td class="status-cell"></td></tr>`;
+      for (const store of group.stores) {
+        const status = storeStatus(store);
+        html += `<tr class="store-row"><td class="store-name ${status}">${escapeHtml(store)}</td>`;
+        let accCount = 0, incCount = 0, possible = 0;
+        for (const d of days) {
+          const iso = fmtDateISO(d);
+          const isFuture = d > today;
+          if (!isFuture) possible++;
+          const sub = submissionFor(iso);
+          const storeStatusVal = sub ? statusIn(sub, store) : null;
+          if (isFuture) {
+            html += `<td class="cell future">·</td>`;
+          } else if (!sub || !storeStatusVal || storeStatusVal === "not_done") {
+            html += `<td class="cell missed" title="Missed ${iso}">✕</td>`;
+          } else if (storeStatusVal === "accurate") {
+            accCount++;
+            html += `<td class="cell accurate" title="Accurate · ${iso}" data-date="${iso}">✓</td>`;
+          } else if (storeStatusVal === "inconsistencies") {
+            incCount++;
+            html += `<td class="cell inconsistencies" title="Inconsistencies · ${iso}" data-date="${iso}">⚠</td>`;
+          } else {
+            html += `<td class="cell missed" title="${storeStatusVal}">?</td>`;
+          }
+        }
+        const score = possible ? `${accCount}/${possible}${incCount ? ` (+${incCount}⚠)` : ""}` : "—";
+        html += `<td class="status-cell">${escapeHtml(score)}</td></tr>`;
+      }
     }
     html += "</tbody>";
     table.innerHTML = html;
@@ -548,28 +821,44 @@
     for (const m of months) html += `<th>${monthShort(m)}</th>`;
     html += "<th class='status-cell'>Avg</th></tr></thead><tbody>";
 
-    for (const store of stores) {
-      const status = storeStatus(store);
-      html += `<tr><td class="store-name ${status}">${escapeHtml(store)}</td>`;
-      let rateTotal = 0, rateCount = 0;
+    // { pct, accurate, past } for one store in one month, or null for a month with no past days yet.
+    const monthRate = (store, m) => {
+      const dates = daysOfWeekInMonth(m.getFullYear(), m.getMonth(), CONFIG.DAY_OF_WEEK);
+      const past = dates.filter(d => d <= today);
+      if (!past.length) return null;
+      const accurate = past.filter(d => statusIn(submissionFor(fmtDateISO(d)), store) === "accurate").length;
+      return { pct: Math.round((accurate / past.length) * 100), accurate, past: past.length };
+    };
+
+    for (const group of C3.groupByDistrict(stores)) {
+      // District header row: average of its stores' monthly accuracy.
+      let distCells = "", distTotal = 0, distCount = 0;
       for (const m of months) {
-        const dates = daysOfWeekInMonth(m.getFullYear(), m.getMonth(), CONFIG.DAY_OF_WEEK);
-        const past = dates.filter(d => d <= today);
-        const accurate = past.filter(d => {
-          const sub = submissionFor(fmtDateISO(d));
-          return sub && (sub.stores || {})[store] === "accurate";
-        }).length;
-        if (!past.length) {
-          html += `<td class="heat-cell heat-future">—</td>`;
-        } else {
-          const pct = Math.round((accurate / past.length) * 100);
-          rateTotal += pct; rateCount++;
-          const bucket = pct === 0 ? 0 : pct < 26 ? 25 : pct < 51 ? 50 : pct < 76 ? 75 : 100;
-          html += `<td class="heat-cell heat-${bucket}" title="${store} · ${monthShort(m)} · ${accurate}/${past.length} accurate">${pct}%</td>`;
-        }
+        const rates = group.stores.map(s => monthRate(s, m)).filter(Boolean);
+        if (!rates.length) { distCells += `<td class="dist-none">—</td>`; continue; }
+        const avg = Math.round(rates.reduce((a, r) => a + r.pct, 0) / rates.length);
+        distTotal += avg; distCount++;
+        distCells += `<td title="${escapeHtml(group.district.name)} · ${monthShort(m)} · district average">${avg}%</td>`;
       }
-      const avg = rateCount ? Math.round(rateTotal / rateCount) : 0;
-      html += `<td class="status-cell">${avg}%</td></tr>`;
+      html += `<tr class="district-row">${districtLabelCell(group)}${distCells}<td class="status-cell">${distCount ? Math.round(distTotal / distCount) + "%" : "—"}</td></tr>`;
+
+      for (const store of group.stores) {
+        const status = storeStatus(store);
+        html += `<tr class="store-row"><td class="store-name ${status}">${escapeHtml(store)}</td>`;
+        let rateTotal = 0, rateCount = 0;
+        for (const m of months) {
+          const r = monthRate(store, m);
+          if (!r) {
+            html += `<td class="heat-cell heat-future">—</td>`;
+          } else {
+            rateTotal += r.pct; rateCount++;
+            const bucket = r.pct === 0 ? 0 : r.pct < 26 ? 25 : r.pct < 51 ? 50 : r.pct < 76 ? 75 : 100;
+            html += `<td class="heat-cell heat-${bucket}" title="${escapeHtml(store)} · ${monthShort(m)} · ${r.accurate}/${r.past} accurate">${r.pct}%</td>`;
+          }
+        }
+        const avg = rateCount ? Math.round(rateTotal / rateCount) : 0;
+        html += `<td class="status-cell">${avg}%</td></tr>`;
+      }
     }
     html += "</tbody>";
     table.innerHTML = html;
@@ -613,7 +902,291 @@
     });
   }
 
-  function renderAll() { renderStats(); renderWeekly(); renderMonthly(); renderRecent(); }
+  function renderAll() { renderFollowUp(); renderStats(); renderWeekly(); renderMonthly(); renderRecent(); }
+
+  /* ============================================================
+   * FOLLOW-UP PANEL — every store for the target day, by district.
+   * "Mark complete" / undo re-read the day file fresh, change one
+   * store, and POST the full map to the Worker (which overwrites
+   * the day file). "Incomplete" sends a C3.notify follow-up email.
+   * ============================================================ */
+  const TARGET_ISO = fmtDateISO(TARGET_DAY);
+  const USER_KEY = "c3-ops-user";
+  const PENDING = {};        // C3.key(store) → status being saved (optimistic)
+  const ROW_ERR = {};        // C3.key(store) → inline error text
+  const NOTIFIED_MEM = {};   // fallback when localStorage is unavailable
+  let LAST_WRITTEN = null;   // our last successful write (guards against a stale read)
+  let writeChain = Promise.resolve();
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  const tsOf = v => { const t = Date.parse(v || ""); return isNaN(t) ? 0 : t; };
+  const shortName = s => String(s).replace(/\s*xfinity store\s*$/i, "") || String(s);
+  const timeLabel = iso => new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  function dirField(field, store) {
+    const full = C3.directoryName(store), m = DIRECTORY && DIRECTORY[field];
+    return (full && m && m[full]) || "";
+  }
+  function currentUser() { const v = $("fuUser").value; return CONFIG.FOLLOWUP_USERS.includes(v) ? v : ""; }
+  function notifiedKey(store) { return `c3-notified:${CONFIG.TASK}:${TARGET_ISO}:${C3.key(store)}`; }
+  function notifiedAt(store) { const k = notifiedKey(store); return lsGet(k) || NOTIFIED_MEM[k] || ""; }
+  function setNotified(store, iso) { const k = notifiedKey(store); NOTIFIED_MEM[k] = iso; lsSet(k, iso); }
+
+  // Directory stores (plus any extra store already in the target day's file).
+  function panelStores() {
+    const list = DIR_STORES.length ? DIR_STORES.slice() : STORES.slice();
+    const sub = submissionFor(TARGET_ISO);
+    if (sub && sub.stores) for (const k of Object.keys(sub.stores)) list.push(canonical(k));
+    return uniqByKey(list);
+  }
+  function panelStatus(store) {
+    const k = C3.key(store);
+    if (k in PENDING) return PENDING[k];
+    return statusIn(submissionFor(TARGET_ISO), store) || "not_done";
+  }
+
+  function renderFollowUp() {
+    const isToday = fmtDateISO(TODAY) === TARGET_ISO;
+    $("fuTitle").textContent = `${CONFIG.DAY_LABEL} follow-up · ${isToday ? "today" : "most recent " + CONFIG.DAY_LABEL}`;
+    $("fuDate").textContent = TARGET_DAY.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+
+    const stores = panelStores();
+    if (!stores.length) { $("fuBody").innerHTML = `<div class="fu-empty">No stores.</div>`; return; }
+    let done = 0, inc = 0, notified = 0, html = "";
+    for (const group of C3.groupByDistrict(stores)) {
+      const d = group.district;
+      const n = group.stores.filter(s => isComplete(panelStatus(s))).length;
+      html += `<div class="fu-dist"><span class="nm">${escapeHtml(d.name)}</span>`
+        + (d.dmName ? `<span class="dm">DM ${escapeHtml(d.dmName)}</span>` : "")
+        + `<span class="ct${n === group.stores.length ? " all" : ""}">${n} of ${group.stores.length} complete</span></div>`;
+      for (const store of group.stores) {
+        const st = panelStatus(store), k = C3.key(store), saving = k in PENDING;
+        const mgr = dirField("storeManagerNames", store), asm = dirField("storeAMNames", store);
+        const person = (label, name) => `<span>${label} ${name ? escapeHtml(name) : '<span class="missing">not listed</span>'}</span>`;
+        const ppl = person("Manager", mgr) + (CONFIG.SHOW_ASM ? " · " + person("ASM", asm) : "");
+        let ctl;
+        if (isComplete(st)) {
+          done++; if (st === "inconsistencies") inc++;
+          ctl = (st === "inconsistencies" ? `<span class="fu-tag">Inconsistencies</span>` : "")
+            + `<button type="button" class="fu-btn complete" data-act="undo" ${saving ? "disabled" : ""} title="Tap to mark incomplete">${saving ? "Saving…" : "✓ Complete"}</button>`;
+        } else {
+          const at = notifiedAt(store);
+          if (at) notified++;
+          ctl = (at
+              ? `<button type="button" class="fu-btn notified" data-act="notified" aria-disabled="true" title="Follow-up email sent ${escapeHtml(new Date(at).toLocaleString())}">Notified · ${escapeHtml(timeLabel(at))}</button>`
+              : `<button type="button" class="fu-btn incomplete" data-act="notify" ${saving ? "disabled" : ""} title="Send a follow-up email">Incomplete</button>`)
+            + `<button type="button" class="fu-btn mark" data-act="mark" ${saving ? "disabled" : ""}>${saving ? "Saving…" : "Mark complete"}</button>`;
+        }
+        html += `<div class="fu-row${isComplete(st) ? " is-complete" : ""}" data-store="${escapeHtml(store)}">
+          <div class="fu-store"><div class="nm">${escapeHtml(shortName(store))}</div><div class="ppl">${ppl}</div></div>
+          <div class="fu-ctl">${ctl}</div>
+          ${ROW_ERR[k] ? `<div class="fu-err" role="alert">${escapeHtml(ROW_ERR[k])}</div>` : ""}
+        </div>`;
+      }
+    }
+    $("fuBody").innerHTML = html;
+    const extra = [inc ? `${inc} with inconsistencies` : "", notified ? `${notified} notified` : ""].filter(Boolean).join(" · ");
+    $("fuCount").innerHTML = `<b>${done} of ${stores.length}</b> complete${extra ? ` <span class="fu-sub">· ${escapeHtml(extra)}</span>` : ""}`;
+    $("fuBar").style.width = Math.round((done / stores.length) * 100) + "%";
+  }
+
+  function requireUser() {
+    if (currentUser()) return true;
+    $("fuWho").classList.add("need");
+    $("fuWhoMsg").textContent = "Choose who you are first — it's recorded with every change.";
+    $("fuWhoMsg").hidden = false;
+    $("fuUser").focus();
+    return false;
+  }
+
+  // ----- Day file: fresh read + write through the Worker -----
+  function b64ToUtf8(b64) {
+    const bin = atob(String(b64 || "").replace(/\s/g, ""));
+    return new TextDecoder("utf-8").decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+  }
+  // Current day file straight from GitHub (null when it doesn't exist yet).
+  async function readDayFresh() {
+    const path = `${CONFIG.SUBMISSIONS_DIR}/${TARGET_ISO}.json`;
+    let res = null;
+    try {
+      res = await fetch(`https://api.github.com/repos/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/contents/${path}?ref=${encodeURIComponent(CONFIG.GITHUB_BRANCH)}`,
+        { headers: ghHeaders(), cache: "no-store" });
+    } catch (e) { res = null; }
+    if (res && res.status === 404) return null;
+    if (res && res.ok) {
+      const j = await res.json();
+      return JSON.parse(b64ToUtf8(j.content));
+    }
+    // API rate-limited (60/hr unauthenticated) or unreachable → cache-busted raw copy.
+    const raw = await fetch(`https://raw.githubusercontent.com/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/${CONFIG.GITHUB_BRANCH}/${path}?t=${Date.now()}`, { cache: "no-store" });
+    if (raw.status === 404) return null;
+    if (!raw.ok) throw new Error(`couldn't read the ${CONFIG.DAY_LABEL} file (${res ? res.status : "offline"})`);
+    return raw.json();
+  }
+  // Prefer our own last write if GitHub hasn't caught up with it yet.
+  function newest(fresh) {
+    return (LAST_WRITTEN && (!fresh || tsOf(fresh.submittedAt) < tsOf(LAST_WRITTEN.submittedAt))) ? LAST_WRITTEN : fresh;
+  }
+  function addStore(name) {
+    if (!STORES.some(s => C3.key(s) === C3.key(name))) { STORES.push(name); STORES.sort(); }
+  }
+  function applyDayLocally(data) {
+    if (!data) return;
+    let sub = submissionFor(TARGET_ISO);
+    if (!sub) {
+      sub = { _filename: `${TARGET_ISO}.json`, _path: `${CONFIG.SUBMISSIONS_DIR}/${TARGET_ISO}.json` };
+      SUBMISSIONS.push(sub);
+    }
+    Object.assign(sub, {
+      date: TARGET_ISO, type: data.type || CONFIG.TASK, submittedAt: data.submittedAt,
+      submittedBy: data.submittedBy, notes: data.notes || "", stores: { ...(data.stores || {}) }
+    });
+    for (const k of Object.keys(sub.stores)) addStore(canonical(k));
+  }
+  async function refreshTargetDay() {
+    try { applyDayLocally(newest(await readDayFresh())); }
+    catch (e) { console.warn("Fresh read of the target day failed:", e); applyDayLocally(LAST_WRITTEN); }
+  }
+  // Writes run one at a time so quick taps on several stores never overwrite each other.
+  function enqueueWrite(mutate, user) {
+    const run = () => writeDay(mutate, user);
+    const p = writeChain.then(run, run);
+    writeChain = p.catch(() => {});
+    return p;
+  }
+  // mutate(storesMap) changes the map in place; returning false means "nothing to change".
+  async function writeDay(mutate, user) {
+    const base = newest(await readDayFresh());
+    const stores = { ...((base && base.stores) || {}) };
+    if (mutate(stores) === false) { applyDayLocally(base); return { skipped: true }; }
+    for (const s of panelStores()) if (findKey(stores, s) === null) stores[s] = "not_done";
+    const body = {
+      day: CONFIG.TASK,
+      date: TARGET_ISO,
+      submittedAt: new Date().toISOString(),
+      submittedBy: user,
+      notes: (base && typeof base.notes === "string") ? base.notes : "",
+      stores
+    };
+    const res = await fetch(CONFIG.CHECKLIST_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    let result = null;
+    try { result = await res.json(); } catch (e) { result = null; }
+    if (!res.ok || !result || result.ok !== true) throw new Error((result && result.error) || `HTTP ${res.status}`);
+    LAST_WRITTEN = { ...body, type: CONFIG.TASK };
+    applyDayLocally(LAST_WRITTEN);
+    return { ok: true };
+  }
+
+  // "accurate" keeps an existing "inconsistencies"; "not_done" is the undo.
+  function saveStoreStatus(store, status) {
+    const k = C3.key(store), user = currentUser();
+    PENDING[k] = status; delete ROW_ERR[k];
+    renderFollowUp();
+    return enqueueWrite(map => {
+      const ek = findKey(map, store) || store;
+      if (status === "accurate" && isComplete(map[ek])) return false;
+      if (map[ek] === status) return false;
+      map[ek] = status;
+    }, user).then(() => {
+      delete PENDING[k];
+      renderAll();
+    }).catch(err => {
+      console.warn("Save failed:", err);
+      delete PENDING[k];
+      ROW_ERR[k] = `Couldn't save ${shortName(store)} (${err.message}). Nothing changed — try again.`;
+      renderFollowUp();
+    });
+  }
+
+  // ----- Small confirm modal -----
+  let fuModalClose = null;
+  function openFuModal({ title, html, confirmLabel, confirmClass, onConfirm }) {
+    const back = $("fuModalBackdrop");
+    $("fuModal").innerHTML = `
+      <header><h2 id="fuModalTitle">${escapeHtml(title)}</h2><button class="close" data-x aria-label="Close">×</button></header>
+      <p>${html}</p>
+      <div class="modal-err" id="fuModalErr" role="alert" hidden></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" data-x>Cancel</button>
+        <button type="button" class="btn ${confirmClass}" id="fuModalOk">${escapeHtml(confirmLabel)}</button>
+      </div>`;
+    const close = () => { back.classList.remove("show"); document.removeEventListener("keydown", onKey); fuModalClose = null; };
+    const onKey = e => { if (e.key === "Escape") close(); };
+    fuModalClose = close;
+    $("fuModal").querySelectorAll("[data-x]").forEach(b => b.onclick = close);
+    back.onclick = e => { if (e.target === back) close(); };
+    document.addEventListener("keydown", onKey);
+    const ok = $("fuModalOk");
+    ok.onclick = async () => {
+      ok.disabled = true;
+      const label = ok.textContent;
+      ok.textContent = "Working…";
+      try { await onConfirm(); close(); }
+      catch (err) {
+        const box = $("fuModalErr");
+        box.textContent = err.message || String(err);
+        box.hidden = false;
+        ok.disabled = false; ok.textContent = label;
+      }
+    };
+    back.classList.add("show");
+    ok.focus();
+  }
+
+  function openNotify(store) {
+    openFuModal({
+      title: "Send follow-up?",
+      html: `Send a high-priority follow-up to <b>${escapeHtml(store)}</b>? It goes to the store manager, ASM, district manager and Eric, from Jeff.`,
+      confirmLabel: "Send email",
+      confirmClass: "danger",
+      onConfirm: async () => {
+        const user = currentUser();
+        try { await C3.notify(CONFIG.TASK, store, TARGET_ISO, user); }
+        catch (err) { throw new Error(`Couldn't send the email (${err.message}). Try again.`); }
+        setNotified(store, new Date().toISOString());
+        renderFollowUp();
+        // Best effort: make sure the day file records this store as not done.
+        enqueueWrite(map => {
+          if (findKey(map, store) !== null) return false;
+          map[store] = "not_done";
+        }, user).then(renderAll).catch(err => console.warn("Couldn't record not_done:", err));
+      }
+    });
+  }
+  function openUndo(store) {
+    openFuModal({
+      title: "Mark incomplete?",
+      html: `Set <b>${escapeHtml(store)}</b> back to <b>not done</b> for ${escapeHtml(CONFIG.DAY_LABEL)} ${escapeHtml(dayMonth(TARGET_DAY))}?`,
+      confirmLabel: "Mark incomplete",
+      confirmClass: "danger",
+      onConfirm: async () => { saveStoreStatus(store, "not_done"); }
+    });
+  }
+
+  // ----- Wire up the panel -----
+  (function initFollowUp() {
+    const sel = $("fuUser");
+    for (const u of CONFIG.FOLLOWUP_USERS) sel.insertAdjacentHTML("beforeend", `<option>${escapeHtml(u)}</option>`);
+    const saved = lsGet(USER_KEY);
+    if (saved && CONFIG.FOLLOWUP_USERS.includes(saved)) sel.value = saved;
+    sel.addEventListener("change", () => {
+      lsSet(USER_KEY, sel.value);
+      if (currentUser()) { $("fuWho").classList.remove("need"); $("fuWhoMsg").hidden = true; }
+    });
+    $("fuBody").addEventListener("click", e => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn || btn.disabled || btn.dataset.act === "notified") return;
+      const store = btn.closest(".fu-row").dataset.store;
+      if (!requireUser()) return;
+      if (btn.dataset.act === "mark") saveStoreStatus(store, "accurate");
+      else if (btn.dataset.act === "undo") openUndo(store);
+      else if (btn.dataset.act === "notify") openNotify(store);
+    });
+  })();
 
   // ----- Detail modal -----
   function openDetail(s) {
@@ -631,8 +1204,12 @@
     accurate.sort(); inc.sort(); nd.sort();
     const renderStoreList = (arr, cls, label) => {
       if (!arr.length) return "";
+      const rows = C3.groupByDistrict(arr).map(g =>
+        `<tr class="dist-sub"><td colspan="2">${escapeHtml(g.district.name)}</td></tr>` +
+        g.stores.map(s => `<tr><td>${escapeHtml(s)}</td><td class="status-col"><span class="pill ${cls}">${label.toLowerCase()}</span></td></tr>`).join("")
+      ).join("");
       return `<table class="stores-table"><thead><tr><th>${label}</th><th class="status-col">${arr.length}</th></tr></thead><tbody>
-        ${arr.map(s => `<tr><td>${escapeHtml(s)}</td><td class="status-col"><span class="pill ${cls}">${label.toLowerCase()}</span></td></tr>`).join("")}
+        ${rows}
       </tbody></table>`;
     };
 
@@ -699,7 +1276,8 @@
     a.click(); URL.revokeObjectURL(a.href);
   };
 
-  loadAll();
+  // Passcode gate first; nothing loads until it's unlocked.
+  C3.gate(() => loadAll());
 </script>
 </body>
 </html>
