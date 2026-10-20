@@ -1,5 +1,5 @@
 {
-  "submittedAt": "2026-10-20T15:32:21.228Z",
+  "submittedAt": "2026-10-20T16:33:47.508Z",
   "date": "2026-10-20",
   "type": "tuesday",
   "submittedBy": "Eric Rodriguez",
@@ -30,7 +30,7 @@
     "South Bend Xfinity Store": "not_done",
     "South Knoxville Xfinity Store": "not_done",
     "South Skokie Xfinity Store": "accurate",
-    "Tinley Park Xfinity Store": "not_done",
+    "Tinley Park Xfinity Store": "accurate",
     "Valparaiso Xfinity Store": "accurate"
   }
 }
