@@ -1,5 +1,22 @@
 [
   {
+    "repName": "April Vasquez",
+    "repEmail": "apvasquez@blufoxmobile.com",
+    "store": "Michigan City Xfinity Store",
+    "storeShortName": "Michigan City",
+    "storeManagerEmail": "apVasquez@blufoxmobile.com",
+    "storeManagerName": "April Vasquez",
+    "dmEmail": "jcabrales@blufoxmobile.com",
+    "transactionDate": "2026-10-21",
+    "paymentType": "Cash",
+    "accountNumber": "8771400680230267",
+    "amount": 12,
+    "amountFormatted": "$12.00",
+    "submittedAt": "2026-10-21T23:09:04.839Z",
+    "submittedAtLocal": "Oct 21, 2026, 6:09 PM",
+    "kind": "payment_reversal"
+  },
+  {
     "repName": "Juan Padilla",
     "repEmail": "bp-jpadil788@cable.comcast.com",
     "store": "Round Lake Beach Xfinity Store",
